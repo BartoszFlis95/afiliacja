@@ -6,7 +6,8 @@ import { auth } from "@/lib/auth";
 
 async function assertAdmin() {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") {
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  if (role !== "ADMIN") {
     throw new Error("Unauthorized: ADMIN role required");
   }
   return session;

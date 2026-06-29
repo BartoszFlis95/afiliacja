@@ -6,7 +6,8 @@ import { Role } from "@prisma/client";
 
 async function requireInfluencerProfile() {
   const session = await auth();
-  if (!session?.user || session.user.role !== Role.INFLUENCER) {
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  if (!session?.user || role !== Role.INFLUENCER) {
     throw new Error("Brak dostępu");
   }
   const influencerProfile = await prisma.influencerProfile.findUnique({
@@ -20,7 +21,8 @@ async function requireInfluencerProfile() {
 
 async function requireBrandProfile() {
   const session = await auth();
-  if (!session?.user || session.user.role !== Role.BRAND) {
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  if (!session?.user || role !== Role.BRAND) {
     throw new Error("Brak dostępu");
   }
   const brandProfile = await prisma.brandProfile.findUnique({
@@ -117,7 +119,6 @@ export async function getInfluencerLinksAction() {
       orderBy: { createdAt: "desc" },
     });
 
-    // Serializuj Decimal → number
     const serialized = links.map((link) => ({
       ...link,
       totalEarnings: Number(link.totalEarnings),
@@ -177,7 +178,7 @@ export async function getAffiliateLinkStatsAction(linkId: string) {
       data: {
         totalClicks: link.totalClicks,
         totalConversions: link.totalConversions,
-        totalEarnings: Number(link.totalEarnings), // ✅ serializacja
+        totalEarnings: Number(link.totalEarnings),
         dailyClicks,
       },
     };
@@ -275,13 +276,13 @@ export async function getBrandStatsAction() {
         totalProducts,
         totalClicks: aggregated._sum.totalClicks ?? 0,
         totalConversions: aggregated._sum.totalConversions ?? 0,
-        totalRevenue: Number(totalRevenue._sum.amount ?? 0), // ✅ serializacja
+        totalRevenue: Number(totalRevenue._sum.amount ?? 0),
         topInfluencers: topInfluencers.map((l) => ({
           displayName: l.influencerProfile.displayName,
           avatarUrl: l.influencerProfile.avatarUrl,
           totalClicks: l.totalClicks,
           totalConversions: l.totalConversions,
-          totalEarnings: Number(l.totalEarnings), // ✅ serializacja
+          totalEarnings: Number(l.totalEarnings),
         })),
       },
     };
@@ -310,7 +311,7 @@ export async function getInfluencerStatsAction() {
     const totalLinks = aggregated._count.id;
     const totalClicks = aggregated._sum.totalClicks ?? 0;
     const totalConversions = aggregated._sum.totalConversions ?? 0;
-    const totalEarnings = Number(aggregated._sum.totalEarnings ?? 0); // ✅ serializacja
+    const totalEarnings = Number(aggregated._sum.totalEarnings ?? 0);
     const conversionRate =
       totalClicks > 0
         ? Math.round((totalConversions / totalClicks) * 10000) / 100

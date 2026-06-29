@@ -84,7 +84,10 @@ export default async function AdminProductsPage() {
                     {product._count.affiliateLinks.toLocaleString("pl-PL")}
                   </TableCell>
                   <TableCell className="text-right">
-                    <ToggleProductButton productId={product.id} />
+                   <ToggleProductButton
+                    productId={product.id}
+                    status={product.status as "ACTIVE" | "INACTIVE"}
+/>
                   </TableCell>
                 </TableRow>
               ))

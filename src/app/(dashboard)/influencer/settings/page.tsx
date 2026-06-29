@@ -37,7 +37,7 @@ export default async function InfluencerSettingsPage() {
           instagramUrl: profile.instagramUrl,
           youtubeUrl: profile.youtubeUrl,
           tiktokUrl: profile.tiktokUrl,
-          followersCount: profile.followersCount,
+          followersCount: profile.followersCount ?? 0,
         }}
       />
     </div>

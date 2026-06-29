@@ -14,10 +14,11 @@ const BrandProfileSchema = z.object({
 
 async function getAuthUser() {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== "BRAND") {
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  if (!session?.user?.id || role !== "BRAND") {
     redirect("/login");
   }
-  return session.user;
+  return session.user as NonNullable<typeof session.user> & { id: string };
 }
 
 export async function createBrandProfileAction(formData: unknown) {
@@ -145,9 +146,9 @@ export async function getBrandStatsAction() {
       data: {
         totalProducts,
         activeProducts,
-        totalClicks:      clicksData,
+        totalClicks: clicksData,
         totalConversions: conversionsData,
-        totalRevenue:     Number(revenueData._sum.amount ?? 0),
+        totalRevenue: Number(revenueData._sum.amount ?? 0),
         topInfluencers: topInfluencers.map((l) => ({
           ...l,
           totalEarnings: Number(l.totalEarnings),

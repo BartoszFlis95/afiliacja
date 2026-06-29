@@ -21,11 +21,22 @@ const BrandProfileSchema = z.object({
 
 type BrandProfileFormData = z.infer<typeof BrandProfileSchema>;
 
-interface BrandProfileFormProps {
-  initialData: BrandProfileFormData;
+type BrandProfileFormProps = {
+  profile: {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    description: string | null;
+    userId: string;
+    companyName: string;
+    industry: string | null;
+    website: string | null;
+    logoUrl: string | null;
+    isVerified: boolean;
+  } | null;
 }
 
-export function BrandProfileForm({ initialData }: BrandProfileFormProps) {
+export function BrandProfileForm({ profile }: BrandProfileFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +48,12 @@ export function BrandProfileForm({ initialData }: BrandProfileFormProps) {
     formState: { errors },
   } = useForm<BrandProfileFormData>({
     resolver: zodResolver(BrandProfileSchema),
-    defaultValues: initialData,
+    defaultValues: {
+      companyName: profile?.companyName ?? "",
+      industry: profile?.industry ?? "",
+      website: profile?.website ?? "",
+      description: profile?.description ?? "",
+    },
   });
 
   function onSubmit(data: BrandProfileFormData) {
@@ -122,5 +138,4 @@ export function BrandProfileForm({ initialData }: BrandProfileFormProps) {
       </CardContent>
     </Card>
   );
-  
 }
