@@ -22,8 +22,9 @@ export function LoginForm() {
       if (result?.error) {
         setError(result.error);
       } else if (result?.redirectTo) {
-        // Hard navigation ensures the session cookie is present when
-        // the dashboard page is rendered (avoids soft-nav race condition).
+        // Brief delay lets the browser finish processing the Set-Cookie
+        // header from the Server Action response before the next request.
+        await new Promise((resolve) => setTimeout(resolve, 500));
         window.location.href = result.redirectTo;
       }
     });
