@@ -52,6 +52,7 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
       description: "",
       category: "",
       commissionRate: 10,
+      productUrl: "",
       slug: "",
       status: "DRAFT",
     },
@@ -158,6 +159,22 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
                 </p>
               )}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="productUrl">Link do produktu w sklepie *</Label>
+            <Input
+              id="productUrl"
+              type="url"
+              {...register("productUrl")}
+              placeholder="https://twojsklep.pl/produkt/nazwa"
+            />
+            <p className="text-xs text-muted-foreground">
+              Klienci trafiają bezpośrednio na ten adres po kliknięciu linku afiliacyjnego.
+            </p>
+            {errors.productUrl && (
+              <p className="text-sm text-destructive">{errors.productUrl.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">

@@ -9,6 +9,7 @@ export const ProductSchema = z.object({
     .number()
     .min(0.1, "Prowizja musi wynosić co najmniej 0.1%")
     .max(100, "Prowizja nie może przekraczać 100%"),
+  productUrl: z.string().url("Podaj prawidłowy URL produktu (np. https://sklep.pl/produkt)"),
   slug: z
     .string()
     .min(2, "Slug musi mieć co najmniej 2 znaki")

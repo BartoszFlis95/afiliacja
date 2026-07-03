@@ -137,6 +137,7 @@ model Product {
   category       String?
   price          Decimal?
   commissionRate Float
+  productUrl     String        @default("")
   slug           String        @unique
   status         ProductStatus @default(DRAFT)
   createdAt      DateTime      @default(now())
