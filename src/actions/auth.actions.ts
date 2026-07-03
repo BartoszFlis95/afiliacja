@@ -24,7 +24,18 @@ export async function loginAction(formData: FormData) {
       password: parsed.data.password,
       redirect: false,
     });
-    return { success: true };
+
+    // auth() cannot read the new session in the same server action request,
+    // so we read the role directly from the DB to build the redirect URL.
+    const user = await prisma.user.findUnique({
+      where: { email: parsed.data.email },
+      select: { role: true },
+    });
+    let redirectTo = "/influencer/dashboard";
+    if (user?.role === "ADMIN") redirectTo = "/admin/dashboard";
+    if (user?.role === "BRAND") redirectTo = "/brand/dashboard";
+
+    return { success: true, redirectTo };
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -74,7 +85,9 @@ export async function registerAction(formData: FormData) {
       password,
       redirect: false,
     });
-    return { success: true };
+    let redirectTo = "/influencer/dashboard";
+    if (role === "BRAND") redirectTo = "/brand/dashboard";
+    return { success: true, redirectTo };
   } catch {
     return {
       success: false,

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Building2, Megaphone } from "lucide-react";
 
 import { registerAction } from "@/actions/auth.actions";
@@ -39,7 +38,6 @@ const ROLE_OPTIONS: {
 ];
 
 export function RegisterForm() {
-  const router = useRouter();
   const [role, setRole] = useState<Role | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -76,8 +74,9 @@ export function RegisterForm() {
         setFormError(result.error ?? "Rejestracja nie powiodła się.");
         return;
       }
-      router.refresh();
-      router.push("/");
+      if (result.redirectTo) {
+        window.location.href = result.redirectTo;
+      }
     });
   }
 

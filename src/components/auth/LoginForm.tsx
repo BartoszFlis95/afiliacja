@@ -21,6 +21,10 @@ export function LoginForm() {
       const result = await loginAction(formData);
       if (result?.error) {
         setError(result.error);
+      } else if (result?.redirectTo) {
+        // Hard navigation ensures the session cookie is present when
+        // the dashboard page is rendered (avoids soft-nav race condition).
+        window.location.href = result.redirectTo;
       }
     });
   }
