@@ -1,9 +1,9 @@
-// src/app/(dashboard)/brand/settings/page.tsx
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BrandProfileForm } from "@/components/brand/BrandProfileForm";
+import { WebhookSection } from "@/components/brand/WebhookSection";
 
 export const dynamic = "force-dynamic";
 
@@ -21,15 +21,20 @@ export default async function BrandSettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl p-6">
-      <header className="mb-8">
+    <div className="mx-auto max-w-2xl space-y-8 p-6">
+      <header>
         <h1 className="text-3xl font-bold tracking-tight">Ustawienia</h1>
         <p className="mt-1 text-muted-foreground">
-          Zarządzaj danymi profilu swojej marki.
+          Zarządzaj danymi profilu i integracją ze sklepem.
         </p>
       </header>
 
       <BrandProfileForm profile={brandProfile} />
+
+      <WebhookSection
+        apiKey={brandProfile.apiKey}
+        webhookSecret={brandProfile.webhookSecret}
+      />
     </div>
   );
 }

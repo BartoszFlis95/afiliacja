@@ -75,6 +75,7 @@ export async function getPlatformStatsAction() {
     totalClicks,
     totalConversions,
     revenueAggregate,
+    platformCommissionAggregate,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { role: "BRAND" } }),
@@ -84,6 +85,10 @@ export async function getPlatformStatsAction() {
     prisma.conversion.count(),
     prisma.conversion.aggregate({
       _sum: { amount: true },
+    }),
+    prisma.conversion.aggregate({
+      where: { status: "CONFIRMED" },
+      _sum: { platformCommission: true },
     }),
   ]);
 
@@ -95,5 +100,6 @@ export async function getPlatformStatsAction() {
     totalClicks,
     totalConversions,
     totalRevenue: Number(revenueAggregate._sum.amount ?? 0),
+    platformCommission: Number(platformCommissionAggregate._sum.platformCommission ?? 0),
   };
 }

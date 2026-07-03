@@ -52,6 +52,7 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
       description: "",
       category: "",
       commissionRate: 10,
+      influencerCommissionRate: 5,
       productUrl: "",
       slug: "",
       status: "DRAFT",
@@ -59,6 +60,9 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
   });
 
   const nameValue = watch("name");
+  const commissionRateValue = watch("commissionRate") ?? 0;
+  const influencerRateValue = watch("influencerCommissionRate") ?? 0;
+  const platformRate = Math.max(0, commissionRateValue - influencerRateValue);
 
   function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.value;
@@ -143,7 +147,7 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="commissionRate">Prowizja (%) *</Label>
+              <Label htmlFor="commissionRate">Prowizja całkowita (%) *</Label>
               <Input
                 id="commissionRate"
                 type="number"
@@ -153,11 +157,47 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
                 {...register("commissionRate", { valueAsNumber: true })}
                 placeholder="10"
               />
+              <p className="text-xs text-muted-foreground">
+                Łączna kwota płacona platformie deneeu.pl
+              </p>
               {errors.commissionRate && (
                 <p className="text-sm text-destructive">
                   {errors.commissionRate.message}
                 </p>
               )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="influencerCommissionRate">Dla influencera (%) *</Label>
+              <Input
+                id="influencerCommissionRate"
+                type="number"
+                step="0.1"
+                min="0"
+                max="100"
+                {...register("influencerCommissionRate", { valueAsNumber: true })}
+                placeholder="5"
+              />
+              <p className="text-xs text-muted-foreground">
+                Musi być mniejsza lub równa prowizji całkowitej
+              </p>
+              {errors.influencerCommissionRate && (
+                <p className="text-sm text-destructive">
+                  {errors.influencerCommissionRate.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Prowizja platformy (%)</Label>
+              <div className="flex h-10 items-center rounded-md border border-input bg-muted px-3 text-sm font-semibold text-foreground">
+                {platformRate.toFixed(1).replace(/\.0$/, "")}%
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Automatycznie: całkowita − influencer
+              </p>
             </div>
           </div>
 

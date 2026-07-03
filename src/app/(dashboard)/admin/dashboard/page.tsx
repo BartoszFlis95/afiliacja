@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
-import { Users, Building2, Megaphone, Package, MousePointerClick, TrendingUp } from "lucide-react";
+import { Users, Building2, Megaphone, Package, MousePointerClick, TrendingUp, BadgeDollarSign } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
@@ -84,15 +84,36 @@ export default async function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* Revenue */}
-      <Card>
-        <CardHeader className="pb-3">
-          <p className="text-sm font-medium text-muted-foreground">Łączny obrót z konwersji</p>
-        </CardHeader>
-        <CardContent>
-          <p className="text-3xl font-semibold text-foreground">{formatPrice(stats.totalRevenue)}</p>
-        </CardContent>
-      </Card>
+      {/* Revenue + Platform commission */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-muted-foreground">Łączny obrót z konwersji</p>
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                <TrendingUp className="h-4 w-4" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold text-foreground">{formatPrice(stats.totalRevenue)}</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-muted-foreground">Prowizja platformy (CONFIRMED)</p>
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+                <BadgeDollarSign className="h-4 w-4" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold text-violet-600">{formatPrice(stats.platformCommission)}</p>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Tables */}
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">

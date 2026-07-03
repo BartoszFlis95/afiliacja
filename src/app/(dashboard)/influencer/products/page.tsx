@@ -53,6 +53,7 @@ export default async function InfluencerProductsPage() {
     ...product,
     price: product.price ? Number(product.price) : null,
     commissionRate: Number(product.commissionRate),
+    influencerCommissionRate: Number(product.influencerCommissionRate),
     brandProfile: product.brandProfile
       ? {
           ...product.brandProfile,
@@ -89,9 +90,12 @@ export default async function InfluencerProductsPage() {
                     <h2 className="line-clamp-2 text-sm font-semibold text-zinc-900 leading-tight">
                       {product.name}
                     </h2>
-                    <Badge variant="default" className="shrink-0">
-                      {product.commissionRate.toFixed(1).replace(/\.0$/, "")}%
-                    </Badge>
+                    <div className="flex flex-col items-end gap-0.5 shrink-0">
+                      <Badge variant="default">
+                        {product.influencerCommissionRate.toFixed(1).replace(/\.0$/, "")}%
+                      </Badge>
+                      <span className="text-[10px] text-zinc-400">Twoja prowizja</span>
+                    </div>
                   </div>
                   <p className="text-xs text-zinc-400">
                     {product.brandProfile?.companyName ?? "—"}

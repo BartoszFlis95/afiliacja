@@ -91,16 +91,18 @@ model User {
 }
 
 model BrandProfile {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  companyName String
-  industry    String?
-  website     String?
-  logoUrl     String?
-  description String?
-  isVerified  Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  companyName    String
+  industry       String?
+  website        String?
+  logoUrl        String?
+  description    String?
+  isVerified     Boolean  @default(false)
+  apiKey         String   @unique @default(cuid())
+  webhookSecret  String   @default(cuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   products    Product[]
@@ -135,9 +137,10 @@ model Product {
   description    String?
   imageUrl       String?
   category       String?
-  price          Decimal?
-  commissionRate Float
-  productUrl     String        @default("")
+  price                    Decimal?
+  commissionRate           Float
+  influencerCommissionRate Float    @default(0)
+  productUrl               String   @default("")
   slug           String        @unique
   status         ProductStatus @default(DRAFT)
   createdAt      DateTime      @default(now())
@@ -179,13 +182,17 @@ model Click {
 }
 
 model Conversion {
-  id              String           @id @default(cuid())
-  affiliateLinkId String
-  amount          Decimal
-  commission      Decimal
-  status          ConversionStatus @default(PENDING)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id                   String           @id @default(cuid())
+  affiliateLinkId      String
+  orderId              String?          @unique
+  customerEmail        String?
+  amount               Decimal
+  commission           Decimal
+  influencerCommission Decimal          @default(0)
+  platformCommission   Decimal          @default(0)
+  status               ConversionStatus @default(PENDING)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
 
   affiliateLink AffiliateLink @relation(fields: [affiliateLinkId], references: [id], onDelete: Cascade)
 }

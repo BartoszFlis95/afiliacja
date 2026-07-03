@@ -22,8 +22,13 @@ async function getBrandProfile() {
   return brandProfile;
 }
 
-function serializeProduct<T extends { price: unknown; commissionRate: unknown }>(p: T) {
-  return { ...p, price: p.price != null ? Number(p.price) : null, commissionRate: Number(p.commissionRate) };
+function serializeProduct<T extends { price: unknown; commissionRate: unknown; influencerCommissionRate: unknown }>(p: T) {
+  return {
+    ...p,
+    price: p.price != null ? Number(p.price) : null,
+    commissionRate: Number(p.commissionRate),
+    influencerCommissionRate: Number(p.influencerCommissionRate),
+  };
 }
 
 export async function createProductAction(formData: unknown) {
@@ -35,7 +40,7 @@ export async function createProductAction(formData: unknown) {
       return { success: false, error: parsed.error.errors[0].message };
     }
 
-    const { name, description, category, price, commissionRate, productUrl, slug, status } = parsed.data;
+    const { name, description, category, price, commissionRate, influencerCommissionRate, productUrl, slug, status } = parsed.data;
 
     const existing = await prisma.product.findUnique({ where: { slug } });
     if (existing) {
@@ -50,6 +55,7 @@ export async function createProductAction(formData: unknown) {
         category,
         price,
         commissionRate,
+        influencerCommissionRate,
         productUrl,
         slug,
         status,
@@ -76,7 +82,7 @@ export async function updateProductAction(id: string, formData: unknown) {
       return { success: false, error: "Produkt nie istnieje lub brak uprawnień" };
     }
 
-    const { name, description, category, price, commissionRate, productUrl, slug, status } = parsed.data;
+    const { name, description, category, price, commissionRate, influencerCommissionRate, productUrl, slug, status } = parsed.data;
 
     if (slug !== product.slug) {
       const existing = await prisma.product.findUnique({ where: { slug } });
@@ -87,7 +93,7 @@ export async function updateProductAction(id: string, formData: unknown) {
 
     const updated = await prisma.product.update({
       where: { id },
-      data: { name, description, category, price, commissionRate, productUrl, slug, status },
+      data: { name, description, category, price, commissionRate, influencerCommissionRate, productUrl, slug, status },
     });
 
     return { success: true, data: serializeProduct(updated) };

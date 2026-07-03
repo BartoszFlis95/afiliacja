@@ -74,14 +74,20 @@ async function main() {
   // Products
   await prisma.product.upsert({
     where: { slug: "laptop-dell-xps-15" },
-    update: {},
+    update: {
+      commissionRate: 10,
+      influencerCommissionRate: 5,
+      productUrl: "https://techstore.example.com/laptopy/dell-xps-15",
+    },
     create: {
       brandProfileId: brandProfile.id,
       name: "Laptop Dell XPS 15",
       description: "Wydajny laptop do pracy i rozrywki.",
       category: "Laptopy",
       price: 6999.00,
-      commissionRate: 5.0,
+      commissionRate: 10,
+      influencerCommissionRate: 5,
+      productUrl: "https://techstore.example.com/laptopy/dell-xps-15",
       slug: "laptop-dell-xps-15",
       status: ProductStatus.ACTIVE,
     },
@@ -89,14 +95,20 @@ async function main() {
 
   await prisma.product.upsert({
     where: { slug: "sluchawki-sony-wh1000xm5" },
-    update: {},
+    update: {
+      commissionRate: 10,
+      influencerCommissionRate: 5,
+      productUrl: "https://techstore.example.com/audio/sony-wh1000xm5",
+    },
     create: {
       brandProfileId: brandProfile.id,
       name: "Słuchawki Sony WH-1000XM5",
       description: "Bezprzewodowe słuchawki z ANC.",
       category: "Audio",
       price: 1499.00,
-      commissionRate: 8.0,
+      commissionRate: 10,
+      influencerCommissionRate: 5,
+      productUrl: "https://techstore.example.com/audio/sony-wh1000xm5",
       slug: "sluchawki-sony-wh1000xm5",
       status: ProductStatus.ACTIVE,
     },
