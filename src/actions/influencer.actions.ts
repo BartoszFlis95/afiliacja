@@ -2,10 +2,12 @@
 "use server";
 
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { BankDetailsSchema } from "@/lib/validations/bank.schema";
 
 type ActionResult<T = unknown> = {
   success: boolean;
@@ -214,4 +216,157 @@ export async function generateAffiliateLinkAction(
       error: error instanceof Error ? error.message : "Błąd generowania linku",
     };
   }
+}
+
+// ---------------------------------------------------------------------------
+// BANK DETAILS
+// ---------------------------------------------------------------------------
+
+export type BankDetailsData = {
+  hasBankDetails: boolean;
+  preferredPayout: string | null;
+  bankAccountName: string | null;
+  bankAccountIban: string | null;
+  bankAccountBank: string | null;
+  bankSwift: string | null;
+  paypalEmail: string | null;
+  minimumPayout: number | null;
+  phone: string | null;
+  city: string | null;
+  country: string | null;
+};
+
+export async function getBankDetailsAction(): Promise<ActionResult<BankDetailsData>> {
+  const session = await requireInfluencer();
+  if (!session?.user?.id) {
+    return { success: false, error: "Brak autoryzacji" };
+  }
+
+  const profile = await prisma.influencerProfile.findUnique({
+    where: { userId: session.user.id },
+    select: {
+      preferredPayout: true,
+      bankAccountName: true,
+      bankAccountIban: true,
+      bankAccountBank: true,
+      bankSwift: true,
+      paypalEmail: true,
+      minimumPayout: true,
+      phone: true,
+      city: true,
+      country: true,
+    },
+  });
+
+  if (!profile) {
+    return { success: false, error: "Profil nie istnieje" };
+  }
+
+  const hasBankDetails =
+    (profile.preferredPayout === "bank" && !!profile.bankAccountIban) ||
+    (profile.preferredPayout === "paypal" && !!profile.paypalEmail);
+
+  return {
+    success: true,
+    data: {
+      hasBankDetails,
+      preferredPayout: profile.preferredPayout,
+      bankAccountName: profile.bankAccountName,
+      bankAccountIban: profile.bankAccountIban,
+      bankAccountBank: profile.bankAccountBank,
+      bankSwift: profile.bankSwift,
+      paypalEmail: profile.paypalEmail,
+      minimumPayout: profile.minimumPayout ? Number(profile.minimumPayout) : null,
+      phone: profile.phone,
+      city: profile.city,
+      country: profile.country,
+    },
+  };
+}
+
+export async function updateBankDetailsAction(
+  formData: unknown
+): Promise<ActionResult> {
+  const session = await requireInfluencer();
+  if (!session?.user?.id) {
+    return { success: false, error: "Brak autoryzacji" };
+  }
+
+  const parsed = BankDetailsSchema.safeParse(formData);
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Nieprawidłowe dane",
+    };
+  }
+
+  const data = parsed.data;
+
+  const normalizedIban =
+    data.preferredPayout === "bank"
+      ? data.bankAccountIban.replace(/\s/g, "").toUpperCase()
+      : null;
+
+  await prisma.influencerProfile.update({
+    where: { userId: session.user.id },
+    data: {
+      preferredPayout: data.preferredPayout,
+      minimumPayout: data.minimumPayout,
+      phone: data.phone || null,
+      city: data.city || null,
+      country: data.country || null,
+      bankAccountName: data.preferredPayout === "bank" ? data.bankAccountName : null,
+      bankAccountIban: normalizedIban,
+      bankAccountBank: data.preferredPayout === "bank" ? data.bankAccountBank : null,
+      bankSwift: data.preferredPayout === "bank" ? (data.bankSwift || null) : null,
+      paypalEmail: data.preferredPayout === "paypal" ? data.paypalEmail : null,
+    },
+  });
+
+  revalidatePath("/influencer/settings");
+  revalidatePath("/influencer/dashboard");
+  revalidatePath("/influencer/commissions");
+
+  return { success: true };
+}
+
+export async function changePasswordAction(data: {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}): Promise<ActionResult> {
+  const session = await requireInfluencer();
+  if (!session?.user?.id) {
+    return { success: false, error: "Brak autoryzacji" };
+  }
+
+  if (data.newPassword !== data.confirmPassword) {
+    return { success: false, error: "Hasła nie są zgodne" };
+  }
+
+  if (data.newPassword.length < 8) {
+    return { success: false, error: "Nowe hasło musi mieć co najmniej 8 znaków" };
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { passwordHash: true },
+  });
+
+  if (!user?.passwordHash) {
+    return { success: false, error: "Konto nie ma ustawionego hasła" };
+  }
+
+  const isValid = await bcrypt.compare(data.currentPassword, user.passwordHash);
+  if (!isValid) {
+    return { success: false, error: "Aktualne hasło jest nieprawidłowe" };
+  }
+
+  const newHash = await bcrypt.hash(data.newPassword, 10);
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { passwordHash: newHash },
+  });
+
+  return { success: true };
 }

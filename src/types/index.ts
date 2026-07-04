@@ -35,3 +35,10 @@ export type DashboardStats = {
   totalEarnings: number;
   conversionRate: number;
 };
+
+export interface InvoiceItem {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+}

@@ -14,6 +14,7 @@ import {
   Zap,
   Receipt,
   CreditCard,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/actions/auth.actions";
@@ -54,6 +55,7 @@ const NAV_ITEMS: Record<Role, { title: string; href: string; icon: React.Element
     { title: "Użytkownicy", href: "/admin/users",     icon: Users },
     { title: "Produkty",    href: "/admin/products",  icon: Package },
     { title: "Wypłaty",     href: "/admin/payouts",   icon: CreditCard },
+    { title: "Faktury",     href: "/admin/invoices",  icon: FileText },
   ],
 };
 

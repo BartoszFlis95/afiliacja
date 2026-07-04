@@ -41,6 +41,13 @@ enum PayoutStatus {
   REJECTED
 }
 
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  CANCELLED
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -107,6 +114,7 @@ model BrandProfile {
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   products    Product[]
   commissions Commission[]
+  invoices    Invoice[]
 }
 
 model InfluencerProfile {
@@ -121,6 +129,18 @@ model InfluencerProfile {
   tiktokUrl      String?
   followersCount Int?
   isVerified     Boolean  @default(false)
+
+  bankAccountName  String?
+  bankAccountIban  String?
+  bankAccountBank  String?
+  bankSwift        String?
+  paypalEmail      String?
+  preferredPayout  String?
+  minimumPayout    Decimal?  @default(100)
+  phone            String?
+  city             String?
+  country          String?
+
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -232,4 +252,44 @@ model Payout {
 
   influencer InfluencerProfile @relation(fields: [influencerId], references: [id], onDelete: Cascade)
   commission Commission        @relation(fields: [commissionId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  invoiceNumber   String        @unique
+  brandId         String
+
+  periodFrom      DateTime
+  periodTo        DateTime
+
+  netAmount        Decimal       @db.Decimal(10, 2)
+  vatRate          Decimal       @db.Decimal(5, 2)  @default(23)
+  vatAmount        Decimal       @db.Decimal(10, 2)
+  grossAmount      Decimal       @db.Decimal(10, 2)
+
+  brandCompanyName String
+  brandNip         String?
+  brandAddress     String?
+  brandCity        String?
+  brandPostalCode  String?
+  brandEmail       String
+
+  issuerName       String        @default("Deneeu Sp. z o.o.")
+  issuerNip        String        @default("0000000000")
+  issuerAddress    String        @default("ul. Przykładowa 1")
+  issuerCity       String        @default("Warszawa")
+  issuerPostalCode String        @default("00-001")
+
+  status          InvoiceStatus  @default(DRAFT)
+  issuedAt        DateTime       @default(now())
+  dueDate         DateTime
+  paidAt          DateTime?
+
+  items           Json
+  notes           String?
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  brand           BrandProfile   @relation(fields: [brandId], references: [id])
 }

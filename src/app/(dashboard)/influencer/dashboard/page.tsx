@@ -1,7 +1,7 @@
 
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { MousePointerClick, TrendingUp, DollarSign, Percent } from "lucide-react";
+import { MousePointerClick, TrendingUp, DollarSign, Percent, AlertTriangle } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -71,11 +71,20 @@ export default async function InfluencerDashboardPage() {
 
   const profile = await prisma.influencerProfile.findUnique({
     where: { userId: session.user.id },
-    select: { id: true },
+    select: {
+      id: true,
+      preferredPayout: true,
+      bankAccountIban: true,
+      paypalEmail: true,
+    },
   });
   if (!profile) {
     redirect("/influencer/onboarding");
   }
+
+  const hasBankDetails =
+    (profile.preferredPayout === "bank" && !!profile.bankAccountIban) ||
+    (profile.preferredPayout === "paypal" && !!profile.paypalEmail);
 
   const [statsResult, recentLinks] = await Promise.all([
     getInfluencerStatsAction(),
@@ -93,6 +102,19 @@ export default async function InfluencerDashboardPage() {
 
   return (
     <div className="space-y-8">
+      {/* Bank details alert */}
+      {!hasBankDetails && (
+        <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <span>
+            Uzupełnij dane bankowe, aby móc wypłacać prowizje.{" "}
+            <Link href="/influencer/settings?tab=bank" className="font-semibold underline">
+              Uzupełnij teraz →
+            </Link>
+          </span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

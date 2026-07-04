@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
-import { Users, Building2, Megaphone, Package, MousePointerClick, TrendingUp, BadgeDollarSign } from "lucide-react";
+import { Users, Building2, Megaphone, Package, MousePointerClick, TrendingUp, BadgeDollarSign, FileText } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
@@ -38,21 +39,33 @@ export default async function AdminDashboardPage() {
     redirect("/");
   }
 
-  const [stats, recentUsers, recentConversions] = await Promise.all([
-    getPlatformStatsAction(),
-    prisma.user.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      include: { brandProfile: true, influencerProfile: true },
-    }),
-    prisma.conversion.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      include: {
-        affiliateLink: { include: { product: true } },
-      },
-    }),
-  ]);
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const [stats, recentUsers, recentConversions, recentInvoices, invoicesThisMonth] =
+    await Promise.all([
+      getPlatformStatsAction(),
+      prisma.user.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: { brandProfile: true, influencerProfile: true },
+      }),
+      prisma.conversion.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: { affiliateLink: { include: { product: true } } },
+      }),
+      prisma.invoice.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: { brand: { select: { companyName: true } } },
+      }),
+      prisma.invoice.aggregate({
+        where: { issuedAt: { gte: monthStart } },
+        _count: { id: true },
+        _sum: { grossAmount: true },
+      }),
+    ]);
 
   return (
     <div className="space-y-8">
@@ -111,6 +124,40 @@ export default async function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-semibold text-violet-600">{formatPrice(stats.platformCommission)}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Invoice summary cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-muted-foreground">Faktury (ten miesiąc)</p>
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+                <FileText className="h-4 w-4" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold text-foreground">
+              {invoicesThisMonth._count.id}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-muted-foreground">Łączna wartość faktur (ten miesiąc)</p>
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+                <TrendingUp className="h-4 w-4" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold text-violet-600">
+              {formatPrice(Number(invoicesThisMonth._sum.grossAmount ?? 0))}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -201,6 +248,65 @@ export default async function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Recent invoices */}
+      <Card className="overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between pb-4">
+          <CardTitle>Ostatnie faktury</CardTitle>
+          <Link href="/admin/invoices" className="text-sm text-muted-foreground hover:text-foreground">
+            Zobacz wszystkie →
+          </Link>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-t hover:bg-transparent">
+                <TableHead className="pl-6">Nr faktury</TableHead>
+                <TableHead>Marka</TableHead>
+                <TableHead className="text-right">Brutto</TableHead>
+                <TableHead className="pr-6">Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentInvoices.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="py-10 text-center text-muted-foreground">
+                    Brak faktur.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                recentInvoices.map((inv) => (
+                  <TableRow key={inv.id}>
+                    <TableCell className="pl-6 font-mono font-medium text-sm">
+                      <Link href={`/admin/invoices/${inv.id}`} className="hover:underline">
+                        {inv.invoiceNumber}
+                      </Link>
+                    </TableCell>
+                    <TableCell>{inv.brand.companyName}</TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatPrice(Number(inv.grossAmount))}
+                    </TableCell>
+                    <TableCell className="pr-6">
+                      <Badge
+                        variant={
+                          inv.status === "PAID" ? "success" :
+                          inv.status === "ISSUED" ? "default" :
+                          inv.status === "CANCELLED" ? "destructive" :
+                          "secondary"
+                        }
+                      >
+                        {inv.status === "DRAFT" ? "Szkic" :
+                         inv.status === "ISSUED" ? "Wystawiona" :
+                         inv.status === "PAID" ? "Opłacona" : "Anulowana"}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }

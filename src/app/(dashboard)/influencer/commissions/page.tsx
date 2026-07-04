@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
 import { getInfluencerCommissionsAction } from "@/actions/commission.actions";
+import { getBankDetailsAction } from "@/actions/influencer.actions";
 import { PayoutModal } from "@/components/influencer/PayoutModal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,8 +35,20 @@ export default async function InfluencerCommissionsPage() {
     redirect("/login");
   }
 
-  const result = await getInfluencerCommissionsAction();
+  const [result, bankResult] = await Promise.all([
+    getInfluencerCommissionsAction(),
+    getBankDetailsAction(),
+  ]);
   const commissions = result.success ? result.data : [];
+  const bankDetails = bankResult.success
+    ? {
+        hasBankDetails: bankResult.data!.hasBankDetails,
+        preferredPayout: bankResult.data!.preferredPayout,
+        bankAccountIban: bankResult.data!.bankAccountIban,
+        paypalEmail: bankResult.data!.paypalEmail,
+        minimumPayout: bankResult.data!.minimumPayout,
+      }
+    : undefined;
 
   const availableBalance = commissions
     .filter((c) => c.status === "APPROVED")
@@ -117,6 +130,7 @@ export default async function InfluencerCommissionsPage() {
                         <PayoutModal
                           commissionId={commission.id}
                           amount={Number(commission.commissionAmount)}
+                          bankDetails={bankDetails}
                         />
                       ) : null}
                     </TableCell>
