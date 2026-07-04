@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { CommissionStatus } from "@prisma/client";
 import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
@@ -96,21 +97,35 @@ export async function POST(request: NextRequest) {
     await prisma.$transaction([
       prisma.conversion.create({
         data: {
-          affiliateLinkId: link.id,
-          orderId: String(orderId),
-          amount: orderAmount,
-          commission: totalCommission,
+          affiliateLinkId:      link.id,
+          orderId:              String(orderId),
+          amount:               orderAmount,
+          commission:           totalCommission,
           influencerCommission,
           platformCommission,
-          status: "PENDING",
-          customerEmail: email ?? null,
+          status:               "PENDING",
+          customerEmail:        email ?? null,
+        },
+      }),
+      // BUG-02: create Commission record so Brand can approve and Influencer can request Payout
+      prisma.commission.create({
+        data: {
+          influencerId:      link.influencerProfileId,
+          brandId:           brand.id,
+          productId:         link.productId,
+          affiliateLinkId:   link.id,
+          orderId:           String(orderId),
+          orderValue:        orderAmount,
+          commissionPercent: influencerRate,
+          commissionAmount:  influencerCommission,
+          status:            CommissionStatus.PENDING,
         },
       }),
       prisma.affiliateLink.update({
         where: { id: link.id },
         data: {
           totalConversions: { increment: 1 },
-          totalEarnings: { increment: influencerCommission },
+          totalEarnings:    { increment: influencerCommission },
         },
       }),
     ]);
