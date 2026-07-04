@@ -64,7 +64,7 @@ export function SettingsForm({ profile }: { profile: InfluencerProfileValues }) 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Profil influencera</CardTitle>
+        <CardTitle className="text-base sm:text-lg">Profil influencera</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -142,7 +142,11 @@ export function SettingsForm({ profile }: { profile: InfluencerProfileValues }) 
           {error && <p className="text-sm text-destructive">{error}</p>}
           {saved && <p className="text-sm text-green-600">Zapisano zmiany.</p>}
 
-          <Button type="submit" disabled={isPending}>
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="w-full sm:w-auto"
+          >
             {isPending ? "Zapisywanie..." : "Zapisz zmiany"}
           </Button>
         </form>

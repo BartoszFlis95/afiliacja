@@ -25,7 +25,7 @@ export default async function DashboardLayout({
       <AppSidebar role={role} email={email} />
       <SidebarInset>
         <DashboardHeader role={role} email={email} />
-        <main className="flex-1 bg-background p-4 md:p-6 lg:p-8 min-h-[calc(100vh-3.5rem)]">
+        <main className="flex-1 bg-background p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-3.5rem)]">
           <div className="mx-auto w-full max-w-7xl">
             {children}
           </div>

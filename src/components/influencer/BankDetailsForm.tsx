@@ -44,8 +44,7 @@ export function BankDetailsForm({ initial }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   function handleIbanChange(val: string) {
-    const formatted = formatIbanDisplay(val);
-    setBankAccountIban(formatted);
+    setBankAccountIban(formatIbanDisplay(val));
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -102,12 +101,18 @@ export function BankDetailsForm({ initial }: Props) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-4">
-        <CardTitle className="text-base">Dane do wypłat</CardTitle>
-        <Badge variant={hasBankDetails ? "success" : "destructive"}>
-          {hasBankDetails ? "Skonfigurowane" : "Wymagana konfiguracja"}
-        </Badge>
+      <CardHeader className="pb-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="text-base sm:text-lg">Dane do wypłat</CardTitle>
+          <Badge
+            variant={hasBankDetails ? "success" : "destructive"}
+            className="text-xs sm:text-sm whitespace-nowrap w-fit"
+          >
+            {hasBankDetails ? "Skonfigurowane" : "Wymagana konfiguracja"}
+          </Badge>
+        </div>
       </CardHeader>
+
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Mode toggle */}
@@ -118,7 +123,7 @@ export function BankDetailsForm({ initial }: Props) {
                 type="button"
                 onClick={() => setMode(m)}
                 className={cn(
-                  "flex-1 rounded-md py-1.5 text-sm font-medium transition-colors",
+                  "flex-1 rounded-md py-1.5 text-xs sm:text-sm font-medium transition-colors",
                   mode === m
                     ? "bg-white text-zinc-900 shadow-sm"
                     : "text-zinc-500 hover:text-zinc-700"
@@ -149,16 +154,16 @@ export function BankDetailsForm({ initial }: Props) {
                 <Input
                   value={bankAccountIban}
                   onChange={(e) => handleIbanChange(e.target.value)}
-                  placeholder="PL12 3456 7890 1234 5678 9012 3456"
+                  placeholder="PL00 0000 0000 0000 0000 0000 00"
                   disabled={isPending}
-                  className="font-mono"
+                  className="font-mono text-sm w-full tracking-wider sm:tracking-widest"
                 />
                 {errors.bankAccountIban && (
                   <p className="text-xs text-destructive">{errors.bankAccountIban}</p>
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label>Nazwa banku</Label>
                   <Input
@@ -198,7 +203,7 @@ export function BankDetailsForm({ initial }: Props) {
             </div>
           )}
 
-          {/* Minimum payout */}
+          {/* Minimum payout slider */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>Minimalna kwota wypłaty</Label>
@@ -206,16 +211,18 @@ export function BankDetailsForm({ initial }: Props) {
                 {minimumPayout} zł
               </span>
             </div>
-            <input
-              type="range"
-              min={50}
-              max={500}
-              step={50}
-              value={minimumPayout}
-              onChange={(e) => setMinimumPayout(Number(e.target.value))}
-              disabled={isPending}
-              className="w-full accent-zinc-900"
-            />
+            <div className="px-1 sm:px-2">
+              <input
+                type="range"
+                min={50}
+                max={500}
+                step={50}
+                value={minimumPayout}
+                onChange={(e) => setMinimumPayout(Number(e.target.value))}
+                disabled={isPending}
+                className="w-full accent-zinc-900"
+              />
+            </div>
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>50 zł</span>
               <span>500 zł</span>
@@ -223,7 +230,7 @@ export function BankDetailsForm({ initial }: Props) {
           </div>
 
           {/* Optional personal details */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
               <Label>Telefon</Label>
               <Input
@@ -256,7 +263,7 @@ export function BankDetailsForm({ initial }: Props) {
           <Button
             type="submit"
             disabled={isPending}
-            className="bg-zinc-900 text-white hover:bg-zinc-700"
+            className="w-full sm:w-auto bg-zinc-900 text-white hover:bg-zinc-700"
           >
             {isPending ? "Zapisywanie…" : "Zapisz dane bankowe"}
           </Button>

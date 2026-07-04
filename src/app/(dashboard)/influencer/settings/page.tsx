@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getBankDetailsAction } from "@/actions/influencer.actions";
 import { SettingsForm } from "@/components/influencer/InfluencerSettingsForm";
 import { BankDetailsForm } from "@/components/influencer/BankDetailsForm";
+import { BillingTypeForm } from "@/components/influencer/BillingTypeForm";
 import { ChangePasswordForm } from "@/components/influencer/ChangePasswordForm";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
@@ -21,7 +22,8 @@ export default async function InfluencerSettingsPage({
   }
 
   const params = await searchParams;
-  const defaultTab = params.tab === "bank" ? "bank" : params.tab === "security" ? "security" : "profile";
+  const validTabs = ["profile", "bank", "billing", "security"];
+  const defaultTab = validTabs.includes(params.tab ?? "") ? params.tab! : "profile";
 
   const [profile, bankResult] = await Promise.all([
     prisma.influencerProfile.findUnique({
@@ -35,24 +37,49 @@ export default async function InfluencerSettingsPage({
   }
 
   const bankDetails = bankResult.success ? bankResult.data! : null;
+  const hasBankDetails = bankDetails?.hasBankDetails ?? false;
 
   return (
-    <div className="mx-auto max-w-2xl p-6 space-y-6">
+    <div className="mx-auto max-w-2xl p-4 sm:p-6 space-y-5 sm:space-y-6">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">Ustawienia</h1>
-        <p className="mt-1 text-muted-foreground">Zarządzaj profilem i danymi konta.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Ustawienia</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Zarządzaj profilem i danymi konta.
+        </p>
       </header>
 
       <Tabs defaultValue={defaultTab}>
-        <TabsList className="mb-6">
-          <TabsTrigger value="profile">Profil</TabsTrigger>
-          <TabsTrigger value="bank" className="relative">
+        <TabsList className="flex h-auto flex-wrap gap-1 p-1 mb-5 sm:mb-6 sm:grid sm:grid-cols-4">
+          <TabsTrigger
+            value="profile"
+            className="text-xs sm:text-sm px-2 py-1.5 sm:px-3 sm:py-2"
+          >
+            Profil
+          </TabsTrigger>
+
+          <TabsTrigger
+            value="bank"
+            className="flex items-center gap-1.5 text-xs sm:text-sm px-2 py-1.5 sm:px-3 sm:py-2"
+          >
             Dane bankowe
-            {bankDetails && !bankDetails.hasBankDetails && (
-              <span className="ml-1.5 inline-block h-2 w-2 rounded-full bg-red-500" />
+            {!hasBankDetails && (
+              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-red-500" />
             )}
           </TabsTrigger>
-          <TabsTrigger value="security">Bezpieczeństwo</TabsTrigger>
+
+          <TabsTrigger
+            value="billing"
+            className="text-xs sm:text-sm px-2 py-1.5 sm:px-3 sm:py-2"
+          >
+            Rozliczenia
+          </TabsTrigger>
+
+          <TabsTrigger
+            value="security"
+            className="text-xs sm:text-sm px-2 py-1.5 sm:px-3 sm:py-2"
+          >
+            Bezpieczeństwo
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
@@ -73,8 +100,14 @@ export default async function InfluencerSettingsPage({
           {bankDetails ? (
             <BankDetailsForm initial={bankDetails} />
           ) : (
-            <p className="text-sm text-muted-foreground">Nie udało się załadować danych bankowych.</p>
+            <p className="text-sm text-muted-foreground">
+              Nie udało się załadować danych bankowych.
+            </p>
           )}
+        </TabsContent>
+
+        <TabsContent value="billing">
+          <BillingTypeForm />
         </TabsContent>
 
         <TabsContent value="security">

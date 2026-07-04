@@ -49,10 +49,10 @@ export function ChangePasswordForm() {
   return (
     <Card>
       <CardHeader className="pb-4">
-        <CardTitle className="text-base">Zmiana hasła</CardTitle>
+        <CardTitle className="text-base sm:text-lg">Zmiana hasła</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4 max-w-sm">
+        <form onSubmit={handleSubmit} className="space-y-4 max-w-full sm:max-w-sm">
           {error && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
               {error}
@@ -101,7 +101,7 @@ export function ChangePasswordForm() {
           <Button
             type="submit"
             disabled={isPending}
-            className="bg-zinc-900 text-white hover:bg-zinc-700"
+            className="w-full sm:w-auto bg-zinc-900 text-white hover:bg-zinc-700"
           >
             {isPending ? "Zmienianie…" : "Zmień hasło"}
           </Button>
