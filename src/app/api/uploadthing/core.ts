@@ -1,4 +1,5 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
+import { UploadThingError } from "uploadthing/server";
 import { auth } from "@/lib/auth";
 
 const f = createUploadthing();
@@ -9,7 +10,7 @@ export const ourFileRouter = {
       const session = await auth();
       const role = session?.user?.role as string | undefined;
       if (role !== "BRAND" && role !== "ADMIN") {
-        throw new Error("Unauthorized");
+        throw new UploadThingError("Unauthorized");
       }
       return { userId: session!.user!.id as string };
     })
@@ -21,7 +22,7 @@ export const ourFileRouter = {
     .middleware(async () => {
       const session = await auth();
       if (!session?.user?.id) {
-        throw new Error("Unauthorized");
+        throw new UploadThingError("Unauthorized");
       }
       return { userId: session.user.id as string, role: session.user.role as string };
     })

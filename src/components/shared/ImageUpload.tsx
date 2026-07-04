@@ -1,77 +1,92 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import Image from "next/image";
 import { UploadDropzone } from "@/lib/uploadthing";
-import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-
-type Endpoint = keyof OurFileRouter;
+import { ImageIcon, X } from "lucide-react";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 
 interface ImageUploadProps {
-  endpoint: Endpoint;
-  value?: string;
+  endpoint: keyof OurFileRouter;
+  value?: string | null;
   onChange: (url: string) => void;
   label?: string;
-  className?: string;
 }
 
 export function ImageUpload({
   endpoint,
   value,
   onChange,
-  label,
-  className,
+  label = "Prześlij zdjęcie",
 }: ImageUploadProps) {
   const [error, setError] = useState<string | null>(null);
 
-  return (
-    <div className={cn("space-y-2", className)}>
-      {label && <Label>{label}</Label>}
-
-      {value ? (
-        <div className="relative inline-block">
-          <img
+  if (value) {
+    return (
+      <div className="flex flex-col items-center gap-3">
+        <div className="relative w-full h-48 rounded-xl overflow-hidden border border-zinc-200">
+          <Image
             src={value}
-            alt="Podgląd"
-            className="h-32 w-32 rounded-lg border border-zinc-200 object-cover"
+            alt="Zdjęcie produktu"
+            fill
+            className="object-cover"
           />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="absolute -right-2 -top-2 h-6 w-6 rounded-full border border-zinc-200 bg-zinc-100 hover:bg-red-50 hover:text-red-600"
-            onClick={() => {
-              setError(null);
-              onChange("");
-            }}
-          >
-            <X className="h-3 w-3" />
-          </Button>
         </div>
-      ) : (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => onChange("")}
+          className="text-red-500 border-red-200 hover:bg-red-50"
+        >
+          <X className="w-4 h-4 mr-2" />
+          Usuń zdjęcie
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {label && (
+        <p className="text-sm font-medium text-zinc-700">{label}</p>
+      )}
+
+      <div className="border-2 border-dashed border-zinc-300 rounded-xl hover:border-zinc-500 transition-colors bg-zinc-50 flex flex-col items-center justify-center p-6">
+        <ImageIcon className="w-10 h-10 text-zinc-400 mb-3 pointer-events-none" />
+        <p className="text-sm text-zinc-600 font-medium mb-1 pointer-events-none">
+          Kliknij lub przeciągnij zdjęcie
+        </p>
+        <p className="text-xs text-zinc-400 mb-3 pointer-events-none">
+          PNG, JPG, WEBP do 4MB
+        </p>
+
         <UploadDropzone
           endpoint={endpoint}
           onClientUploadComplete={(res) => {
-            setError(null);
-            const url = res[0]?.serverData?.url ?? res[0]?.ufsUrl;
-            if (url) onChange(url);
+            const url = res?.[0]?.url ?? res?.[0]?.serverData?.url;
+            if (url) {
+              onChange(url);
+              setError(null);
+            }
           }}
-          onUploadError={(e) => setError(e.message)}
+          onUploadError={(err) => {
+            setError(err.message);
+          }}
           appearance={{
-            container:
-              "border-2 border-dashed border-zinc-200 rounded-lg bg-zinc-50 hover:bg-zinc-100 transition-colors cursor-pointer",
-            label: "text-sm text-zinc-500 mt-2",
-            allowedContent: "text-xs text-zinc-400",
+            container: "w-full border-0 bg-transparent p-0 m-0 min-h-0",
+            label: "hidden",
+            allowedContent: "hidden",
             button:
-              "mt-2 bg-zinc-900 text-white text-sm px-4 py-2 rounded-md hover:bg-zinc-700 ut-uploading:cursor-not-allowed ut-uploading:opacity-60",
+              "bg-zinc-900 text-white text-sm font-medium rounded-lg px-4 py-2 hover:bg-zinc-700 transition-colors ut-readying:opacity-50 ut-uploading:opacity-50",
           }}
         />
-      )}
+      </div>
 
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && (
+        <p className="text-xs text-destructive">{error}</p>
+      )}
     </div>
   );
 }
