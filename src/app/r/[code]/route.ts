@@ -17,8 +17,13 @@ export async function GET(
     },
   });
 
-  if (!link || !link.product.productUrl) {
+  if (!link) {
     return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  if (!link.product.productUrl) {
+    console.warn(`[/r/${code}] Produkt ${link.product.id} ma pusty productUrl`);
+    return NextResponse.redirect(new URL("/products", request.url));
   }
 
   const ip =

@@ -54,11 +54,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const existingConversion = await prisma.conversion.findFirst({
-      where: { orderId: String(orderId) },
-    });
+    const [existingConversion, existingCommission] = await Promise.all([
+      prisma.conversion.findFirst({ where: { orderId: String(orderId) } }),
+      prisma.commission.findFirst({ where: { orderId: String(orderId) } }),
+    ]);
 
-    if (existingConversion) {
+    if (existingConversion || existingCommission) {
       return NextResponse.json(
         { success: false, error: "Order already registered" },
         { status: 409 }

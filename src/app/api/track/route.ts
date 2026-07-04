@@ -107,44 +107,51 @@ export async function POST(request: NextRequest) {
   const platformCommissionAmount =
     totalCommissionAmount - influencerCommissionAmount;
 
-  const commission = await prisma.$transaction(async (tx) => {
-    const created = await tx.commission.create({
-      data: {
-        influencerId:     affiliateLink.influencerProfileId,
-        brandId:          product.brandProfileId,
-        productId:        product.id,
-        affiliateLinkId:  affiliateLink.id,
-        orderId,
-        orderValue,
-        commissionPercent: product.influencerCommissionRate, // influencer's rate
-        commissionAmount:  influencerCommissionAmount,        // influencer's share
-        status: CommissionStatus.PENDING,
-      },
-    });
+  let commission;
+  try {
+    commission = await prisma.$transaction(async (tx) => {
+      const created = await tx.commission.create({
+        data: {
+          influencerId:     affiliateLink.influencerProfileId,
+          brandId:          product.brandProfileId,
+          productId:        product.id,
+          affiliateLinkId:  affiliateLink.id,
+          orderId,
+          orderValue,
+          commissionPercent: product.influencerCommissionRate,
+          commissionAmount:  influencerCommissionAmount,
+          status: CommissionStatus.PENDING,
+        },
+      });
 
-    await tx.affiliateLink.update({
-      where: { id: affiliateLink.id },
-      data: {
-        totalConversions: { increment: 1 },
-        totalEarnings:    { increment: influencerCommissionAmount }, // BUG-01b
-      },
-    });
+      await tx.affiliateLink.update({
+        where: { id: affiliateLink.id },
+        data: {
+          totalConversions: { increment: 1 },
+          totalEarnings:    { increment: influencerCommissionAmount },
+        },
+      });
 
-    // Backward-compatibility Conversion row with full commission breakdown
-    await tx.conversion.create({
-      data: {
-        affiliateLinkId:      affiliateLink.id,
-        orderId,
-        amount:               orderValue,
-        commission:           totalCommissionAmount,
-        influencerCommission: influencerCommissionAmount,
-        platformCommission:   platformCommissionAmount,
-        status:               "PENDING",
-      },
-    });
+      await tx.conversion.create({
+        data: {
+          affiliateLinkId:      affiliateLink.id,
+          orderId,
+          amount:               orderValue,
+          commission:           totalCommissionAmount,
+          influencerCommission: influencerCommissionAmount,
+          platformCommission:   platformCommissionAmount,
+          status:               "PENDING",
+        },
+      });
 
-    return created;
-  });
+      return created;
+    });
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "Wewnętrzny błąd serwera." },
+      { status: 500 }
+    );
+  }
 
   return NextResponse.json({
     success: true,

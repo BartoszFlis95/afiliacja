@@ -149,7 +149,7 @@ export default async function InfluencerStatsPage() {
                       {formatCurrency(Number(conversion.amount))}
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(Number(conversion.commission))}
+                      {formatCurrency(Number(conversion.influencerCommission))}
                     </TableCell>
                     <TableCell>
                       <Badge variant={statusVariant(conversion.status)}>

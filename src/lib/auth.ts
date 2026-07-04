@@ -39,6 +39,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
+        if (!user.emailVerified) {
+          return null;
+        }
+
         // Zwracany obiekt trafia do callbacku jwt jako `user`.
         return {
           id: user.id,
