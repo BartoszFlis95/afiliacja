@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { CommissionStatus } from "@prisma/client";
@@ -11,7 +11,24 @@ type TrackBody = {
   orderId?: unknown;
 };
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // BUG-01: verify x-api-key against BrandProfile
+  const apiKey = request.headers.get("x-api-key");
+  if (!apiKey) {
+    return NextResponse.json(
+      { success: false, error: "Brak nagłówka x-api-key." },
+      { status: 401 }
+    );
+  }
+
+  const brand = await prisma.brandProfile.findUnique({ where: { apiKey } });
+  if (!brand) {
+    return NextResponse.json(
+      { success: false, error: "Nieprawidłowy klucz API." },
+      { status: 401 }
+    );
+  }
+
   let body: TrackBody;
   try {
     body = await request.json();
@@ -43,10 +60,24 @@ export async function POST(request: Request) {
     );
   }
 
+  // BUG-03: orderId idempotency — check both Commission and Conversion tables
+  if (orderId) {
+    const [existingCommission, existingConversion] = await Promise.all([
+      prisma.commission.findFirst({ where: { orderId } }),
+      prisma.conversion.findFirst({ where: { orderId } }),
+    ]);
+    if (existingCommission || existingConversion) {
+      return NextResponse.json(
+        { success: false, error: "Zamówienie zostało już zarejestrowane." },
+        { status: 409 }
+      );
+    }
+  }
+
   const affiliateLink = await prisma.affiliateLink.findUnique({
     where: { code },
     include: {
-      product: true, // carries commissionRate + brandProfileId
+      product: true,
       influencerProfile: true,
     },
   });
@@ -58,22 +89,35 @@ export async function POST(request: Request) {
     );
   }
 
-  const { product } = affiliateLink;
-  const commissionAmount = orderValue * (product.commissionRate / 100);
+  // BUG-01: verify the link's product belongs to the authenticated brand
+  if (affiliateLink.product.brandProfileId !== brand.id) {
+    return NextResponse.json(
+      { success: false, error: "Link afiliacyjny nie należy do tej marki." },
+      { status: 403 }
+    );
+  }
 
-  // Three writes that must succeed or fail together:
-  // 1) the commission, 2) the link aggregates, 3) the legacy Conversion row.
+  const { product } = affiliateLink;
+
+  // BUG-01b: use influencerCommissionRate for influencer earnings (not total commissionRate)
+  const influencerCommissionAmount =
+    orderValue * (product.influencerCommissionRate / 100);
+  const totalCommissionAmount =
+    orderValue * (product.commissionRate / 100);
+  const platformCommissionAmount =
+    totalCommissionAmount - influencerCommissionAmount;
+
   const commission = await prisma.$transaction(async (tx) => {
     const created = await tx.commission.create({
       data: {
-        influencerId: affiliateLink.influencerProfileId,
-        brandId: product.brandProfileId,
-        productId: product.id,
-        affiliateLinkId: affiliateLink.id,
+        influencerId:     affiliateLink.influencerProfileId,
+        brandId:          product.brandProfileId,
+        productId:        product.id,
+        affiliateLinkId:  affiliateLink.id,
         orderId,
         orderValue,
-        commissionPercent: product.commissionRate,
-        commissionAmount,
+        commissionPercent: product.influencerCommissionRate, // influencer's rate
+        commissionAmount:  influencerCommissionAmount,        // influencer's share
         status: CommissionStatus.PENDING,
       },
     });
@@ -82,17 +126,20 @@ export async function POST(request: Request) {
       where: { id: affiliateLink.id },
       data: {
         totalConversions: { increment: 1 },
-        totalEarnings: { increment: commissionAmount },
+        totalEarnings:    { increment: influencerCommissionAmount }, // BUG-01b
       },
     });
 
-    // Backward-compatibility: keep populating the older Conversion table.
+    // Backward-compatibility Conversion row with full commission breakdown
     await tx.conversion.create({
       data: {
-        affiliateLinkId: affiliateLink.id,
-        amount: orderValue,
-        commission: commissionAmount,
-        status: "PENDING",
+        affiliateLinkId:      affiliateLink.id,
+        orderId,
+        amount:               orderValue,
+        commission:           totalCommissionAmount,
+        influencerCommission: influencerCommissionAmount,
+        platformCommission:   platformCommissionAmount,
+        status:               "PENDING",
       },
     });
 
@@ -101,7 +148,13 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     success: true,
-    commissionId: commission.id,
-    commissionAmount,
+    commissionId:     commission.id,
+    commissionAmount: influencerCommissionAmount,
+    breakdown: {
+      orderAmount:        orderValue,
+      totalCommission:    totalCommissionAmount,
+      influencerCommission: influencerCommissionAmount,
+      platformCommission:   platformCommissionAmount,
+    },
   });
 }
