@@ -116,7 +116,7 @@ export default async function PublicProductsPage({
                         {product.name}
                       </h2>
                       <Badge variant="secondary" className="shrink-0">
-                        {formatCommission(product.commissionRate)}%
+                        {formatCommission(product.influencerCommissionRate)}%
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">

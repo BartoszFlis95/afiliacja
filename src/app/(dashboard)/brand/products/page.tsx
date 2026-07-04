@@ -87,7 +87,7 @@ export default async function BrandProductsPage() {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency(Number(product.price))}
+                    {product.price ? formatCurrency(Number(product.price)) : "—"}
                   </TableCell>
                   <TableCell className="text-right">
                     {formatCommission(product.commissionRate)}%

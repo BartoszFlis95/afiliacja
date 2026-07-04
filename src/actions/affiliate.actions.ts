@@ -47,7 +47,7 @@ async function uniqueCode(): Promise<string> {
   throw new Error("Nie udało się wygenerować unikalnego kodu");
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://deneeu.com";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://deneeu.pl";
 
 export async function generateAffiliateLinkAction(productId: string) {
   try {
