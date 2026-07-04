@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ProductSchema, type ProductFormData } from "@/lib/validations/product.schema";
 import { createProductAction, updateProductAction } from "@/actions/product.actions";
+import { UploadButton } from "@/lib/uploadthing";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,6 +64,7 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
   const commissionRateValue = watch("commissionRate") ?? 0;
   const influencerRateValue = watch("influencerCommissionRate") ?? 0;
   const platformRate = Math.max(0, commissionRateValue - influencerRateValue);
+  const imageUrlValue = watch("imageUrl") ?? "";
 
   function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     const val = e.target.value;
@@ -215,6 +217,37 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
             {errors.productUrl && (
               <p className="text-sm text-destructive">{errors.productUrl.message}</p>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Zdjęcie produktu</Label>
+            {imageUrlValue ? (
+              <div className="flex items-center gap-3">
+                <img
+                  src={imageUrlValue}
+                  alt="Podgląd zdjęcia"
+                  className="h-24 w-24 rounded-md border object-cover"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive"
+                  onClick={() => setValue("imageUrl", "")}
+                >
+                  Usuń
+                </Button>
+              </div>
+            ) : null}
+            <UploadButton
+              endpoint="productImage"
+              onClientUploadComplete={(res) => {
+                const url = res[0]?.serverData?.url;
+                if (url) setValue("imageUrl", url);
+              }}
+              onUploadError={(e) => setError(`Błąd przesyłania: ${e.message}`)}
+            />
+            <input type="hidden" {...register("imageUrl")} />
           </div>
 
           <div className="space-y-2">

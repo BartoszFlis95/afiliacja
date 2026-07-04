@@ -15,6 +15,7 @@ export const ProductSchema = z
       .min(0, "Prowizja influencera nie może być ujemna")
       .max(100, "Prowizja nie może przekraczać 100%"),
     productUrl: z.string().url("Podaj prawidłowy URL produktu (np. https://sklep.pl/produkt)").or(z.literal("")),
+    imageUrl: z.string().url().or(z.literal("")).optional(),
     slug: z
       .string()
       .min(2, "Slug musi mieć co najmniej 2 znaki")

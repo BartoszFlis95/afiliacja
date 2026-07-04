@@ -40,7 +40,7 @@ export async function createProductAction(formData: unknown) {
       return { success: false, error: parsed.error.errors[0].message };
     }
 
-    const { name, description, category, price, commissionRate, influencerCommissionRate, productUrl, slug, status } = parsed.data;
+    const { name, description, category, price, commissionRate, influencerCommissionRate, productUrl, imageUrl, slug, status } = parsed.data;
 
     const existing = await prisma.product.findUnique({ where: { slug } });
     if (existing) {
@@ -57,6 +57,7 @@ export async function createProductAction(formData: unknown) {
         commissionRate,
         influencerCommissionRate,
         productUrl,
+        imageUrl: imageUrl || null,
         slug,
         status,
       },
@@ -82,7 +83,7 @@ export async function updateProductAction(id: string, formData: unknown) {
       return { success: false, error: "Produkt nie istnieje lub brak uprawnień" };
     }
 
-    const { name, description, category, price, commissionRate, influencerCommissionRate, productUrl, slug, status } = parsed.data;
+    const { name, description, category, price, commissionRate, influencerCommissionRate, productUrl, imageUrl, slug, status } = parsed.data;
 
     if (slug !== product.slug) {
       const existing = await prisma.product.findUnique({ where: { slug } });
@@ -93,7 +94,7 @@ export async function updateProductAction(id: string, formData: unknown) {
 
     const updated = await prisma.product.update({
       where: { id },
-      data: { name, description, category, price, commissionRate, influencerCommissionRate, productUrl, slug, status },
+      data: { name, description, category, price, commissionRate, influencerCommissionRate, productUrl, imageUrl: imageUrl || null, slug, status },
     });
 
     return { success: true, data: serializeProduct(updated) };
