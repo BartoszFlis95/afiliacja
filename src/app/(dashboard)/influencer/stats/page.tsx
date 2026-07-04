@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { ClicksChart } from "@/components/charts/ClicksChart";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +37,9 @@ export default async function InfluencerStatsPage() {
     redirect("/influencer/onboarding");
   }
 
-  const [topLinks, recentConversions, earningsAggregate] = await Promise.all([
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+  const [topLinks, recentConversions, earningsAggregate, recentClicksRaw] = await Promise.all([
     prisma.affiliateLink.findMany({
       where: { influencerProfileId: profile.id },
       include: { product: true },
@@ -53,9 +56,25 @@ export default async function InfluencerStatsPage() {
       where: { influencerProfileId: profile.id },
       _sum: { totalEarnings: true },
     }),
+    prisma.click.findMany({
+      where: {
+        affiliateLink: { influencerProfileId: profile.id },
+        createdAt: { gte: thirtyDaysAgo },
+      },
+      select: { createdAt: true },
+    }),
   ]);
 
   const totalEarnings = Number(earningsAggregate._sum.totalEarnings ?? 0);
+
+  const clicksByDay = recentClicksRaw.reduce<Record<string, number>>((acc, c) => {
+    const day = c.createdAt.toISOString().slice(0, 10);
+    acc[day] = (acc[day] ?? 0) + 1;
+    return acc;
+  }, {});
+  const dailyClicks = Object.entries(clicksByDay)
+    .map(([date, clicks]) => ({ date, clicks }))
+    .sort((a, b) => a.date.localeCompare(b.date));
 
   return (
     <div className="space-y-8 p-6">
@@ -74,6 +93,15 @@ export default async function InfluencerStatsPage() {
         </CardHeader>
         <CardContent>
           <p className="text-3xl font-bold">{formatCurrency(totalEarnings)}</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Kliknięcia — ostatnie 30 dni</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ClicksChart data={dailyClicks} />
         </CardContent>
       </Card>
 
