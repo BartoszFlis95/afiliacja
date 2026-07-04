@@ -15,6 +15,7 @@ import {
   Receipt,
   CreditCard,
   FileText,
+  DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/actions/auth.actions";
@@ -48,6 +49,7 @@ const NAV_ITEMS: Record<Role, { title: string; href: string; icon: React.Element
     { title: "Moje linki", href: "/influencer/links",       icon: Link2 },
     { title: "Komisje",    href: "/influencer/commissions", icon: Receipt },
     { title: "Statystyki", href: "/influencer/stats",       icon: BarChart3 },
+    { title: "Dokumenty",  href: "/influencer/documents",   icon: FileText },
     { title: "Ustawienia", href: "/influencer/settings",    icon: Settings },
   ],
   ADMIN: [
@@ -56,6 +58,7 @@ const NAV_ITEMS: Record<Role, { title: string; href: string; icon: React.Element
     { title: "Produkty",    href: "/admin/products",  icon: Package },
     { title: "Wypłaty",     href: "/admin/payouts",   icon: CreditCard },
     { title: "Faktury",     href: "/admin/invoices",  icon: FileText },
+    { title: "Finanse",     href: "/admin/finance",   icon: DollarSign },
   ],
 };
 
