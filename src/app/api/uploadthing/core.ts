@@ -7,10 +7,23 @@ export const ourFileRouter = {
   productImage: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
     .middleware(async () => {
       const session = await auth();
-      if (session?.user?.role !== "BRAND") {
+      const role = session?.user?.role as string | undefined;
+      if (role !== "BRAND" && role !== "ADMIN") {
         throw new Error("Unauthorized");
       }
-      return { userId: session.user.id as string };
+      return { userId: session!.user!.id as string };
+    })
+    .onUploadComplete(async ({ file }) => {
+      return { url: file.ufsUrl };
+    }),
+
+  userAvatar: f({ image: { maxFileSize: "2MB", maxFileCount: 1 } })
+    .middleware(async () => {
+      const session = await auth();
+      if (!session?.user?.id) {
+        throw new Error("Unauthorized");
+      }
+      return { userId: session.user.id as string, role: session.user.role as string };
     })
     .onUploadComplete(async ({ file }) => {
       return { url: file.ufsUrl };

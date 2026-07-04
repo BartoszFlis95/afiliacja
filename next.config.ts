@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "avatars.githubusercontent.com" }, // GitHub OAuth avatars
       { protocol: "https", hostname: "utfs.io" },                       // UploadThing CDN (legacy)
       { protocol: "https", hostname: "*.ufs.sh" },                      // UploadThing CDN (v7+)
+      { protocol: "https", hostname: "ufs.uploadthing.com" },           // UploadThing CDN (alt)
     ],
   },
 };
