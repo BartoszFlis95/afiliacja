@@ -6,11 +6,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "lh3.googleusercontent.com" },    // Google OAuth avatars
       { protocol: "https", hostname: "avatars.githubusercontent.com" }, // GitHub OAuth avatars
-      { protocol: "https", hostname: "utfs.io" },                       // UploadThing CDN (legacy)
-      { protocol: "https", hostname: "*.ufs.sh" },                      // UploadThing CDN (v7+)
-      { protocol: "https", hostname: "ufs.uploadthing.com" },           // UploadThing CDN (alt)
-      { protocol: "https", hostname: "*.r2.cloudflarestorage.com" },    // Cloudflare R2
-      { protocol: "https", hostname: "pub-*.r2.dev" },                  // Cloudflare R2 public buckets
+      { protocol: "https", hostname: "pub-0047fe05b86f46949b2dab328b219e47.r2.dev" }, // Cloudflare R2 (project bucket)
+      { protocol: "https", hostname: "*.r2.dev" },                      // Cloudflare R2 (wildcard)
     ],
   },
 };

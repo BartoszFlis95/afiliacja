@@ -88,7 +88,7 @@ export default async function BrandProductsPage() {
                           alt={product.name}
                           fill
                           className="object-cover"
-                          sizes="56px"
+                          unoptimized
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">

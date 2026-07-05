@@ -37,7 +37,6 @@ export function ProductImageUploader({
   return (
     <div className="space-y-1">
       <ImageUpload
-        endpoint="productImage"
         value={currentImageUrl ?? ""}
         onChange={handleChange}
         label="Zdjęcie produktu"

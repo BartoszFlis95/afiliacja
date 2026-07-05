@@ -219,7 +219,6 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
 
           <div className="space-y-2">
             <ImageUpload
-              endpoint="productImage"
               value={imageUrlValue}
               onChange={(url) => setValue("imageUrl", url)}
               label="Zdjęcie produktu"
