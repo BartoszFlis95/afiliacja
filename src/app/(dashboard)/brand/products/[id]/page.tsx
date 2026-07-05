@@ -1,30 +1,12 @@
-// src/app/(dashboard)/brand/products/[id]/page.tsx
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { formatCurrency } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { ProductForm } from "@/components/brand/ProductForm";
 
 export const dynamic = "force-dynamic";
 
-export default async function BrandProductDetailPage({
+export default async function BrandProductEditPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -36,122 +18,60 @@ export default async function BrandProductDetailPage({
     redirect("/login");
   }
 
+  const brandProfile = await prisma.brandProfile.findUnique({
+    where: { userId: session.user.id },
+    select: { id: true },
+  });
+  if (!brandProfile) {
+    redirect("/brand/onboarding");
+  }
+
   const product = await prisma.product.findUnique({
     where: { id },
-    include: {
-      brandProfile: true,
-      affiliateLinks: {
-        include: { influencerProfile: true },
-        orderBy: { totalEarnings: "desc" },
-      },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      category: true,
+      price: true,
+      commissionRate: true,
+      influencerCommissionRate: true,
+      productUrl: true,
+      imageUrl: true,
+      slug: true,
+      status: true,
+      brandProfileId: true,
     },
   });
 
-  // Brak produktu lub produkt należy do innej marki → 404.
-  if (!product || product.brandProfile.userId !== session.user.id) {
+  if (!product || product.brandProfileId !== brandProfile.id) {
     notFound();
   }
 
+  const initialData = {
+    id: product.id,
+    name: product.name,
+    description: product.description ?? "",
+    category: product.category ?? "",
+    price: product.price ? Number(product.price) : undefined,
+    commissionRate: Number(product.commissionRate),
+    influencerCommissionRate: Number(product.influencerCommissionRate),
+    productUrl: product.productUrl,
+    imageUrl: product.imageUrl ?? "",
+    slug: product.slug,
+    status: product.status as "DRAFT" | "ACTIVE" | "INACTIVE",
+  };
+
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <Button asChild variant="ghost" size="sm">
-          <Link href="/brand/products">← Wróć</Link>
-        </Button>
-        <Badge variant={statusVariant(product.status)}>{product.status}</Badge>
-      </div>
+    <div className="mx-auto max-w-2xl p-4 sm:p-6">
+      <header className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Edytuj produkt</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Zmień dane produktu lub zaktualizuj zdjęcie.
+        </p>
+      </header>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">{product.name}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {product.description && (
-            <p className="whitespace-pre-line leading-relaxed text-muted-foreground">
-              {product.description}
-            </p>
-          )}
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            <Detail label="Kategoria" value={product.category ?? "—"} />
-            <Detail label="Cena" value={formatCurrency(Number(product.price))} />
-            <Detail
-              label="Prowizja"
-              value={`${formatCommission(product.commissionRate)}%`}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Influencerzy promujący ten produkt</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Influencer</TableHead>
-                <TableHead className="text-right">Kliknięcia</TableHead>
-                <TableHead className="text-right">Konwersje</TableHead>
-                <TableHead className="text-right">Zarobki</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {product.affiliateLinks.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground">
-                    Nikt jeszcze nie promuje tego produktu.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                product.affiliateLinks.map((link) => (
-                  <TableRow key={link.id}>
-                    <TableCell className="font-medium">
-                      {link.influencerProfile?.displayName ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {link.totalClicks.toLocaleString("pl-PL")}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {link.totalConversions.toLocaleString("pl-PL")}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatCurrency(Number(link.totalEarnings))}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <ProductForm initialData={initialData} mode="edit" />
     </div>
   );
-}
-
-function Detail({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="font-medium">{value}</p>
-    </div>
-  );
-}
-
-function statusVariant(
-  status: string,
-): "default" | "secondary" | "destructive" {
-  switch (status) {
-    case "ACTIVE":
-      return "default";
-    case "INACTIVE":
-      return "destructive";
-    case "DRAFT":
-    default:
-      return "secondary";
-  }
-}
-
-function formatCommission(rate: number | { toString(): string }): string {
-  return Number(rate).toFixed(1).replace(/\.0$/, "");
 }

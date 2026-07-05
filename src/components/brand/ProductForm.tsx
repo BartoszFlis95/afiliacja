@@ -75,6 +75,7 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
 
   function onSubmit(data: ProductFormData) {
     setError(null);
+    console.log("[ProductForm] submit data.imageUrl:", data.imageUrl);
     startTransition(async () => {
       const result =
         mode === "edit" && initialData?.id
