@@ -26,7 +26,7 @@ export function DateRangeFilter({
   onChange: (value: DateRangeDays) => void;
 }) {
   return (
-    <div className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 bg-white p-1">
+    <div className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-1">
       {OPTIONS.map((opt) => (
         <Button
           key={opt.value}
@@ -35,9 +35,9 @@ export function DateRangeFilter({
           variant="ghost"
           onClick={() => onChange(opt.value)}
           className={cn(
-            "h-7 px-3 text-xs font-medium hover:bg-zinc-100",
+            "h-7 px-3 text-xs font-medium hover:bg-slate-100",
             value === opt.value &&
-              "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
+              "bg-slate-900 text-white hover:bg-slate-900 hover:text-white"
           )}
         >
           {opt.label}

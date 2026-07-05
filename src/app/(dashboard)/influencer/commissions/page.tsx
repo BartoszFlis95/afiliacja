@@ -71,19 +71,19 @@ function PayoutStepper({ status }: { status: string }) {
                 i < currentIndex
                   ? "bg-emerald-600 text-white"
                   : i === currentIndex
-                  ? "bg-zinc-900 text-white"
-                  : "bg-zinc-100 text-zinc-400"
+                  ? "bg-slate-900 text-white"
+                  : "bg-slate-100 text-slate-400"
               )}
             >
               {i < currentIndex ? <Check className="h-3 w-3" /> : i + 1}
             </span>
-            <span className="text-[10px] text-zinc-500">{step}</span>
+            <span className="text-[10px] text-slate-500">{step}</span>
           </div>
           {i < PAYOUT_STEPS.length - 1 && (
             <span
               className={cn(
                 "h-0.5 w-6",
-                i < currentIndex ? "bg-emerald-600" : "bg-zinc-100"
+                i < currentIndex ? "bg-emerald-600" : "bg-slate-100"
               )}
             />
           )}
@@ -199,7 +199,7 @@ export default async function InfluencerCommissionsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold text-foreground">Moje prowizje</h1>
+        <h1 className="text-2xl font-bold text-[#0F172A]">Moje prowizje</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Śledź zarobki i zlecaj wypłaty zatwierdzonych prowizji.
         </p>
@@ -210,7 +210,7 @@ export default async function InfluencerCommissionsPage() {
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Saldo dostępne do wypłaty</p>
-              <p className="text-2xl font-semibold text-foreground">
+              <p className="text-2xl font-bold text-[#0F172A]">
                 {formatCurrency(availableBalance)}
               </p>
             </div>
@@ -255,13 +255,13 @@ export default async function InfluencerCommissionsPage() {
               {payouts.map((payout) => (
                 <div
                   key={payout.id}
-                  className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-lg border border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
-                    <p className="font-medium text-zinc-900">
+                    <p className="font-medium text-slate-900">
                       {formatCurrency(Number(payout.amount))}
                     </p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-slate-500">
                       Zgłoszono {formatDate(payout.requestedAt)}
                     </p>
                   </div>

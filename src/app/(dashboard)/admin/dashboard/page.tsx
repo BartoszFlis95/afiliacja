@@ -132,7 +132,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-2xl font-semibold text-foreground">Panel administratora</h1>
+        <h1 className="text-2xl font-bold text-[#0F172A]">Panel administratora</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Przegląd kondycji platformy Deneeu.
         </p>
@@ -168,7 +168,7 @@ export default async function AdminDashboardPage() {
             <SimpleLineChart
               data={registrationsData}
               xKey="date"
-              lines={[{ dataKey: "count", name: "Rejestracje", color: "#18181b" }]}
+              lines={[{ dataKey: "count", name: "Rejestracje", color: "#2563EB" }]}
             />
           </CardContent>
         </Card>
@@ -181,7 +181,7 @@ export default async function AdminDashboardPage() {
             <SimpleLineChart
               data={platformRevenueData}
               xKey="date"
-              lines={[{ dataKey: "revenue", name: "Przychód", color: "#18181b" }]}
+              lines={[{ dataKey: "revenue", name: "Przychód", color: "#2563EB" }]}
               format="currency"
             />
           </CardContent>

@@ -15,7 +15,7 @@ export default async function NewProductPage() {
   return (
     <div className="mx-auto max-w-2xl p-6">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Nowy produkt</h1>
+        <h1 className="text-2xl font-bold text-[#0F172A]">Nowy produkt</h1>
         <p className="mt-1 text-muted-foreground">
           Dodaj produkt, który influencerzy będą mogli promować.
         </p>

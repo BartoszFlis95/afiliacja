@@ -11,7 +11,6 @@ import {
   ShoppingBag,
   Link2,
   LogOut,
-  Zap,
   Receipt,
   CreditCard,
   FileText,
@@ -80,21 +79,19 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
   const initials = email.slice(0, 2).toUpperCase();
 
   return (
-    <Sidebar className="border-r-0">
+    <Sidebar className="border-r border-[#1E293B]">
       {/* Logo */}
-      <SidebarHeader className="h-14 border-b border-white/10 px-4">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500">
-            <Zap className="h-4 w-4 text-white" />
-          </div>
-          <span className="text-base font-semibold text-white">Deneeu</span>
+      <SidebarHeader className="h-14 border-b border-[#1E293B] px-4">
+        <Link href="/" className="flex items-center gap-2">
+          <span className="text-xl font-bold text-white">Deneeu</span>
+          <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
         </Link>
       </SidebarHeader>
 
       {/* Nav */}
       <SidebarContent className="px-2 py-4">
         <SidebarGroup>
-          <SidebarGroupLabel className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-white/40">
+          <SidebarGroupLabel className="mb-2 px-3 text-xs uppercase tracking-widest text-slate-600">
             {ROLE_LABEL[normalizedRole]}
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -107,10 +104,10 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
                       asChild
                       isActive={isActive}
                       className={cn(
-                        "h-9 rounded-lg px-3 text-sm font-medium transition-colors",
+                        "rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                         isActive
-                          ? "bg-indigo-600 text-white hover:bg-indigo-500"
-                          : "text-white/60 hover:bg-white/10 hover:text-white"
+                          ? "bg-blue-600 text-white"
+                          : "text-slate-400 hover:bg-[#1E293B] hover:text-white"
                       )}
                     >
                       <Link href={href}>
@@ -127,20 +124,20 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter className="border-t border-white/10 p-3">
+      <SidebarFooter className="border-t border-[#1E293B] p-3">
         <div className="flex items-center gap-3 px-2 py-2 mb-1">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-500">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600">
             <span className="text-xs font-semibold text-white">{initials}</span>
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-medium text-white/80">{email}</p>
-            <p className="text-xs text-white/40">{ROLE_LABEL[normalizedRole]}</p>
+            <p className="truncate text-xs font-medium text-slate-200">{email}</p>
+            <p className="text-xs text-slate-500">{ROLE_LABEL[normalizedRole]}</p>
           </div>
         </div>
         <form action={logoutAction}>
           <button
             type="submit"
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-400 transition-colors hover:bg-[#1E293B] hover:text-white"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             <span>Wyloguj się</span>

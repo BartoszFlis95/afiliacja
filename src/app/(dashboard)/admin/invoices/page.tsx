@@ -51,7 +51,7 @@ export default async function AdminInvoicesPage() {
   const issuedTotal = invoices.filter((i) => i.status === "ISSUED").reduce((s, i) => s + i.grossAmount, 0);
 
   const SUMMARY_CARDS = [
-    { label: "Łącznie faktur", value: invoices.length.toString(), icon: FileText, color: "bg-indigo-100 text-indigo-600" },
+    { label: "Łącznie faktur", value: invoices.length.toString(), icon: FileText, color: "bg-blue-100 text-blue-600" },
     { label: "Łączna wartość brutto", value: formatPLN(totalGross), icon: TrendingUp, color: "bg-emerald-100 text-emerald-600" },
     { label: "Oczekujące na płatność", value: issuedCount.toString(), sub: formatPLN(issuedTotal), icon: Clock, color: "bg-amber-100 text-amber-600" },
     { label: "Opłacone", value: paidCount.toString(), icon: CheckCircle2, color: "bg-green-100 text-green-600" },
@@ -61,7 +61,7 @@ export default async function AdminInvoicesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Faktury</h1>
+          <h1 className="text-2xl font-bold text-[#0F172A]">Faktury</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Historia faktur VAT wystawianych dla marek.
           </p>
@@ -82,7 +82,7 @@ export default async function AdminInvoicesPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-semibold text-foreground">{value}</p>
+              <p className="text-2xl font-bold text-[#0F172A]">{value}</p>
               {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
             </CardContent>
           </Card>

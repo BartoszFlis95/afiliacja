@@ -154,7 +154,7 @@ export default async function BrandDashboardPage() {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">
+          <h1 className="text-2xl font-bold text-[#0F172A]">
             Witaj, {brandProfile.companyName}!
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -199,7 +199,7 @@ export default async function BrandDashboardPage() {
             <SimpleLineChart
               data={dailyRevenueData}
               xKey="date"
-              lines={[{ dataKey: "revenue", name: "Przychód", color: "#18181b" }]}
+              lines={[{ dataKey: "revenue", name: "Przychód", color: "#2563EB" }]}
               format="currency"
             />
           </CardContent>
@@ -277,12 +277,12 @@ export default async function BrandDashboardPage() {
                 <EmptyState icon={TrendingUp} title="Brak ostatnich konwersji" />
               </div>
             ) : (
-              <ul className="divide-y divide-zinc-100">
+              <ul className="divide-y divide-slate-100">
                 {recentCommissions.map((c) => (
                   <li key={c.id} className="flex items-center justify-between px-6 py-3 text-sm">
                     <div>
-                      <p className="font-medium text-zinc-900">{c.product?.name ?? "—"}</p>
-                      <p className="text-xs text-zinc-500">{c.influencer?.displayName ?? "—"}</p>
+                      <p className="font-medium text-slate-900">{c.product?.name ?? "—"}</p>
+                      <p className="text-xs text-slate-500">{c.influencer?.displayName ?? "—"}</p>
                     </div>
                     <p className="font-medium text-emerald-600">
                       {formatCurrency(Number(c.orderValue))}

@@ -101,7 +101,7 @@ export function ChangePasswordForm() {
           <Button
             type="submit"
             disabled={isPending}
-            className="w-full sm:w-auto bg-zinc-900 text-white hover:bg-zinc-700"
+            className="w-full sm:w-auto bg-slate-900 text-white hover:bg-slate-700"
           >
             {isPending ? "Zmienianie…" : "Zmień hasło"}
           </Button>

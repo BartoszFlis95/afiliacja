@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Zap } from "lucide-react";
 
 export default function AuthLayout({
   children,
@@ -9,16 +8,14 @@ export default function AuthLayout({
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Left panel — brand */}
-      <div className="hidden lg:flex flex-col bg-[#1E1E2C] p-10 text-white relative overflow-hidden">
+      <div className="hidden lg:flex flex-col bg-[#0F172A] p-10 text-white relative overflow-hidden">
         {/* Subtle gradient orb */}
-        <div className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-indigo-600/20 blur-3xl" />
+        <div className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-blue-600/20 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 right-0 h-64 w-64 rounded-full bg-violet-600/10 blur-3xl" />
 
-        <Link href="/" className="relative flex items-center gap-2.5 z-10">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
-            <Zap className="h-4 w-4 text-white" />
-          </div>
-          <span className="text-lg font-semibold">Deneeu</span>
+        <Link href="/" className="relative flex items-center gap-2 z-10">
+          <span className="text-lg font-bold">Deneeu</span>
+          <span className="h-2 w-2 rounded-full bg-blue-500" />
         </Link>
 
         <div className="relative z-10 flex flex-1 flex-col justify-center max-w-sm">
@@ -51,13 +48,11 @@ export default function AuthLayout({
       </div>
 
       {/* Right panel — form */}
-      <div className="flex flex-col items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-sm">
-          <Link href="/" className="flex items-center gap-2.5 mb-8 lg:hidden">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
-              <Zap className="h-4 w-4 text-white" />
-            </div>
-            <span className="text-lg font-semibold text-gray-900">Deneeu</span>
+      <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE]">
+        <div className="w-full max-w-sm rounded-2xl border border-blue-100 bg-white p-8 shadow-xl">
+          <Link href="/" className="mb-8 flex items-center gap-2 lg:hidden">
+            <span className="text-3xl font-black text-[#0F172A]">Deneeu</span>
+            <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
           </Link>
           {children}
         </div>

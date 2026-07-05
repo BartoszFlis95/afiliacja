@@ -28,7 +28,7 @@ function StripeStatusBadge({
     return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">✅ Stripe aktywny</Badge>;
   }
   if (stripeAccountId) {
-    return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">⏳ Stripe w weryfikacji</Badge>;
+    return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">⏳ Stripe w weryfikacji</Badge>;
   }
   return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">❌ Brak Stripe</Badge>;
 }
@@ -47,7 +47,7 @@ export default async function AdminUsersPage() {
   return (
     <div className="space-y-6 p-6">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">Użytkownicy</h1>
+        <h1 className="text-2xl font-bold text-[#0F172A]">Użytkownicy</h1>
         <p className="mt-1 text-muted-foreground">
           {users.length.toLocaleString("pl-PL")} kont w systemie.
         </p>

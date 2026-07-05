@@ -13,7 +13,7 @@ const ROLE_LABELS: Record<Role, string> = {
 
 const ROLE_COLORS: Record<Role, string> = {
   BRAND: "bg-blue-50 text-blue-700 border-blue-200",
-  INFLUENCER: "bg-purple-50 text-purple-700 border-purple-200",
+  INFLUENCER: "bg-violet-50 text-violet-700 border-violet-200",
   ADMIN: "bg-red-50 text-red-700 border-red-200",
 };
 

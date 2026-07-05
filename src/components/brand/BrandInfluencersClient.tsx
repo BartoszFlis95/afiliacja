@@ -49,7 +49,7 @@ export function BrandInfluencersClient({ rows }: { rows: InfluencerRow[] }) {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:w-64">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
           <Input
             placeholder="Szukaj influencera..."
             value={search}
@@ -57,7 +57,7 @@ export function BrandInfluencersClient({ rows }: { rows: InfluencerRow[] }) {
             className="pl-8"
           />
         </div>
-        <div className="inline-flex items-center gap-1 self-start rounded-lg border border-zinc-200 bg-white p-1">
+        <div className="inline-flex items-center gap-1 self-start rounded-lg border border-slate-200 bg-white p-1">
           {(["earnings", "conversions"] as const).map((opt) => (
             <Button
               key={opt}
@@ -66,8 +66,8 @@ export function BrandInfluencersClient({ rows }: { rows: InfluencerRow[] }) {
               variant="ghost"
               onClick={() => setSort(opt)}
               className={cn(
-                "h-7 px-3 text-xs font-medium hover:bg-zinc-100",
-                sort === opt && "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
+                "h-7 px-3 text-xs font-medium hover:bg-slate-100",
+                sort === opt && "bg-slate-900 text-white hover:bg-slate-900 hover:text-white"
               )}
             >
               {opt === "earnings" ? "Przychód" : "Konwersje"}
@@ -104,7 +104,7 @@ export function BrandInfluencersClient({ rows }: { rows: InfluencerRow[] }) {
                 <TableRow key={row.influencerProfileId}>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <div className="relative h-8 w-8 flex-shrink-0 overflow-hidden rounded-full bg-zinc-100">
+                      <div className="relative h-8 w-8 flex-shrink-0 overflow-hidden rounded-full bg-slate-100">
                         {row.avatarUrl ? (
                           <Image
                             src={row.avatarUrl}
@@ -114,7 +114,7 @@ export function BrandInfluencersClient({ rows }: { rows: InfluencerRow[] }) {
                             unoptimized
                           />
                         ) : (
-                          <div className="flex h-full items-center justify-center text-xs font-medium text-zinc-500">
+                          <div className="flex h-full items-center justify-center text-xs font-medium text-slate-500">
                             {row.displayName.slice(0, 2).toUpperCase()}
                           </div>
                         )}
@@ -123,20 +123,20 @@ export function BrandInfluencersClient({ rows }: { rows: InfluencerRow[] }) {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2 text-zinc-400">
+                    <div className="flex items-center gap-2 text-slate-400">
                       {row.instagramUrl && (
                         <Link href={row.instagramUrl} target="_blank">
-                          <Instagram className="h-4 w-4 hover:text-zinc-900" />
+                          <Instagram className="h-4 w-4 hover:text-slate-900" />
                         </Link>
                       )}
                       {row.youtubeUrl && (
                         <Link href={row.youtubeUrl} target="_blank">
-                          <Youtube className="h-4 w-4 hover:text-zinc-900" />
+                          <Youtube className="h-4 w-4 hover:text-slate-900" />
                         </Link>
                       )}
                       {row.tiktokUrl && (
                         <Link href={row.tiktokUrl} target="_blank">
-                          <Music2 className="h-4 w-4 hover:text-zinc-900" />
+                          <Music2 className="h-4 w-4 hover:text-slate-900" />
                         </Link>
                       )}
                       {!row.instagramUrl && !row.youtubeUrl && !row.tiktokUrl && (

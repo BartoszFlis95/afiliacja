@@ -68,8 +68,8 @@ export function ImageUpload({ value, onChange, label = "Zdjęcie" }: ImageUpload
   if (value) {
     return (
       <div className="flex flex-col gap-3">
-        {label && <p className="text-sm font-medium text-zinc-700">{label}</p>}
-        <div className="relative w-full h-48 rounded-xl overflow-hidden border border-zinc-200 bg-zinc-50">
+        {label && <p className="text-sm font-medium text-slate-700">{label}</p>}
+        <div className="relative w-full h-48 rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
           <Image
             src={value}
             alt="Zdjęcie"
@@ -112,7 +112,7 @@ export function ImageUpload({ value, onChange, label = "Zdjęcie" }: ImageUpload
 
   return (
     <div className="flex flex-col gap-2">
-      {label && <p className="text-sm font-medium text-zinc-700">{label}</p>}
+      {label && <p className="text-sm font-medium text-slate-700">{label}</p>}
       <div
         onClick={() => !isUploading && inputRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -127,29 +127,29 @@ export function ImageUpload({ value, onChange, label = "Zdjęcie" }: ImageUpload
           "flex flex-col items-center justify-center gap-3",
           "transition-all cursor-pointer min-h-[180px]",
           dragOver
-            ? "border-zinc-900 bg-zinc-100"
-            : "border-zinc-300 bg-zinc-50 hover:border-zinc-500 hover:bg-zinc-100",
+            ? "border-slate-900 bg-slate-100"
+            : "border-slate-300 bg-slate-50 hover:border-slate-500 hover:bg-slate-100",
           isUploading ? "cursor-wait opacity-70 pointer-events-none" : "",
         ].join(" ")}
       >
         {isUploading ? (
           <>
-            <Loader2 className="w-10 h-10 text-zinc-400 animate-spin" />
-            <p className="text-sm text-zinc-500 font-medium">Przesyłanie...</p>
+            <Loader2 className="w-10 h-10 text-slate-400 animate-spin" />
+            <p className="text-sm text-slate-500 font-medium">Przesyłanie...</p>
           </>
         ) : (
           <>
-            <ImageIcon className="w-10 h-10 text-zinc-400" />
+            <ImageIcon className="w-10 h-10 text-slate-400" />
             <div className="text-center">
-              <p className="text-sm font-medium text-zinc-700">
+              <p className="text-sm font-medium text-slate-700">
                 Kliknij lub przeciągnij zdjęcie
               </p>
-              <p className="text-xs text-zinc-400 mt-1">JPG, PNG, WEBP do 10MB</p>
+              <p className="text-xs text-slate-400 mt-1">JPG, PNG, WEBP do 10MB</p>
             </div>
             <Button
               type="button"
               size="sm"
-              className="bg-zinc-900 hover:bg-zinc-700 mt-1"
+              className="bg-slate-900 hover:bg-slate-700 mt-1"
               onClick={(e) => {
                 e.stopPropagation();
                 inputRef.current?.click();

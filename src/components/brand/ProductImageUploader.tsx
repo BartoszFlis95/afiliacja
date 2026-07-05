@@ -42,7 +42,7 @@ export function ProductImageUploader({
         label="Zdjęcie produktu"
       />
       {isPending && (
-        <p className="text-xs text-zinc-400">Zapisywanie...</p>
+        <p className="text-xs text-slate-400">Zapisywanie...</p>
       )}
     </div>
   );

@@ -29,7 +29,7 @@ export default async function InfluencerStatsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold text-foreground">Statystyki</h1>
+        <h1 className="text-2xl font-bold text-[#0F172A]">Statystyki</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Szczegółowy obraz Twoich wyników.
         </p>

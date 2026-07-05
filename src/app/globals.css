@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    /* Backgrounds */
-    --background: 0 0% 98%;
+    /* Backgrounds — Deneeu Blue: #EFF6FF */
+    --background: 214 100% 97%;
     --foreground: 222 47% 11%;
 
     /* Cards & Popovers */
@@ -14,43 +14,43 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Primary — Indigo #6366F1 */
-    --primary: 239 84% 67%;
+    /* Primary — Blue #2563EB */
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary — light gray */
-    --secondary: 220 14% 96%;
+    /* Secondary — same tint as background */
+    --secondary: 214 100% 97%;
     --secondary-foreground: 222 47% 11%;
 
-    /* Muted */
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
+    /* Muted — #F8FAFF / #64748B */
+    --muted: 223 100% 99%;
+    --muted-foreground: 215 16% 47%;
 
-    /* Accent — Indigo 50 tint */
-    --accent: 239 100% 97%;
-    --accent-foreground: 239 84% 50%;
+    /* Accent — border-tint #DBEAFE with primary-blue text */
+    --accent: 214 95% 93%;
+    --accent-foreground: 221 83% 53%;
 
     /* Destructive — Red #EF4444 */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders & Inputs */
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 239 84% 67%;
+    /* Borders & Inputs — #DBEAFE */
+    --border: 214 95% 93%;
+    --input: 214 95% 93%;
+    --ring: 221 83% 53%;
 
     /* Radius */
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    /* Sidebar — Dark #1E1E2C */
-    --sidebar-background: 240 19% 15%;
+    /* Sidebar — Navy #0F172A */
+    --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 239 84% 67%;
+    --sidebar-primary: 221 83% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 15% 21%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 13% 22%;
-    --sidebar-ring: 239 84% 67%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 221 83% 53%;
     --sidebar-width: 220px;
     --sidebar-width-mobile: 220px;
   }

@@ -33,10 +33,10 @@ export function LoginForm() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Zaloguj się
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-slate-500">
           Witaj z powrotem — wpisz swoje dane.
         </p>
       </div>
@@ -52,7 +52,7 @@ export function LoginForm() {
         )}
 
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+          <Label htmlFor="email" className="text-sm font-medium text-slate-700">
             Email
           </Label>
           <Input
@@ -67,7 +67,7 @@ export function LoginForm() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+          <Label htmlFor="password" className="text-sm font-medium text-slate-700">
             Hasło
           </Label>
           <Input
@@ -86,11 +86,11 @@ export function LoginForm() {
         </Button>
       </form>
 
-      <p className="text-center text-sm text-gray-500">
+      <p className="text-center text-sm text-slate-500">
         Nie masz konta?{" "}
         <Link
           href="/register"
-          className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+          className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
         >
           Utwórz konto
         </Link>

@@ -135,7 +135,7 @@ export function GenerateInvoiceModal({ brands }: Props) {
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
       <DialogTrigger asChild>
-        <Button className="bg-zinc-900 text-white hover:bg-zinc-700">
+        <Button className="bg-slate-900 text-white hover:bg-slate-700">
           <Plus className="mr-2 h-4 w-4" />
           Wystaw fakturę
         </Button>
@@ -178,7 +178,7 @@ export function GenerateInvoiceModal({ brands }: Props) {
                     key={i}
                     type="button"
                     onClick={() => selectMonth(i)}
-                    className="rounded border border-zinc-200 bg-zinc-50 px-2 py-1 text-xs hover:bg-zinc-100"
+                    className="rounded border border-slate-200 bg-slate-50 px-2 py-1 text-xs hover:bg-slate-100"
                   >
                     {name}
                   </button>
@@ -228,7 +228,7 @@ export function GenerateInvoiceModal({ brands }: Props) {
               <Button
                 onClick={handlePreview}
                 disabled={isPending}
-                className="bg-zinc-900 text-white hover:bg-zinc-700"
+                className="bg-slate-900 text-white hover:bg-slate-700"
               >
                 {isPending ? "Obliczanie…" : "Podgląd faktury →"}
               </Button>
@@ -238,8 +238,8 @@ export function GenerateInvoiceModal({ brands }: Props) {
           <div className="space-y-4 pt-2">
             {preview && (
               <>
-                <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm space-y-1">
-                  <p className="font-medium text-zinc-900">{preview.brandCompanyName}</p>
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm space-y-1">
+                  <p className="font-medium text-slate-900">{preview.brandCompanyName}</p>
                   <p className="text-muted-foreground text-xs">
                     {periodFrom} – {periodTo}
                   </p>
@@ -252,7 +252,7 @@ export function GenerateInvoiceModal({ brands }: Props) {
                   {preview.items.map((item, i) => (
                     <div key={i} className="flex items-center justify-between text-sm">
                       <div>
-                        <p className="font-medium text-zinc-800">{item.description}</p>
+                        <p className="font-medium text-slate-800">{item.description}</p>
                         <p className="text-xs text-muted-foreground">
                           {item.quantity} szt. × {formatPLN(item.unitPrice)}
                         </p>
@@ -262,7 +262,7 @@ export function GenerateInvoiceModal({ brands }: Props) {
                   ))}
                 </div>
 
-                <div className="border-t border-zinc-200 pt-3 space-y-1.5 text-sm">
+                <div className="border-t border-slate-200 pt-3 space-y-1.5 text-sm">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Netto</span>
                     <span>{formatPLN(preview.netAmount)}</span>
@@ -271,7 +271,7 @@ export function GenerateInvoiceModal({ brands }: Props) {
                     <span>VAT {vatRate}%</span>
                     <span>{formatPLN(preview.vatAmount)}</span>
                   </div>
-                  <div className="flex justify-between font-semibold text-zinc-900 text-base">
+                  <div className="flex justify-between font-semibold text-slate-900 text-base">
                     <span>Brutto</span>
                     <span>{formatPLN(preview.grossAmount)}</span>
                   </div>
@@ -287,7 +287,7 @@ export function GenerateInvoiceModal({ brands }: Props) {
               <Button
                 onClick={handleSubmit}
                 disabled={isPending}
-                className="bg-zinc-900 text-white hover:bg-zinc-700"
+                className="bg-slate-900 text-white hover:bg-slate-700"
               >
                 {isPending ? "Wystawianie…" : "Wystaw fakturę"}
               </Button>

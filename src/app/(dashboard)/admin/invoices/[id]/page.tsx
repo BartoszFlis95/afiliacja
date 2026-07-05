@@ -106,8 +106,8 @@ export default async function AdminInvoiceDetailPage({
           <CardContent className="p-8 space-y-6">
             {/* Header */}
             <div>
-              <h2 className="text-3xl font-bold text-zinc-900">FAKTURA VAT</h2>
-              <p className="text-lg text-zinc-600 font-mono mt-1">Nr: {invoice.invoiceNumber}</p>
+              <h2 className="text-3xl font-bold text-slate-900">FAKTURA VAT</h2>
+              <p className="text-lg text-slate-600 font-mono mt-1">Nr: {invoice.invoiceNumber}</p>
             </div>
 
             {/* Dates */}
@@ -129,20 +129,20 @@ export default async function AdminInvoiceDetailPage({
               </div>
             </div>
 
-            <hr className="border-zinc-200" />
+            <hr className="border-slate-200" />
 
             {/* Parties */}
             <div className="grid grid-cols-2 gap-6">
-              <div className="rounded-lg bg-zinc-50 p-4 text-sm space-y-1">
+              <div className="rounded-lg bg-slate-50 p-4 text-sm space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Sprzedawca</p>
-                <p className="font-semibold text-zinc-900">{invoice.issuerName}</p>
+                <p className="font-semibold text-slate-900">{invoice.issuerName}</p>
                 <p className="text-muted-foreground">NIP: {invoice.issuerNip}</p>
                 <p className="text-muted-foreground">{invoice.issuerAddress}</p>
                 <p className="text-muted-foreground">{invoice.issuerPostalCode} {invoice.issuerCity}</p>
               </div>
-              <div className="rounded-lg bg-zinc-50 p-4 text-sm space-y-1">
+              <div className="rounded-lg bg-slate-50 p-4 text-sm space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Nabywca</p>
-                <p className="font-semibold text-zinc-900">{invoice.brandCompanyName}</p>
+                <p className="font-semibold text-slate-900">{invoice.brandCompanyName}</p>
                 {invoice.brandNip && <p className="text-muted-foreground">NIP: {invoice.brandNip}</p>}
                 {invoice.brandAddress && <p className="text-muted-foreground">{invoice.brandAddress}</p>}
                 {(invoice.brandPostalCode || invoice.brandCity) && (
@@ -158,7 +158,7 @@ export default async function AdminInvoiceDetailPage({
               <Card className="overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-zinc-900 hover:bg-zinc-900">
+                    <TableRow className="bg-slate-900 hover:bg-slate-900">
                       <TableHead className="pl-4 text-white">Opis</TableHead>
                       <TableHead className="text-right text-white">Ilość</TableHead>
                       <TableHead className="text-right text-white">Cena jedn.</TableHead>
@@ -190,7 +190,7 @@ export default async function AdminInvoiceDetailPage({
                   <span>VAT {invoice.vatRate}%</span>
                   <span>{formatPLN(invoice.vatAmount)}</span>
                 </div>
-                <div className="flex justify-between font-bold text-base text-zinc-900 border-t border-zinc-200 pt-2">
+                <div className="flex justify-between font-bold text-base text-slate-900 border-t border-slate-200 pt-2">
                   <span>Do zapłaty (brutto)</span>
                   <span>{formatPLN(invoice.grossAmount)}</span>
                 </div>
@@ -198,15 +198,15 @@ export default async function AdminInvoiceDetailPage({
             </div>
 
             {/* Footer */}
-            <div className="rounded-lg bg-zinc-50 p-4 text-sm text-muted-foreground">
+            <div className="rounded-lg bg-slate-50 p-4 text-sm text-muted-foreground">
               <p>Forma płatności: przelew bankowy</p>
               <p>Termin płatności: {formatDate(invoice.dueDate)}</p>
             </div>
 
             {/* Notes */}
             {invoice.notes && (
-              <div className="rounded-lg border border-zinc-200 p-4 text-sm">
-                <p className="font-medium text-zinc-700 mb-1">Uwagi</p>
+              <div className="rounded-lg border border-slate-200 p-4 text-sm">
+                <p className="font-medium text-slate-700 mb-1">Uwagi</p>
                 <p className="text-muted-foreground">{invoice.notes}</p>
               </div>
             )}

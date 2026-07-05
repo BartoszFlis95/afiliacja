@@ -128,7 +128,7 @@ export function AdminCommissionsClient({
           onChange={(e) => setDateFrom(e.target.value)}
           className="h-8 w-[140px] text-xs"
         />
-        <span className="text-xs text-zinc-400">—</span>
+        <span className="text-xs text-slate-400">—</span>
         <Input
           type="date"
           value={dateTo}
@@ -138,11 +138,11 @@ export function AdminCommissionsClient({
       </div>
 
       <div className="flex items-center justify-between">
-        <p className="text-sm text-zinc-500">{filtered.length.toLocaleString("pl-PL")} komisji</p>
+        <p className="text-sm text-slate-500">{filtered.length.toLocaleString("pl-PL")} komisji</p>
         <ExportCSVButton data={csvData} filename="komisje-platforma" />
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white">
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
         {filtered.length === 0 ? (
           <div className="p-6">
             <EmptyState icon={Wallet} title="Brak komisji spełniających kryteria" />
@@ -165,9 +165,9 @@ export function AdminCommissionsClient({
               {filtered.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell className="font-medium">{c.influencer?.displayName ?? "—"}</TableCell>
-                  <TableCell className="text-zinc-600">{c.brand?.companyName ?? "—"}</TableCell>
-                  <TableCell className="text-zinc-600">{c.product?.name ?? "—"}</TableCell>
-                  <TableCell className="text-right text-zinc-600">
+                  <TableCell className="text-slate-600">{c.brand?.companyName ?? "—"}</TableCell>
+                  <TableCell className="text-slate-600">{c.product?.name ?? "—"}</TableCell>
+                  <TableCell className="text-right text-slate-600">
                     {formatCurrency(Number(c.orderValue))}
                   </TableCell>
                   <TableCell className="text-right font-medium">
@@ -176,7 +176,7 @@ export function AdminCommissionsClient({
                   <TableCell>
                     <StatusBadge status={c.status} />
                   </TableCell>
-                  <TableCell className="text-zinc-500">{formatDate(c.createdAt)}</TableCell>
+                  <TableCell className="text-slate-500">{formatDate(c.createdAt)}</TableCell>
                   <TableCell className="text-right">
                     {c.status === "PENDING" && (
                       <div className="flex justify-end gap-2">

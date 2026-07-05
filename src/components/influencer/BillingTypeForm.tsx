@@ -71,22 +71,22 @@ export function BillingTypeForm({ initialData }: Props) {
                 "flex items-center gap-3 rounded-lg border-2 p-4 text-left transition-colors",
                 "opacity-50 cursor-not-allowed",
                 selected === value
-                  ? "border-zinc-900 bg-zinc-50"
-                  : "border-zinc-200 bg-white hover:border-zinc-300"
+                  ? "border-slate-900 bg-slate-50"
+                  : "border-slate-200 bg-white hover:border-slate-300"
               )}
             >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100">
-                <Icon className="h-5 w-5 text-zinc-600" />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+                <Icon className="h-5 w-5 text-slate-600" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-zinc-900">{label}</p>
+                <p className="text-sm font-medium text-slate-900">{label}</p>
                 <p className="text-xs text-muted-foreground">{sub}</p>
               </div>
             </button>
           ))}
         </div>
 
-        <p className="text-xs text-muted-foreground border border-dashed border-zinc-200 rounded-lg px-3 py-2">
+        <p className="text-xs text-muted-foreground border border-dashed border-slate-200 rounded-lg px-3 py-2">
           Konfiguracja rozliczeń będzie dostępna w kolejnej wersji platformy.
           Skontaktuj się z administratorem w razie pilnych potrzeb.
         </p>

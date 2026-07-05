@@ -83,10 +83,10 @@ export function RegisterForm() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Załóż konto
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-slate-500">
           Wybierz typ konta i podaj swoje dane.
         </p>
       </div>
@@ -94,7 +94,7 @@ export function RegisterForm() {
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         {/* Typ konta */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium text-gray-700">Typ konta</Label>
+          <Label className="text-sm font-medium text-slate-700">Typ konta</Label>
           <div className="grid grid-cols-2 gap-3">
             {ROLE_OPTIONS.map((option) => {
               const Icon = option.icon;
@@ -108,18 +108,18 @@ export function RegisterForm() {
                   aria-pressed={selected}
                   className={cn(
                     "flex flex-col items-start gap-1.5 rounded-lg border p-3.5 text-left transition-all",
-                    "hover:border-indigo-300 hover:bg-indigo-50/50",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2",
+                    "hover:border-blue-300 hover:bg-blue-50/50",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
                     selected
-                      ? "border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500"
-                      : "border-gray-200 bg-white"
+                      ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500"
+                      : "border-slate-200 bg-white"
                   )}
                 >
-                  <Icon className={cn("h-4 w-4", selected ? "text-indigo-600" : "text-gray-400")} />
-                  <span className={cn("text-sm font-medium", selected ? "text-indigo-700" : "text-gray-700")}>
+                  <Icon className={cn("h-4 w-4", selected ? "text-blue-600" : "text-slate-400")} />
+                  <span className={cn("text-sm font-medium", selected ? "text-blue-700" : "text-slate-700")}>
                     {option.title}
                   </span>
-                  <span className="text-xs text-gray-500">{option.description}</span>
+                  <span className="text-xs text-slate-500">{option.description}</span>
                 </button>
               );
             })}
@@ -131,7 +131,7 @@ export function RegisterForm() {
 
         {/* Email */}
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+          <Label htmlFor="email" className="text-sm font-medium text-slate-700">
             Email
           </Label>
           <Input
@@ -149,7 +149,7 @@ export function RegisterForm() {
 
         {/* Hasło */}
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+          <Label htmlFor="password" className="text-sm font-medium text-slate-700">
             Hasło
           </Label>
           <Input
@@ -166,7 +166,7 @@ export function RegisterForm() {
 
         {/* Powtórz hasło */}
         <div className="space-y-1.5">
-          <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
+          <Label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">
             Powtórz hasło
           </Label>
           <Input
@@ -195,11 +195,11 @@ export function RegisterForm() {
         </Button>
       </form>
 
-      <p className="text-center text-sm text-gray-500">
+      <p className="text-center text-sm text-slate-500">
         Masz już konto?{" "}
         <Link
           href="/login"
-          className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+          className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
         >
           Zaloguj się
         </Link>

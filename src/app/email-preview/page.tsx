@@ -101,18 +101,18 @@ export default async function EmailPreviewPage() {
   );
 
   return (
-    <div className="min-h-screen bg-zinc-100 p-8">
-      <h1 className="text-2xl font-bold text-zinc-900 mb-1">Podgląd szablonów emaili</h1>
-      <p className="text-sm text-zinc-500 mb-8">
+    <div className="min-h-screen bg-slate-100 p-8">
+      <h1 className="text-2xl font-bold text-slate-900 mb-1">Podgląd szablonów emaili</h1>
+      <p className="text-sm text-slate-500 mb-8">
         Dostępne tylko w trybie development. {rendered.length} szablonów.
       </p>
 
       <div className="flex flex-col gap-10 max-w-2xl">
         {rendered.map((t) => (
-          <div key={t.name} className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
-            <div className="px-4 py-3 border-b border-zinc-200 bg-zinc-900 text-white">
+          <div key={t.name} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-200 bg-slate-900 text-white">
               <p className="font-semibold text-sm">{t.name}</p>
-              <p className="text-xs text-zinc-300">Temat: {t.subject}</p>
+              <p className="text-xs text-slate-300">Temat: {t.subject}</p>
             </div>
             <iframe
               title={t.name}

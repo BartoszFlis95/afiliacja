@@ -59,8 +59,8 @@ export function DashboardHeader({ email, role }: DashboardHeaderProps) {
   const normalizedRole = role as Role;
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-card px-4">
-      <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-blue-100 bg-white px-4 shadow-sm">
+      <SidebarTrigger className="text-slate-500 hover:text-[#0F172A]" />
       <Separator orientation="vertical" className="mr-1 h-5" />
 
       <Breadcrumb>
@@ -72,11 +72,11 @@ export function DashboardHeader({ email, role }: DashboardHeaderProps) {
               <React.Fragment key={href}>
                 <BreadcrumbItem>
                   {isLast ? (
-                    <BreadcrumbPage className="font-medium text-foreground">
+                    <BreadcrumbPage className="text-lg font-bold text-[#0F172A]">
                       {labelFor(segment)}
                     </BreadcrumbPage>
                   ) : (
-                    <BreadcrumbLink asChild className="text-muted-foreground hover:text-foreground">
+                    <BreadcrumbLink asChild className="text-slate-500 hover:text-[#0F172A]">
                       <Link href={href}>{labelFor(segment)}</Link>
                     </BreadcrumbLink>
                   )}
@@ -93,7 +93,7 @@ export function DashboardHeader({ email, role }: DashboardHeaderProps) {
           {roleLabels[normalizedRole] ?? role}
         </Badge>
         <Avatar className="h-8 w-8">
-          <AvatarFallback className="bg-indigo-600 text-xs font-semibold text-white">
+          <AvatarFallback className="bg-blue-600 text-xs font-semibold text-white">
             {initials(email)}
           </AvatarFallback>
         </Avatar>

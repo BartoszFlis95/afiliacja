@@ -48,8 +48,8 @@ export function BrandStatsClient({ initialData }: { initialData: BrandRangeStats
               data={data.dailyData}
               xKey="date"
               lines={[
-                { dataKey: "clicks", name: "Kliknięcia", color: "#18181b" },
-                { dataKey: "conversions", name: "Konwersje", color: "#a1a1aa" },
+                { dataKey: "clicks", name: "Kliknięcia", color: "#2563EB" },
+                { dataKey: "conversions", name: "Konwersje", color: "#93C5FD" },
               ]}
             />
           </CardContent>

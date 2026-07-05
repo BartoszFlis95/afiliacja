@@ -36,8 +36,8 @@ export default async function AdminFinancePage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">Finanse</h1>
-        <p className="mt-1 text-sm text-zinc-500">Podsumowanie finansowe platformy.</p>
+        <h1 className="text-2xl font-bold text-[#0F172A]">Finanse</h1>
+        <p className="mt-1 text-sm text-slate-500">Podsumowanie finansowe platformy.</p>
       </header>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">

@@ -112,7 +112,7 @@ export default async function PublicProductsPage({
               >
                 <Card className="h-full overflow-hidden transition-shadow group-hover:shadow-md">
                   {/* Miniaturka */}
-                  <div className="relative w-full h-44 bg-zinc-100">
+                  <div className="relative w-full h-44 bg-slate-100">
                     {product.imageUrl ? (
                       <Image
                         src={product.imageUrl}
@@ -123,7 +123,7 @@ export default async function PublicProductsPage({
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <ImageIcon className="w-12 h-12 text-zinc-300" />
+                        <ImageIcon className="w-12 h-12 text-slate-300" />
                       </div>
                     )}
                   </div>

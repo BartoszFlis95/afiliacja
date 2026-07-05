@@ -55,7 +55,7 @@ export default async function InfluencerSettingsPage({
   return (
     <div className="mx-auto max-w-2xl p-4 sm:p-6 space-y-5 sm:space-y-6">
       <header>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Ustawienia</h1>
+        <h1 className="text-2xl font-bold text-[#0F172A]">Ustawienia</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Zarządzaj profilem i danymi konta.
         </p>

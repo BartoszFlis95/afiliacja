@@ -116,7 +116,7 @@ export function BankDetailsForm({ initial }: Props) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Mode toggle */}
-          <div className="flex gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-1">
+          <div className="flex gap-2 rounded-lg border border-slate-200 bg-slate-50 p-1">
             {(["bank", "paypal"] as const).map((m) => (
               <button
                 key={m}
@@ -125,8 +125,8 @@ export function BankDetailsForm({ initial }: Props) {
                 className={cn(
                   "flex-1 rounded-md py-1.5 text-xs sm:text-sm font-medium transition-colors",
                   mode === m
-                    ? "bg-white text-zinc-900 shadow-sm"
-                    : "text-zinc-500 hover:text-zinc-700"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
                 )}
               >
                 {m === "bank" ? "Przelew bankowy" : "PayPal"}
@@ -207,7 +207,7 @@ export function BankDetailsForm({ initial }: Props) {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>Minimalna kwota wypłaty</Label>
-              <span className="text-sm font-semibold text-zinc-900">
+              <span className="text-sm font-semibold text-slate-900">
                 {minimumPayout} zł
               </span>
             </div>
@@ -220,7 +220,7 @@ export function BankDetailsForm({ initial }: Props) {
                 value={minimumPayout}
                 onChange={(e) => setMinimumPayout(Number(e.target.value))}
                 disabled={isPending}
-                className="w-full accent-zinc-900"
+                className="w-full accent-slate-900"
               />
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
@@ -263,7 +263,7 @@ export function BankDetailsForm({ initial }: Props) {
           <Button
             type="submit"
             disabled={isPending}
-            className="w-full sm:w-auto bg-zinc-900 text-white hover:bg-zinc-700"
+            className="w-full sm:w-auto bg-slate-900 text-white hover:bg-slate-700"
           >
             {isPending ? "Zapisywanie…" : "Zapisz dane bankowe"}
           </Button>

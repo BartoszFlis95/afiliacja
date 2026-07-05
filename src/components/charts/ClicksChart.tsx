@@ -28,8 +28,8 @@ export function ClicksChart({ data }: ClicksChartProps) {
       <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="clicks-gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15} />
-            <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+            <stop offset="5%" stopColor="#2563EB" stopOpacity={0.2} />
+            <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -51,7 +51,7 @@ export function ClicksChart({ data }: ClicksChartProps) {
         <Area
           type="monotone"
           dataKey="clicks"
-          stroke="#6366f1"
+          stroke="#2563EB"
           strokeWidth={2}
           fill="url(#clicks-gradient)"
         />

@@ -184,7 +184,7 @@ export default async function InfluencerDashboardPage() {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Panel influencera</h1>
+          <h1 className="text-2xl font-bold text-[#0F172A]">Panel influencera</h1>
           <p className="mt-1 text-sm text-muted-foreground">Twoje wyniki w skrócie.</p>
         </div>
         <Button asChild>

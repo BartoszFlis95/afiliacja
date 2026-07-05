@@ -131,11 +131,11 @@ export function PayoutModal({ commissionId, amount, bankDetails }: PayoutModalPr
                   </p>
                 </div>
               ) : (
-                <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 space-y-1">
+                <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 space-y-1">
                   <p className="text-xs text-muted-foreground">
                     {bankDetails!.preferredPayout === "paypal" ? "Konto PayPal" : "Numer konta IBAN"}
                   </p>
-                  <p className="font-mono text-sm font-medium text-zinc-900">
+                  <p className="font-mono text-sm font-medium text-slate-900">
                     {bankDetails!.preferredPayout === "paypal"
                       ? bankDetails!.paypalEmail
                       : maskIban(bankDetails!.bankAccountIban!)}
@@ -145,7 +145,7 @@ export function PayoutModal({ commissionId, amount, bankDetails }: PayoutModalPr
             </>
           ) : (
             <div className="space-y-2">
-              <Label htmlFor="bankAccount" className="font-medium text-zinc-700">
+              <Label htmlFor="bankAccount" className="font-medium text-slate-700">
                 Numer konta bankowego
               </Label>
               <Input
@@ -157,7 +157,7 @@ export function PayoutModal({ commissionId, amount, bankDetails }: PayoutModalPr
                 autoComplete="off"
                 required
                 disabled={isPending}
-                className="border-zinc-300 focus-visible:ring-zinc-900"
+                className="border-slate-300 focus-visible:ring-slate-900"
               />
             </div>
           )}
@@ -166,7 +166,7 @@ export function PayoutModal({ commissionId, amount, bankDetails }: PayoutModalPr
             <Button
               type="submit"
               disabled={isPending || (usesSavedDetails && (!bankDetails!.hasBankDetails || belowMinimum))}
-              className="bg-zinc-900 text-white hover:bg-zinc-700"
+              className="bg-slate-900 text-white hover:bg-slate-700"
             >
               {isPending ? "Wysyłanie…" : "Złóż wniosek o wypłatę"}
             </Button>

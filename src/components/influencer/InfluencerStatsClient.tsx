@@ -64,7 +64,7 @@ export function InfluencerStatsClient({
               <SimpleLineChart
                 data={data.dailyClicks}
                 xKey="date"
-                lines={[{ dataKey: "clicks", name: "Kliknięcia", color: "#18181b" }]}
+                lines={[{ dataKey: "clicks", name: "Kliknięcia", color: "#2563EB" }]}
               />
             </CardContent>
           </Card>

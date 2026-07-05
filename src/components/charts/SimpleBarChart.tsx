@@ -17,7 +17,7 @@ export function SimpleBarChart({
   data,
   format = "number",
   valueFormatter,
-  color = "#18181b",
+  color = "#2563EB",
   height = 300,
 }: SimpleBarChartProps) {
   const formatValue =
@@ -25,7 +25,7 @@ export function SimpleBarChart({
   if (data.length === 0) {
     return (
       <div
-        className="flex items-center justify-center text-sm text-zinc-400"
+        className="flex items-center justify-center text-sm text-slate-400"
         style={{ height }}
       >
         Brak danych do wyświetlenia
@@ -36,23 +36,23 @@ export function SimpleBarChart({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#DBEAFE" vertical={false} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 12, fill: "#71717a" }}
+          tick={{ fontSize: 12, fill: "#94A3B8" }}
           tickLine={false}
-          axisLine={{ stroke: "#e4e4e7" }}
+          axisLine={{ stroke: "#DBEAFE" }}
         />
         <YAxis
-          tick={{ fontSize: 12, fill: "#71717a" }}
+          tick={{ fontSize: 12, fill: "#94A3B8" }}
           tickLine={false}
           axisLine={false}
           width={48}
         />
         <Tooltip
           formatter={(value) => [formatValue(Number(value)), ""]}
-          labelStyle={{ color: "#18181b", fontWeight: 600 }}
-          contentStyle={{ borderRadius: 8, border: "1px solid #e4e4e7", fontSize: 13 }}
+          labelStyle={{ color: "#0F172A", fontWeight: 600 }}
+          contentStyle={{ borderRadius: 8, border: "1px solid #DBEAFE", backgroundColor: "#fff", fontSize: 13 }}
         />
         <Bar dataKey="value" fill={color} radius={[4, 4, 0, 0]} />
       </BarChart>
