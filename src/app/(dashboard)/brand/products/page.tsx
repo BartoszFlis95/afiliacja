@@ -1,25 +1,40 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, Package } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { StatusBadge } from "@/components/shared/StatusBadge";
+import { ProductCardActions } from "@/components/brand/ProductCardActions";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
-export default async function BrandProductsPage() {
+type StatusFilter = "ALL" | "DRAFT" | "ACTIVE" | "INACTIVE";
+type SortOption = "newest" | "revenue" | "clicks";
+
+const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
+  { value: "ALL", label: "Wszystkie" },
+  { value: "DRAFT", label: "Szkic" },
+  { value: "ACTIVE", label: "Aktywne" },
+  { value: "INACTIVE", label: "Nieaktywne" },
+];
+
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: "newest", label: "Najnowsze" },
+  { value: "revenue", label: "Przychód" },
+  { value: "clicks", label: "Kliknięcia" },
+];
+
+export default async function BrandProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string; sort?: string }>;
+}) {
   const session = await auth();
   if (session?.user?.role !== "BRAND") {
     redirect("/login");
@@ -33,19 +48,59 @@ export default async function BrandProductsPage() {
     redirect("/brand/onboarding");
   }
 
-  const products = await prisma.product.findMany({
-    where: { brandProfileId: brandProfile.id },
-    include: { _count: { select: { affiliateLinks: true } } },
-    orderBy: { createdAt: "desc" },
-  });
+  const params = await searchParams;
+  const statusFilter: StatusFilter = (
+    ["ALL", "DRAFT", "ACTIVE", "INACTIVE"] as string[]
+  ).includes(params.status ?? "")
+    ? (params.status as StatusFilter)
+    : "ALL";
+  const sort: SortOption = (["newest", "revenue", "clicks"] as string[]).includes(
+    params.sort ?? ""
+  )
+    ? (params.sort as SortOption)
+    : "newest";
+
+  const [products, conversions] = await Promise.all([
+    prisma.product.findMany({
+      where: {
+        brandProfileId: brandProfile.id,
+        ...(statusFilter !== "ALL" ? { status: statusFilter } : {}),
+      },
+      include: { affiliateLinks: { select: { totalClicks: true, totalConversions: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.conversion.findMany({
+      where: { affiliateLink: { product: { brandProfileId: brandProfile.id } }, status: "CONFIRMED" },
+      select: { amount: true, affiliateLink: { select: { productId: true } } },
+    }),
+  ]);
+
+  const revenueByProduct = new Map<string, number>();
+  for (const c of conversions) {
+    const pid = c.affiliateLink.productId;
+    revenueByProduct.set(pid, (revenueByProduct.get(pid) ?? 0) + Number(c.amount));
+  }
+
+  const productRows = products
+    .map((p) => ({
+      ...p,
+      clicks: p.affiliateLinks.reduce((s, l) => s + l.totalClicks, 0),
+      conversions: p.affiliateLinks.reduce((s, l) => s + l.totalConversions, 0),
+      revenue: revenueByProduct.get(p.id) ?? 0,
+    }))
+    .sort((a, b) => {
+      if (sort === "revenue") return b.revenue - a.revenue;
+      if (sort === "clicks") return b.clicks - a.clicks;
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Produkty</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Produkty</h1>
           <p className="mt-1 text-muted-foreground">
-            {products.length.toLocaleString("pl-PL")} produktów.
+            {productRows.length.toLocaleString("pl-PL")} produktów.
           </p>
         </div>
         <Button asChild className="w-full sm:w-auto">
@@ -53,110 +108,126 @@ export default async function BrandProductsPage() {
         </Button>
       </header>
 
-      {products.length === 0 ? (
-        <div className="rounded-lg border border-dashed py-20 text-center">
-          <p className="text-muted-foreground">
-            Nie masz jeszcze żadnych produktów.
-          </p>
-          <Button asChild className="mt-4">
-            <Link href="/brand/products/new">Dodaj pierwszy produkt</Link>
-          </Button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="inline-flex flex-wrap items-center gap-1 rounded-lg border border-zinc-200 bg-white p-1">
+          {STATUS_FILTERS.map((f) => (
+            <Button
+              key={f.value}
+              asChild
+              type="button"
+              size="sm"
+              variant="ghost"
+              className={cn(
+                "h-7 px-3 text-xs font-medium hover:bg-zinc-100",
+                statusFilter === f.value &&
+                  "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
+              )}
+            >
+              <Link href={`/brand/products?status=${f.value}&sort=${sort}`}>{f.label}</Link>
+            </Button>
+          ))}
         </div>
+
+        <div className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 bg-white p-1">
+          {SORT_OPTIONS.map((opt) => (
+            <Button
+              key={opt.value}
+              asChild
+              type="button"
+              size="sm"
+              variant="ghost"
+              className={cn(
+                "h-7 px-3 text-xs font-medium hover:bg-zinc-100",
+                sort === opt.value &&
+                  "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
+              )}
+            >
+              <Link href={`/brand/products?status=${statusFilter}&sort=${opt.value}`}>
+                {opt.label}
+              </Link>
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {productRows.length === 0 ? (
+        <EmptyState
+          icon={Package}
+          title="Nie masz jeszcze żadnych produktów"
+          description="Dodaj pierwszy produkt, aby influencerzy mogli zacząć go promować."
+          action={
+            <Button asChild size="sm">
+              <Link href="/brand/products/new">Dodaj pierwszy produkt</Link>
+            </Button>
+          }
+        />
       ) : (
-        <div className="rounded-lg border overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[72px]">Zdjęcie</TableHead>
-                <TableHead>Nazwa</TableHead>
-                <TableHead className="hidden sm:table-cell">Kategoria</TableHead>
-                <TableHead className="hidden md:table-cell text-right">Cena</TableHead>
-                <TableHead className="text-right">Prowizja %</TableHead>
-                <TableHead className="hidden sm:table-cell">Status</TableHead>
-                <TableHead className="hidden lg:table-cell text-right">Linki</TableHead>
-                <TableHead className="text-right">Akcje</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell className="py-2">
-                    <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden bg-zinc-100 flex-shrink-0">
-                      {product.imageUrl ? (
-                        <Image
-                          src={product.imageUrl}
-                          alt={product.name}
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <ImageIcon className="w-5 h-5 text-zinc-400" />
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    <div>
-                      <p className="line-clamp-1">{product.name}</p>
-                      <p className="sm:hidden text-xs text-muted-foreground mt-0.5">
-                        <Badge variant={statusVariant(product.status)} className="text-[10px] px-1 py-0">
-                          {product.status}
-                        </Badge>
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    {product.category ? (
-                      <Badge variant="outline">{product.category}</Badge>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell text-right">
-                    {product.price ? formatCurrency(Number(product.price)) : "—"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatCommission(product.commissionRate)}%
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    <Badge variant={statusVariant(product.status)}>
-                      {product.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="hidden lg:table-cell text-right">
-                    {product._count.affiliateLinks.toLocaleString("pl-PL")}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={`/brand/products/${product.id}`}>Edytuj</Link>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {productRows.map((product) => (
+            <Card key={product.id} className="overflow-hidden">
+              <div className="relative h-40 w-full bg-zinc-100">
+                {product.imageUrl ? (
+                  <Image
+                    src={product.imageUrl}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-zinc-300">
+                    <ImageIcon className="h-10 w-10" />
+                  </div>
+                )}
+                <div className="absolute right-2 top-2">
+                  <StatusBadge status={product.status} />
+                </div>
+              </div>
+              <CardContent className="space-y-3 p-4">
+                <div>
+                  <p className="line-clamp-1 font-medium text-zinc-900">{product.name}</p>
+                  <p className="text-sm text-zinc-500">
+                    {product.price ? formatCurrency(Number(product.price)) : "Cena nieustawiona"}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 rounded-lg bg-zinc-50 p-3 text-center">
+                  <div>
+                    <p className="text-sm font-semibold text-zinc-900">
+                      {product.clicks.toLocaleString("pl-PL")}
+                    </p>
+                    <p className="text-[11px] text-zinc-500">Kliknięcia</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-zinc-900">
+                      {product.conversions.toLocaleString("pl-PL")}
+                    </p>
+                    <p className="text-[11px] text-zinc-500">Konwersje</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-emerald-600">
+                      {formatCurrency(product.revenue)}
+                    </p>
+                    <p className="text-[11px] text-zinc-500">Przychód</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 text-xs text-zinc-500">
+                  <span>
+                    Komisja: <strong className="text-zinc-900">{product.commissionRate}%</strong>
+                  </span>
+                  <span>
+                    Influencer:{" "}
+                    <strong className="text-zinc-900">{product.influencerCommissionRate}%</strong>
+                  </span>
+                </div>
+
+                <ProductCardActions productId={product.id} status={product.status} />
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
     </div>
   );
-}
-
-function statusVariant(
-  status: string,
-): "default" | "secondary" | "destructive" {
-  switch (status) {
-    case "ACTIVE":
-      return "default";
-    case "INACTIVE":
-      return "destructive";
-    case "DRAFT":
-    default:
-      return "secondary";
-  }
-}
-
-function formatCommission(rate: number | { toString(): string }): string {
-  return Number(rate).toFixed(1).replace(/\.0$/, "");
 }

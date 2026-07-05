@@ -103,3 +103,108 @@ export async function getPlatformStatsAction() {
     platformCommission: Number(platformCommissionAggregate._sum.platformCommission ?? 0),
   };
 }
+
+export async function getFinanceSummaryAction() {
+  await assertAdmin();
+
+  const now = new Date();
+  const start12MonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+
+  const [
+    revenueAgg,
+    influencerCommissionAgg,
+    platformCommissionAgg,
+    pendingPayoutsAgg,
+    completedPayoutsAgg,
+    conversionsLast12Months,
+    payoutsByInfluencer,
+    revenueByBrandConversions,
+  ] = await Promise.all([
+    prisma.conversion.aggregate({ where: { status: "CONFIRMED" }, _sum: { amount: true } }),
+    prisma.conversion.aggregate({
+      where: { status: "CONFIRMED" },
+      _sum: { influencerCommission: true },
+    }),
+    prisma.conversion.aggregate({
+      where: { status: "CONFIRMED" },
+      _sum: { platformCommission: true },
+    }),
+    prisma.payout.aggregate({
+      where: { status: { in: ["PENDING", "PROCESSING"] } },
+      _sum: { amount: true },
+    }),
+    prisma.payout.aggregate({ where: { status: "COMPLETED" }, _sum: { amount: true } }),
+    prisma.conversion.findMany({
+      where: { status: "CONFIRMED", createdAt: { gte: start12MonthsAgo } },
+      select: { amount: true, createdAt: true },
+    }),
+    prisma.payout.findMany({
+      where: { status: "COMPLETED" },
+      include: { influencer: { select: { displayName: true } } },
+    }),
+    prisma.conversion.findMany({
+      where: { status: "CONFIRMED" },
+      select: {
+        amount: true,
+        affiliateLink: {
+          select: { product: { select: { brandProfile: { select: { companyName: true } } } } },
+        },
+      },
+    }),
+  ]);
+
+  const monthKeys: string[] = [];
+  const monthlyRevenueMap = new Map<string, number>();
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(start12MonthsAgo.getFullYear(), start12MonthsAgo.getMonth() + i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    monthKeys.push(key);
+    monthlyRevenueMap.set(key, 0);
+  }
+  for (const conv of conversionsLast12Months) {
+    const d = conv.createdAt;
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    if (monthlyRevenueMap.has(key)) {
+      monthlyRevenueMap.set(key, (monthlyRevenueMap.get(key) ?? 0) + Number(conv.amount));
+    }
+  }
+  const monthFormatter = new Intl.DateTimeFormat("pl-PL", { month: "short", year: "2-digit" });
+  const monthlyRevenue = monthKeys.map((key) => {
+    const [year, month] = key.split("-").map(Number);
+    return {
+      label: monthFormatter.format(new Date(year, month - 1, 1)),
+      value: monthlyRevenueMap.get(key) ?? 0,
+    };
+  });
+
+  const influencerPayoutMap = new Map<string, number>();
+  for (const p of payoutsByInfluencer) {
+    const name = p.influencer?.displayName ?? "—";
+    influencerPayoutMap.set(name, (influencerPayoutMap.get(name) ?? 0) + Number(p.amount));
+  }
+  const topInfluencersByPayout = Array.from(influencerPayoutMap.entries())
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 10);
+
+  const brandRevenueMap = new Map<string, number>();
+  for (const conv of revenueByBrandConversions) {
+    const name = conv.affiliateLink?.product?.brandProfile?.companyName ?? "—";
+    brandRevenueMap.set(name, (brandRevenueMap.get(name) ?? 0) + Number(conv.amount));
+  }
+  const topBrandsByRevenue = Array.from(brandRevenueMap.entries())
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 10);
+
+  return {
+    totalRevenue: Number(revenueAgg._sum.amount ?? 0),
+    influencerCommissions: Number(influencerCommissionAgg._sum.influencerCommission ?? 0),
+    platformRevenue: Number(platformCommissionAgg._sum.platformCommission ?? 0),
+    pendingPayouts: Number(pendingPayoutsAgg._sum.amount ?? 0),
+    totalPaidOut: Number(completedPayoutsAgg._sum.amount ?? 0),
+    monthlyRevenue,
+    topInfluencersByPayout,
+    topBrandsByRevenue,
+  };
+}

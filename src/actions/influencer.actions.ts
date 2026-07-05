@@ -146,6 +146,107 @@ export async function getInfluencerStatsAction(): Promise<ActionResult> {
   };
 }
 
+export interface InfluencerRangeStats {
+  dailyClicks: { date: string; clicks: number }[];
+  earningsByProduct: { label: string; value: number }[];
+  links: {
+    id: string;
+    productName: string;
+    clicks: number;
+    conversions: number;
+    conversionRate: number;
+    earnings: number;
+  }[];
+}
+
+export async function getInfluencerRangeStatsAction(
+  days: 7 | 30 | 90
+): Promise<ActionResult<InfluencerRangeStats>> {
+  const session = await requireInfluencer();
+  if (!session?.user?.id) {
+    return { success: false, error: "Brak autoryzacji" };
+  }
+
+  const profile = await prisma.influencerProfile.findUnique({
+    where: { userId: session.user.id },
+    select: { id: true },
+  });
+  if (!profile) {
+    return { success: false, error: "Profil nie istnieje" };
+  }
+
+  const from = new Date();
+  from.setDate(from.getDate() - (days - 1));
+  from.setHours(0, 0, 0, 0);
+
+  const [links, clicks, commissions] = await Promise.all([
+    prisma.affiliateLink.findMany({
+      where: { influencerProfileId: profile.id },
+      include: { product: { select: { name: true } } },
+    }),
+    prisma.click.findMany({
+      where: { affiliateLink: { influencerProfileId: profile.id }, createdAt: { gte: from } },
+      select: { affiliateLinkId: true, createdAt: true },
+    }),
+    prisma.commission.findMany({
+      where: { influencerId: profile.id, createdAt: { gte: from } },
+      select: {
+        affiliateLinkId: true,
+        commissionAmount: true,
+        product: { select: { name: true } },
+      },
+    }),
+  ]);
+
+  const dailyMap = new Map<string, number>();
+  for (let i = 0; i < days; i++) {
+    const d = new Date(from);
+    d.setDate(d.getDate() + i);
+    dailyMap.set(d.toISOString().slice(0, 10), 0);
+  }
+  const clicksByLink = new Map<string, number>();
+  for (const click of clicks) {
+    const key = click.createdAt.toISOString().slice(0, 10);
+    dailyMap.set(key, (dailyMap.get(key) ?? 0) + 1);
+    clicksByLink.set(click.affiliateLinkId, (clicksByLink.get(click.affiliateLinkId) ?? 0) + 1);
+  }
+  const dailyClicks = Array.from(dailyMap.entries()).map(([date, clicksCount]) => ({
+    date,
+    clicks: clicksCount,
+  }));
+
+  const conversionsByLink = new Map<string, number>();
+  const earningsByLink = new Map<string, number>();
+  const earningsByProductMap = new Map<string, number>();
+  for (const c of commissions) {
+    const amount = Number(c.commissionAmount);
+    conversionsByLink.set(c.affiliateLinkId, (conversionsByLink.get(c.affiliateLinkId) ?? 0) + 1);
+    earningsByLink.set(c.affiliateLinkId, (earningsByLink.get(c.affiliateLinkId) ?? 0) + amount);
+    const productName = c.product?.name ?? "—";
+    earningsByProductMap.set(productName, (earningsByProductMap.get(productName) ?? 0) + amount);
+  }
+
+  const linkRows = links.map((link) => {
+    const linkClicks = clicksByLink.get(link.id) ?? 0;
+    const linkConversions = conversionsByLink.get(link.id) ?? 0;
+    return {
+      id: link.id,
+      productName: link.product?.name ?? "—",
+      clicks: linkClicks,
+      conversions: linkConversions,
+      conversionRate: linkClicks > 0 ? (linkConversions / linkClicks) * 100 : 0,
+      earnings: earningsByLink.get(link.id) ?? 0,
+    };
+  });
+
+  const earningsByProduct = Array.from(earningsByProductMap.entries())
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 8);
+
+  return { success: true, data: { dailyClicks, earningsByProduct, links: linkRows } };
+}
+
 export async function generateAffiliateLinkAction(
   productId: string,
 ): Promise<ActionResult> {

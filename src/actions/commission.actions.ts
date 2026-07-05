@@ -55,19 +55,10 @@ async function getInfluencerProfileId(userId: string) {
 // BRAND
 // ---------------------------------------------------------------------------
 
-export async function approveCommissionAction(
-  commissionId: string
-): Promise<ActionResult> {
-  const guard = await requireRole("BRAND");
-  if (!guard.ok) return { success: false, error: guard.error };
-
-  const brandId = await getBrandProfileId(guard.userId);
-  if (!brandId) return { success: false, error: "Nie znaleziono profilu marki." };
-
+async function approveCommissionCore(commissionId: string): Promise<ActionResult> {
   const commission = await prisma.commission.findUnique({
     where: { id: commissionId },
     select: {
-      brandId: true,
       status: true,
       influencerId: true,
       commissionAmount: true,
@@ -78,9 +69,7 @@ export async function approveCommissionAction(
     },
   });
 
-  if (!commission || commission.brandId !== brandId) {
-    return { success: false, error: "Komisja nie należy do tej marki." };
-  }
+  if (!commission) return { success: false, error: "Nie znaleziono komisji." };
   if (commission.status !== CommissionStatus.PENDING) {
     return { success: false, error: "Komisja nie oczekuje na decyzję." };
   }
@@ -89,8 +78,6 @@ export async function approveCommissionAction(
     where: { id: commissionId },
     data: { status: CommissionStatus.APPROVED },
   });
-
-  revalidatePath("/brand/commissions");
 
   const influencerEmail = commission.influencer.user.email;
   if (influencerEmail) {
@@ -125,23 +112,13 @@ export async function approveCommissionAction(
   return { success: true };
 }
 
-export async function rejectCommissionAction(
-  commissionId: string
-): Promise<ActionResult> {
-  const guard = await requireRole("BRAND");
-  if (!guard.ok) return { success: false, error: guard.error };
-
-  const brandId = await getBrandProfileId(guard.userId);
-  if (!brandId) return { success: false, error: "Nie znaleziono profilu marki." };
-
+async function rejectCommissionCore(commissionId: string): Promise<ActionResult> {
   const commission = await prisma.commission.findUnique({
     where: { id: commissionId },
-    select: { brandId: true, status: true },
+    select: { status: true },
   });
 
-  if (!commission || commission.brandId !== brandId) {
-    return { success: false, error: "Komisja nie należy do tej marki." };
-  }
+  if (!commission) return { success: false, error: "Nie znaleziono komisji." };
   if (commission.status !== CommissionStatus.PENDING) {
     return { success: false, error: "Komisja nie oczekuje na decyzję." };
   }
@@ -151,8 +128,100 @@ export async function rejectCommissionAction(
     data: { status: CommissionStatus.REJECTED },
   });
 
-  revalidatePath("/brand/commissions");
   return { success: true };
+}
+
+export async function approveCommissionAction(
+  commissionId: string
+): Promise<ActionResult> {
+  const guard = await requireRole("BRAND");
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  const brandId = await getBrandProfileId(guard.userId);
+  if (!brandId) return { success: false, error: "Nie znaleziono profilu marki." };
+
+  const ownership = await prisma.commission.findUnique({
+    where: { id: commissionId },
+    select: { brandId: true },
+  });
+  if (!ownership || ownership.brandId !== brandId) {
+    return { success: false, error: "Komisja nie należy do tej marki." };
+  }
+
+  const result = await approveCommissionCore(commissionId);
+  if (result.success) revalidatePath("/brand/commissions");
+  return result;
+}
+
+export async function rejectCommissionAction(
+  commissionId: string
+): Promise<ActionResult> {
+  const guard = await requireRole("BRAND");
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  const brandId = await getBrandProfileId(guard.userId);
+  if (!brandId) return { success: false, error: "Nie znaleziono profilu marki." };
+
+  const ownership = await prisma.commission.findUnique({
+    where: { id: commissionId },
+    select: { brandId: true },
+  });
+  if (!ownership || ownership.brandId !== brandId) {
+    return { success: false, error: "Komisja nie należy do tej marki." };
+  }
+
+  const result = await rejectCommissionCore(commissionId);
+  if (result.success) revalidatePath("/brand/commissions");
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// ADMIN (komisje) — te same przejścia statusów co dla marki, ale bez
+// sprawdzania właściciela: admin może interweniować w komisję dowolnej marki.
+// ---------------------------------------------------------------------------
+
+export async function adminApproveCommissionAction(
+  commissionId: string
+): Promise<ActionResult> {
+  const guard = await requireRole("ADMIN");
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  const result = await approveCommissionCore(commissionId);
+  if (result.success) revalidatePath("/admin/commissions");
+  return result;
+}
+
+export async function adminRejectCommissionAction(
+  commissionId: string
+): Promise<ActionResult> {
+  const guard = await requireRole("ADMIN");
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  const result = await rejectCommissionCore(commissionId);
+  if (result.success) revalidatePath("/admin/commissions");
+  return result;
+}
+
+export async function getAllCommissionsAction() {
+  const guard = await requireRole("ADMIN");
+  if (!guard.ok) return { success: false as const, error: guard.error };
+
+  const commissions = await prisma.commission.findMany({
+    include: {
+      influencer: { select: { displayName: true } },
+      brand: { select: { companyName: true } },
+      product: { select: { name: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const serialized = commissions.map((c) => ({
+    ...c,
+    orderValue: Number(c.orderValue),
+    commissionAmount: Number(c.commissionAmount),
+  }));
+
+  return { success: true as const, data: serialized };
 }
 
 export async function getBrandCommissionsAction() {

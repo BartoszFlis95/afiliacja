@@ -2,31 +2,9 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { PayoutActions } from "@/components/admin/PayoutActions";
-import { StripeTransferButton } from "@/components/admin/StripeTransferButton";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from "@/components/ui/table";
+import { AdminPayoutsClient, type AdminPayoutRow } from "@/components/admin/AdminPayoutsClient";
 
-const statusBadge: Record<string, { label: string; className: string }> = {
-  PENDING: { label: "Oczekuje", className: "bg-yellow-100 text-yellow-800" },
-  PROCESSING: { label: "W realizacji", className: "bg-blue-100 text-blue-800" },
-  COMPLETED: { label: "Zrealizowane", className: "bg-green-100 text-green-800" },
-  REJECTED: { label: "Odrzucone", className: "bg-red-100 text-red-800" },
-};
-
-const formatPLN = (value: number) =>
-  new Intl.NumberFormat("pl-PL", { style: "currency", currency: "PLN" }).format(
-    value
-  );
-
-const formatDate = (date: Date) =>
-  new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium" }).format(date);
+export const dynamic = "force-dynamic";
 
 export default async function AdminPayoutsPage() {
   const session = await auth();
@@ -36,96 +14,51 @@ export default async function AdminPayoutsPage() {
 
   const payouts = await prisma.payout.findMany({
     include: {
-      influencer: true,
-      commission: { include: { product: true } },
+      influencer: { include: { user: { select: { email: true } } } },
+      commission: { include: { product: { select: { name: true } } } },
     },
     orderBy: { createdAt: "desc" },
   });
 
+  const rows: AdminPayoutRow[] = payouts.map((p) => ({
+    id: p.id,
+    amount: Number(p.amount),
+    status: p.status,
+    bankAccount: p.bankAccount,
+    payoutMethod: p.payoutMethod,
+    requestedAt: p.requestedAt.toISOString(),
+    processedAt: p.processedAt ? p.processedAt.toISOString() : null,
+    influencer: {
+      displayName: p.influencer.displayName,
+      avatarUrl: p.influencer.avatarUrl,
+      email: p.influencer.user.email,
+      bankAccountIban: p.influencer.bankAccountIban,
+      bankAccountBank: p.influencer.bankAccountBank,
+      bankAccountName: p.influencer.bankAccountName,
+      bankSwift: p.influencer.bankSwift,
+      paypalEmail: p.influencer.paypalEmail,
+      preferredPayout: p.influencer.preferredPayout,
+      stripeOnboardingDone: p.influencer.stripeOnboardingDone,
+    },
+    commission: p.commission
+      ? {
+          productName: p.commission.product?.name ?? "—",
+          orderValue: Number(p.commission.orderValue),
+          commissionAmount: Number(p.commission.commissionAmount),
+        }
+      : null,
+  }));
+
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
-          Wypłaty
-        </h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">Wypłaty</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Zatwierdzaj wnioski i oznaczaj zrealizowane przelewy.
         </p>
       </header>
 
-      <div className="rounded-lg border border-zinc-200 bg-white">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Influencer</TableHead>
-              <TableHead>Produkt</TableHead>
-              <TableHead className="text-right">Kwota</TableHead>
-              <TableHead>Konto bankowe</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Data</TableHead>
-              <TableHead className="text-right">Akcje</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {payouts.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={7}
-                  className="py-10 text-center text-sm text-zinc-500"
-                >
-                  Brak wniosków o wypłatę
-                </TableCell>
-              </TableRow>
-            ) : (
-              payouts.map((payout) => {
-                const badge = statusBadge[payout.status] ?? statusBadge.PENDING;
-                return (
-                  <TableRow key={payout.id}>
-                    <TableCell className="font-medium text-zinc-900">
-                      {payout.influencer?.displayName ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-zinc-700">
-                      {payout.commission?.product?.name ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-right font-medium text-zinc-900">
-                      {formatPLN(Number(payout.amount))}
-                    </TableCell>
-                    <TableCell className="font-mono text-xs text-zinc-600">
-                      {payout.bankAccount}
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={`inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-medium ${badge.className}`}
-                      >
-                        {badge.label}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-zinc-500">
-                      {formatDate(payout.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex flex-col items-end gap-2">
-                        {payout.status === "PROCESSING" && (
-                          <StripeTransferButton
-                            payoutId={payout.id}
-                            amount={Number(payout.amount)}
-                            influencerName={payout.influencer?.displayName ?? "influencera"}
-                            stripeReady={payout.influencer?.stripeOnboardingDone ?? false}
-                          />
-                        )}
-                        <PayoutActions
-                          payoutId={payout.id}
-                          status={payout.status}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <AdminPayoutsClient payouts={rows} />
     </div>
   );
 }

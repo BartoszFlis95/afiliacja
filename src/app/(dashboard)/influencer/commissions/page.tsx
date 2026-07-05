@@ -1,12 +1,17 @@
 import { redirect } from "next/navigation";
+import { Check, Wallet, X } from "lucide-react";
 
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import { getInfluencerCommissionsAction } from "@/actions/commission.actions";
 import { getBankDetailsAction } from "@/actions/influencer.actions";
 import { PayoutModal } from "@/components/influencer/PayoutModal";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Wallet } from "lucide-react";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { StatusBadge } from "@/components/shared/StatusBadge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableHeader,
@@ -16,18 +21,139 @@ import {
   TableCell,
 } from "@/components/ui/table";
 
-const STATUS_BADGE: Record<string, { label: string; variant: "warning" | "success" | "destructive" | "default" }> = {
-  PENDING:  { label: "Oczekuje",     variant: "warning" },
-  APPROVED: { label: "Zatwierdzona", variant: "success" },
-  REJECTED: { label: "Odrzucona",    variant: "destructive" },
-  PAID:     { label: "Wypłacona",    variant: "default" },
-};
+export const dynamic = "force-dynamic";
 
-const formatPLN = (value: number) =>
-  new Intl.NumberFormat("pl-PL", { style: "currency", currency: "PLN" }).format(value);
+type CommissionsResult = Awaited<ReturnType<typeof getInfluencerCommissionsAction>>;
+type CommissionRow = Extract<CommissionsResult, { success: true }>["data"][number];
 
-const formatDate = (date: Date) =>
-  new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium" }).format(date);
+const TABS = [
+  { value: "ALL", label: "Wszystkie" },
+  { value: "PENDING", label: "Oczekujące" },
+  { value: "APPROVED", label: "Zatwierdzone" },
+  { value: "PAID", label: "Wypłacone" },
+  { value: "REJECTED", label: "Odrzucone" },
+] as const;
+
+const PAYOUT_STEPS = ["Zgłoszono", "W realizacji", "Zrealizowano"];
+
+function payoutStepIndex(status: string): number {
+  switch (status) {
+    case "PENDING":
+      return 0;
+    case "PROCESSING":
+      return 1;
+    case "COMPLETED":
+      return 2;
+    default:
+      return -1;
+  }
+}
+
+function PayoutStepper({ status }: { status: string }) {
+  if (status === "REJECTED") {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-red-600">
+        <X className="h-3.5 w-3.5" /> Odrzucona
+      </span>
+    );
+  }
+
+  const currentIndex = payoutStepIndex(status);
+
+  return (
+    <div className="flex items-center gap-1.5">
+      {PAYOUT_STEPS.map((step, i) => (
+        <div key={step} className="flex items-center gap-1.5">
+          <div className="flex flex-col items-center gap-1">
+            <span
+              className={cn(
+                "flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-medium",
+                i < currentIndex
+                  ? "bg-emerald-600 text-white"
+                  : i === currentIndex
+                  ? "bg-zinc-900 text-white"
+                  : "bg-zinc-100 text-zinc-400"
+              )}
+            >
+              {i < currentIndex ? <Check className="h-3 w-3" /> : i + 1}
+            </span>
+            <span className="text-[10px] text-zinc-500">{step}</span>
+          </div>
+          {i < PAYOUT_STEPS.length - 1 && (
+            <span
+              className={cn(
+                "h-0.5 w-6",
+                i < currentIndex ? "bg-emerald-600" : "bg-zinc-100"
+              )}
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CommissionsTable({ commissions, bankDetails }: {
+  commissions: CommissionRow[];
+  bankDetails?: Parameters<typeof PayoutModal>[0]["bankDetails"];
+}) {
+  if (commissions.length === 0) {
+    return (
+      <div className="p-6">
+        <EmptyState icon={Wallet} title="Brak prowizji w tej kategorii" />
+      </div>
+    );
+  }
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="pl-6">Produkt</TableHead>
+          <TableHead>Marka</TableHead>
+          <TableHead className="text-right">Wartość</TableHead>
+          <TableHead className="text-right">Prowizja</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Data</TableHead>
+          <TableHead className="pr-6 text-right">Akcje</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {commissions.map((commission) => (
+          <TableRow key={commission.id}>
+            <TableCell className="pl-6 font-medium">
+              {commission.product?.name ?? "—"}
+            </TableCell>
+            <TableCell className="text-muted-foreground">
+              {commission.brand?.companyName ?? "—"}
+            </TableCell>
+            <TableCell className="text-right text-muted-foreground">
+              {formatCurrency(Number(commission.orderValue))}
+            </TableCell>
+            <TableCell className="text-right font-medium text-emerald-600">
+              {formatCurrency(Number(commission.commissionAmount))}
+            </TableCell>
+            <TableCell>
+              <StatusBadge status={commission.status} />
+            </TableCell>
+            <TableCell className="text-muted-foreground">
+              {formatDate(commission.createdAt)}
+            </TableCell>
+            <TableCell className="pr-6 text-right">
+              {commission.status === "APPROVED" && !commission.payout ? (
+                <PayoutModal
+                  commissionId={commission.id}
+                  amount={Number(commission.commissionAmount)}
+                  bankDetails={bankDetails}
+                />
+              ) : null}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
 
 export default async function InfluencerCommissionsPage() {
   const session = await auth();
@@ -35,11 +161,24 @@ export default async function InfluencerCommissionsPage() {
     redirect("/login");
   }
 
-  const [result, bankResult] = await Promise.all([
+  const profile = await prisma.influencerProfile.findUnique({
+    where: { userId: session.user.id },
+    select: { id: true },
+  });
+  if (!profile) {
+    redirect("/influencer/onboarding");
+  }
+
+  const [result, bankResult, payouts] = await Promise.all([
     getInfluencerCommissionsAction(),
     getBankDetailsAction(),
+    prisma.payout.findMany({
+      where: { influencerId: profile.id },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
-  const commissions = result.success ? result.data : [];
+
+  const commissions: CommissionRow[] = result.success ? result.data ?? [] : [];
   const bankDetails = bankResult.success
     ? {
         hasBankDetails: bankResult.data!.hasBankDetails,
@@ -54,6 +193,9 @@ export default async function InfluencerCommissionsPage() {
     .filter((c) => c.status === "APPROVED")
     .reduce((sum, c) => sum + Number(c.commissionAmount), 0);
 
+  const byStatus = (status: string) =>
+    status === "ALL" ? commissions : commissions.filter((c) => c.status === status);
+
   return (
     <div className="space-y-6">
       <header>
@@ -63,14 +205,13 @@ export default async function InfluencerCommissionsPage() {
         </p>
       </header>
 
-      {/* Balance card */}
       <Card className="max-w-xs">
         <CardContent className="p-6">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Saldo dostępne do wypłaty</p>
               <p className="text-2xl font-semibold text-foreground">
-                {formatPLN(availableBalance)}
+                {formatCurrency(availableBalance)}
               </p>
             </div>
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100">
@@ -81,65 +222,55 @@ export default async function InfluencerCommissionsPage() {
         </CardContent>
       </Card>
 
-      {/* Table */}
-      <Card className="overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="pl-6">Produkt</TableHead>
-              <TableHead>Marka</TableHead>
-              <TableHead className="text-right">Wartość</TableHead>
-              <TableHead className="text-right">Prowizja</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Data</TableHead>
-              <TableHead className="pr-6 text-right">Akcje</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {commissions.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">
-                  Brak prowizji do wyświetlenia
-                </TableCell>
-              </TableRow>
-            ) : (
-              commissions.map((commission) => {
-                const badge = STATUS_BADGE[commission.status] ?? STATUS_BADGE.PENDING;
-                return (
-                  <TableRow key={commission.id}>
-                    <TableCell className="pl-6 font-medium">
-                      {commission.product?.name ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {commission.brand?.companyName ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-right text-muted-foreground">
-                      {formatPLN(Number(commission.orderValue))}
-                    </TableCell>
-                    <TableCell className="text-right font-medium text-emerald-600">
-                      {formatPLN(Number(commission.commissionAmount))}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={badge.variant}>{badge.label}</Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatDate(commission.createdAt)}
-                    </TableCell>
-                    <TableCell className="pr-6 text-right">
-                      {commission.status === "APPROVED" ? (
-                        <PayoutModal
-                          commissionId={commission.id}
-                          amount={Number(commission.commissionAmount)}
-                          bankDetails={bankDetails}
-                        />
-                      ) : null}
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
+      <Tabs defaultValue="ALL">
+        <TabsList className="flex h-auto flex-wrap gap-1 p-1">
+          {TABS.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value} className="text-xs sm:text-sm">
+              {tab.label}
+              <span className="ml-1.5 text-[10px] text-muted-foreground">
+                ({byStatus(tab.value).length})
+              </span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        {TABS.map((tab) => (
+          <TabsContent key={tab.value} value={tab.value} className="mt-4">
+            <Card className="overflow-hidden">
+              <CommissionsTable commissions={byStatus(tab.value)} bankDetails={bankDetails} />
+            </Card>
+          </TabsContent>
+        ))}
+      </Tabs>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Historia wypłat</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {payouts.length === 0 ? (
+            <EmptyState icon={Wallet} title="Brak wniosków o wypłatę" />
+          ) : (
+            <div className="space-y-4">
+              {payouts.map((payout) => (
+                <div
+                  key={payout.id}
+                  className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <p className="font-medium text-zinc-900">
+                      {formatCurrency(Number(payout.amount))}
+                    </p>
+                    <p className="text-xs text-zinc-500">
+                      Zgłoszono {formatDate(payout.requestedAt)}
+                    </p>
+                  </div>
+                  <PayoutStepper status={payout.status} />
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
       </Card>
     </div>
   );

@@ -19,3 +19,10 @@ export function formatDate(date: Date | string): string {
     year: "numeric",
   }).format(new Date(date));
 }
+
+export function maskIban(iban?: string | null): string {
+  if (!iban) return "—";
+  const clean = iban.replace(/\s+/g, "");
+  if (clean.length < 6) return clean;
+  return `${clean.slice(0, 2)}**...${clean.slice(-4)}`;
+}

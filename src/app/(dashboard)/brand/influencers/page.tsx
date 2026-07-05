@@ -3,26 +3,9 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { formatCurrency } from "@/lib/utils";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { BrandInfluencersClient, type InfluencerRow } from "@/components/brand/BrandInfluencersClient";
 
 export const dynamic = "force-dynamic";
-
-type InfluencerRow = {
-  influencerProfileId: string;
-  displayName: string;
-  productCount: number;
-  totalClicks: number;
-  totalConversions: number;
-  totalEarnings: number;
-};
 
 export default async function BrandInfluencersPage() {
   const session = await auth();
@@ -56,6 +39,10 @@ export default async function BrandInfluencersPage() {
       ({
         influencerProfileId: profile.id,
         displayName: profile.displayName,
+        avatarUrl: profile.avatarUrl,
+        instagramUrl: profile.instagramUrl,
+        youtubeUrl: profile.youtubeUrl,
+        tiktokUrl: profile.tiktokUrl,
         productCount: 0,
         totalClicks: 0,
         totalConversions: 0,
@@ -70,9 +57,7 @@ export default async function BrandInfluencersPage() {
     grouped.set(profile.id, current);
   }
 
-  const rows = Array.from(grouped.values()).sort(
-    (a, b) => b.totalEarnings - a.totalEarnings,
-  );
+  const rows = Array.from(grouped.values()).sort((a, b) => b.totalEarnings - a.totalEarnings);
 
   return (
     <div className="space-y-6 p-6">
@@ -83,46 +68,7 @@ export default async function BrandInfluencersPage() {
         </p>
       </header>
 
-      <div className="rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Influencer</TableHead>
-              <TableHead className="text-right">Produkty</TableHead>
-              <TableHead className="text-right">Kliknięcia</TableHead>
-              <TableHead className="text-right">Konwersje</TableHead>
-              <TableHead className="text-right">Zarobki</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground">
-                  Żaden influencer nie promuje jeszcze Twoich produktów.
-                </TableCell>
-              </TableRow>
-            ) : (
-              rows.map((row) => (
-                <TableRow key={row.influencerProfileId}>
-                  <TableCell className="font-medium">{row.displayName}</TableCell>
-                  <TableCell className="text-right">
-                    {row.productCount.toLocaleString("pl-PL")}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {row.totalClicks.toLocaleString("pl-PL")}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {row.totalConversions.toLocaleString("pl-PL")}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatCurrency(row.totalEarnings)}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <BrandInfluencersClient rows={rows} />
     </div>
   );
 }

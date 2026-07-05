@@ -1,25 +1,9 @@
-// src/app/(dashboard)/influencer/stats/page.tsx
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { formatCurrency, formatDate } from "@/lib/utils";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { ClicksChart } from "@/components/charts/ClicksChart";
+import { getInfluencerRangeStatsAction } from "@/actions/influencer.actions";
+import { InfluencerStatsClient } from "@/components/influencer/InfluencerStatsClient";
 
 export const dynamic = "force-dynamic";
 
@@ -37,178 +21,21 @@ export default async function InfluencerStatsPage() {
     redirect("/influencer/onboarding");
   }
 
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-
-  const [topLinks, recentConversions, earningsAggregate, recentClicksRaw] = await Promise.all([
-    prisma.affiliateLink.findMany({
-      where: { influencerProfileId: profile.id },
-      include: { product: true },
-      orderBy: { totalClicks: "desc" },
-      take: 5,
-    }),
-    prisma.conversion.findMany({
-      where: { affiliateLink: { influencerProfileId: profile.id } },
-      include: { affiliateLink: { include: { product: true } } },
-      orderBy: { createdAt: "desc" },
-      take: 10,
-    }),
-    prisma.affiliateLink.aggregate({
-      where: { influencerProfileId: profile.id },
-      _sum: { totalEarnings: true },
-    }),
-    prisma.click.findMany({
-      where: {
-        affiliateLink: { influencerProfileId: profile.id },
-        createdAt: { gte: thirtyDaysAgo },
-      },
-      select: { createdAt: true },
-    }),
-  ]);
-
-  const totalEarnings = Number(earningsAggregate._sum.totalEarnings ?? 0);
-
-  const clicksByDay = recentClicksRaw.reduce<Record<string, number>>((acc, c) => {
-    const day = c.createdAt.toISOString().slice(0, 10);
-    acc[day] = (acc[day] ?? 0) + 1;
-    return acc;
-  }, {});
-  const dailyClicks = Object.entries(clicksByDay)
-    .map(([date, clicks]) => ({ date, clicks }))
-    .sort((a, b) => a.date.localeCompare(b.date));
+  const result = await getInfluencerRangeStatsAction(30);
+  const initialData = result.success && result.data
+    ? result.data
+    : { dailyClicks: [], earningsByProduct: [], links: [] };
 
   return (
-    <div className="space-y-8 p-6">
+    <div className="space-y-6">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">Statystyki</h1>
-        <p className="mt-1 text-muted-foreground">
+        <h1 className="text-2xl font-semibold text-foreground">Statystyki</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Szczegółowy obraz Twoich wyników.
         </p>
       </header>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            Łączne zarobki
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-3xl font-bold">{formatCurrency(totalEarnings)}</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Kliknięcia — ostatnie 30 dni</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ClicksChart data={dailyClicks} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Top 5 produktów (wg kliknięć)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Produkt</TableHead>
-                <TableHead className="text-right">Kliknięcia</TableHead>
-                <TableHead className="text-right">Konwersje</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {topLinks.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={3} className="text-center text-muted-foreground">
-                    Brak danych.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                topLinks.map((link) => (
-                  <TableRow key={link.id}>
-                    <TableCell className="font-medium">
-                      {link.product?.name ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {link.totalClicks.toLocaleString("pl-PL")}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {link.totalConversions.toLocaleString("pl-PL")}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Ostatnie konwersje</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Produkt</TableHead>
-                <TableHead className="text-right">Kwota</TableHead>
-                <TableHead className="text-right">Prowizja</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Data</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentConversions.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    Brak konwersji.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                recentConversions.map((conversion) => (
-                  <TableRow key={conversion.id}>
-                    <TableCell className="font-medium">
-                      {conversion.affiliateLink?.product?.name ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatCurrency(Number(conversion.amount))}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatCurrency(Number(conversion.influencerCommission))}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={statusVariant(conversion.status)}>
-                        {conversion.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatDate(conversion.createdAt)}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <InfluencerStatsClient initialData={initialData} />
     </div>
   );
-}
-
-function statusVariant(
-  status: string,
-): "default" | "secondary" | "destructive" | "outline" {
-  switch (status) {
-    case "CONFIRMED":
-    case "PAID":
-      return "default";
-    case "REJECTED":
-      return "destructive";
-    case "PENDING":
-    default:
-      return "secondary";
-  }
 }

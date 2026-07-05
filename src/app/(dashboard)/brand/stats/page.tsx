@@ -4,6 +4,9 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { getBrandRangeStatsAction } from "@/actions/brand.actions";
+import { BrandStatsClient } from "@/components/brand/BrandStatsClient";
+import { StatusBadge } from "@/components/shared/StatusBadge";
 import {
   Card,
   CardContent,
@@ -18,8 +21,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { ClicksChart } from "@/components/charts/ClicksChart";
 
 export const dynamic = "force-dynamic";
 
@@ -37,9 +38,8 @@ export default async function BrandStatsPage() {
     redirect("/brand/onboarding");
   }
 
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-
-  const [topProducts, topInfluencers, recentConversions, recentClicksRaw] = await Promise.all([
+  const [rangeResult, topProducts, topInfluencers, recentConversions] = await Promise.all([
+    getBrandRangeStatsAction(30),
     prisma.product.findMany({
       where: { brandProfileId: brandProfile.id },
       include: { _count: { select: { affiliateLinks: true } } },
@@ -62,53 +62,33 @@ export default async function BrandStatsPage() {
       orderBy: { createdAt: "desc" },
       take: 10,
     }),
-    prisma.click.findMany({
-      where: {
-        affiliateLink: { product: { brandProfileId: brandProfile.id } },
-        createdAt: { gte: thirtyDaysAgo },
-      },
-      select: { createdAt: true },
-    }),
   ]);
 
-  const clicksByDay = recentClicksRaw.reduce<Record<string, number>>((acc, c) => {
-    const day = c.createdAt.toISOString().slice(0, 10);
-    acc[day] = (acc[day] ?? 0) + 1;
-    return acc;
-  }, {});
-  const dailyClicks = Object.entries(clicksByDay)
-    .map(([date, clicks]) => ({ date, clicks }))
-    .sort((a, b) => a.date.localeCompare(b.date));
+  const initialData =
+    rangeResult.success && rangeResult.data
+      ? rangeResult.data
+      : { dailyData: [], revenueByProduct: [], performanceByInfluencer: [] };
 
   return (
     <div className="space-y-8 p-6">
       <header>
         <h1 className="text-3xl font-bold tracking-tight">Statystyki</h1>
-        <p className="mt-1 text-muted-foreground">
-          Wyniki Twoich produktów i partnerów.
-        </p>
+        <p className="mt-1 text-muted-foreground">Wyniki Twoich produktów i partnerów.</p>
       </header>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Kliknięcia — ostatnie 30 dni</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ClicksChart data={dailyClicks} />
-        </CardContent>
-      </Card>
+      <BrandStatsClient initialData={initialData} />
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Top 5 produktów (wg liczby konwersji)</CardTitle>
+            <CardTitle>Top 5 produktów (wg liczby linków)</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Produkt</TableHead>
-                  <TableHead className="text-right">Konwersje</TableHead>
+                  <TableHead className="text-right">Linki</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -205,9 +185,7 @@ export default async function BrandStatsPage() {
                       {formatCurrency(Number(conversion.commission))}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={statusVariant(conversion.status)}>
-                        {conversion.status}
-                      </Badge>
+                      <StatusBadge status={conversion.status} />
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {formatDate(conversion.createdAt)}
@@ -221,19 +199,4 @@ export default async function BrandStatsPage() {
       </Card>
     </div>
   );
-}
-
-function statusVariant(
-  status: string,
-): "default" | "secondary" | "destructive" | "outline" {
-  switch (status) {
-    case "CONFIRMED":
-    case "PAID":
-      return "default";
-    case "REJECTED":
-      return "destructive";
-    case "PENDING":
-    default:
-      return "secondary";
-  }
 }
