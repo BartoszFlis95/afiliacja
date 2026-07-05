@@ -54,6 +54,7 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
       commissionRate: 10,
       influencerCommissionRate: 5,
       productUrl: "",
+      imageUrl: "",
       slug: "",
       status: "DRAFT",
     },
@@ -220,7 +221,7 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
           <div className="space-y-2">
             <ImageUpload
               value={imageUrlValue}
-              onChange={(url) => setValue("imageUrl", url)}
+              onChange={(url) => setValue("imageUrl", url, { shouldDirty: true, shouldValidate: false })}
               label="Zdjęcie produktu"
             />
             <input type="hidden" {...register("imageUrl")} />
