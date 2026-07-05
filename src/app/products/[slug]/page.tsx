@@ -1,5 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ImageIcon } from "lucide-react";
+
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
@@ -29,7 +32,6 @@ export default async function PublicProductDetailPage({
   const session = await auth();
   const isInfluencer = session?.user?.role === "INFLUENCER";
 
-  // Sprawdź czy influencer już ma link dla tego produktu
   let existingCode: string | null = null;
   if (isInfluencer && session?.user?.id) {
     const profile = await prisma.influencerProfile.findUnique({
@@ -64,6 +66,24 @@ export default async function PublicProductDetailPage({
       </nav>
 
       <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+        {/* Zdjęcie produktu */}
+        <div className="relative w-full h-64 sm:h-80 rounded-2xl overflow-hidden bg-zinc-100 mb-8">
+          {product.imageUrl ? (
+            <Image
+              src={product.imageUrl}
+              alt={product.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 768px"
+              priority
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <ImageIcon className="w-16 h-16 text-zinc-300" />
+            </div>
+          )}
+        </div>
+
         <div className="mb-4 flex flex-wrap items-center gap-2">
           {product.category && (
             <Badge variant="outline">{product.category}</Badge>

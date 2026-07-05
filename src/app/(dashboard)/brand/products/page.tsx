@@ -1,6 +1,7 @@
-// src/app/(dashboard)/brand/products/page.tsx
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ImageIcon } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -39,15 +40,15 @@ export default async function BrandProductsPage() {
   });
 
   return (
-    <div className="space-y-6 p-6">
-      <header className="flex items-center justify-between">
+    <div className="space-y-6 p-4 sm:p-6">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Produkty</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Produkty</h1>
           <p className="mt-1 text-muted-foreground">
             {products.length.toLocaleString("pl-PL")} produktów.
           </p>
         </div>
-        <Button asChild>
+        <Button asChild className="w-full sm:w-auto">
           <Link href="/brand/products/new">Dodaj produkt</Link>
         </Button>
       </header>
@@ -62,42 +63,69 @@ export default async function BrandProductsPage() {
           </Button>
         </div>
       ) : (
-        <div className="rounded-lg border">
+        <div className="rounded-lg border overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[72px]">Zdjęcie</TableHead>
                 <TableHead>Nazwa</TableHead>
-                <TableHead>Kategoria</TableHead>
-                <TableHead className="text-right">Cena</TableHead>
+                <TableHead className="hidden sm:table-cell">Kategoria</TableHead>
+                <TableHead className="hidden md:table-cell text-right">Cena</TableHead>
                 <TableHead className="text-right">Prowizja %</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Linki</TableHead>
+                <TableHead className="hidden sm:table-cell">Status</TableHead>
+                <TableHead className="hidden lg:table-cell text-right">Linki</TableHead>
                 <TableHead className="text-right">Akcje</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {products.map((product) => (
                 <TableRow key={product.id}>
-                  <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>
+                  <TableCell className="py-2">
+                    <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden bg-zinc-100 flex-shrink-0">
+                      {product.imageUrl ? (
+                        <Image
+                          src={product.imageUrl}
+                          alt={product.name}
+                          fill
+                          className="object-cover"
+                          sizes="56px"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ImageIcon className="w-5 h-5 text-zinc-400" />
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    <div>
+                      <p className="line-clamp-1">{product.name}</p>
+                      <p className="sm:hidden text-xs text-muted-foreground mt-0.5">
+                        <Badge variant={statusVariant(product.status)} className="text-[10px] px-1 py-0">
+                          {product.status}
+                        </Badge>
+                      </p>
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     {product.category ? (
                       <Badge variant="outline">{product.category}</Badge>
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="hidden md:table-cell text-right">
                     {product.price ? formatCurrency(Number(product.price)) : "—"}
                   </TableCell>
                   <TableCell className="text-right">
                     {formatCommission(product.commissionRate)}%
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <Badge variant={statusVariant(product.status)}>
                       {product.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="hidden lg:table-cell text-right">
                     {product._count.affiliateLinks.toLocaleString("pl-PL")}
                   </TableCell>
                   <TableCell className="text-right">

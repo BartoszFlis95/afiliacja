@@ -1,4 +1,7 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
+import { ImageIcon } from "lucide-react";
+
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
@@ -48,16 +51,13 @@ export default async function InfluencerProductsPage() {
     existingLinks.map((link) => [link.productId, link.code])
   );
 
-  // Serializujemy Decimal → number żeby uniknąć błędu Client Component
   const serializedProducts = products.map((product) => ({
     ...product,
     price: product.price ? Number(product.price) : null,
     commissionRate: Number(product.commissionRate),
     influencerCommissionRate: Number(product.influencerCommissionRate),
     brandProfile: product.brandProfile
-      ? {
-          ...product.brandProfile,
-        }
+      ? { ...product.brandProfile }
       : null,
   }));
 
@@ -83,8 +83,25 @@ export default async function InfluencerProductsPage() {
             return (
               <Card
                 key={product.id}
-                className="flex flex-col border-zinc-200 bg-white"
+                className="flex flex-col border-zinc-200 bg-white overflow-hidden"
               >
+                {/* Miniaturka produktu */}
+                <div className="relative w-full h-40 bg-zinc-100 flex-shrink-0">
+                  {product.imageUrl ? (
+                    <Image
+                      src={product.imageUrl}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ImageIcon className="w-10 h-10 text-zinc-300" />
+                    </div>
+                  )}
+                </div>
+
                 <CardHeader className="space-y-1 pb-2">
                   <div className="flex items-start justify-between gap-2">
                     <h2 className="line-clamp-2 text-sm font-semibold text-zinc-900 leading-tight">

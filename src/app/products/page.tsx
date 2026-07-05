@@ -1,5 +1,6 @@
-// src/app/products/page.tsx
+import Image from "next/image";
 import Link from "next/link";
+import { ImageIcon } from "lucide-react";
 import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
@@ -109,7 +110,24 @@ export default async function PublicProductsPage({
                 href={`/products/${product.slug}`}
                 className="group"
               >
-                <Card className="h-full transition-shadow group-hover:shadow-md">
+                <Card className="h-full overflow-hidden transition-shadow group-hover:shadow-md">
+                  {/* Miniaturka */}
+                  <div className="relative w-full h-44 bg-zinc-100">
+                    {product.imageUrl ? (
+                      <Image
+                        src={product.imageUrl}
+                        alt={product.name}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ImageIcon className="w-12 h-12 text-zinc-300" />
+                      </div>
+                    )}
+                  </div>
+
                   <CardHeader className="space-y-1 pb-2">
                     <div className="flex items-start justify-between gap-2">
                       <h2 className="line-clamp-2 font-semibold leading-tight">
