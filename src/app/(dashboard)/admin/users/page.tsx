@@ -17,6 +17,22 @@ import { ToggleUserButton } from "@/components/admin/ToggleUserButton";
 
 export const dynamic = "force-dynamic";
 
+function StripeStatusBadge({
+  stripeAccountId,
+  stripeOnboardingDone,
+}: {
+  stripeAccountId: string | null;
+  stripeOnboardingDone: boolean;
+}) {
+  if (stripeOnboardingDone) {
+    return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">✅ Stripe aktywny</Badge>;
+  }
+  if (stripeAccountId) {
+    return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">⏳ Stripe w weryfikacji</Badge>;
+  }
+  return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">❌ Brak Stripe</Badge>;
+}
+
 export default async function AdminUsersPage() {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
@@ -44,6 +60,7 @@ export default async function AdminUsersPage() {
               <TableHead>Email</TableHead>
               <TableHead>Rola</TableHead>
               <TableHead>Profil</TableHead>
+              <TableHead>Stripe</TableHead>
               <TableHead>Rejestracja</TableHead>
               <TableHead className="text-right">Akcje</TableHead>
             </TableRow>
@@ -51,7 +68,7 @@ export default async function AdminUsersPage() {
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground">
+                <TableCell colSpan={6} className="text-center text-muted-foreground">
                   Brak użytkowników.
                 </TableCell>
               </TableRow>
@@ -66,6 +83,16 @@ export default async function AdminUsersPage() {
                     {user.brandProfile?.companyName ??
                       user.influencerProfile?.displayName ??
                       "—"}
+                  </TableCell>
+                  <TableCell>
+                    {user.role === "INFLUENCER" && user.influencerProfile ? (
+                      <StripeStatusBadge
+                        stripeAccountId={user.influencerProfile.stripeAccountId}
+                        stripeOnboardingDone={user.influencerProfile.stripeOnboardingDone}
+                      />
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {formatDate(user.createdAt)}

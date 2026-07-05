@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 type Trend = {
@@ -57,6 +58,23 @@ export function StatsCard({
             )}
           </div>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+export function StatsCardSkeleton() {
+  return (
+    <Card className="border-zinc-200 bg-white">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-7 w-16" />
+          </div>
+          <Skeleton className="h-10 w-10 rounded-lg" />
+        </div>
+        <Skeleton className="mt-3 h-3 w-20" />
       </CardContent>
     </Card>
   );

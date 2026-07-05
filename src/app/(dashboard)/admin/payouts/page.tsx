@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { PayoutActions } from "@/components/admin/PayoutActions";
+import { StripeTransferButton } from "@/components/admin/StripeTransferButton";
 import {
   Table,
   TableHeader,
@@ -103,10 +104,20 @@ export default async function AdminPayoutsPage() {
                       {formatDate(payout.createdAt)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <PayoutActions
-                        payoutId={payout.id}
-                        status={payout.status}
-                      />
+                      <div className="flex flex-col items-end gap-2">
+                        {payout.status === "PROCESSING" && (
+                          <StripeTransferButton
+                            payoutId={payout.id}
+                            amount={Number(payout.amount)}
+                            influencerName={payout.influencer?.displayName ?? "influencera"}
+                            stripeReady={payout.influencer?.stripeOnboardingDone ?? false}
+                          />
+                        )}
+                        <PayoutActions
+                          payoutId={payout.id}
+                          status={payout.status}
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 );

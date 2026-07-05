@@ -9,7 +9,8 @@ import { formatEmailAmount, formatEmailDate } from "@/emails/utils";
 import InvoiceEmail from "@/emails/InvoiceEmail";
 import { generateInvoiceNumber } from "@/lib/invoice-number";
 import { GenerateInvoiceSchema } from "@/lib/validations/invoice.schema";
-import { InvoiceStatus } from "@prisma/client";
+import { executeStripeTransferAction } from "@/actions/stripe.actions";
+import { InvoiceStatus, PayoutStatus } from "@prisma/client";
 import type { InvoiceItem } from "@/types";
 
 type ActionResult<T = undefined> =
@@ -284,7 +285,7 @@ export async function updateInvoiceStatusAction(
 
   const invoice = await prisma.invoice.findUnique({
     where: { id: invoiceId },
-    select: { status: true },
+    select: { status: true, brandId: true, periodFrom: true, periodTo: true },
   });
   if (!invoice) return { success: false, error: "Nie znaleziono faktury." };
 
@@ -298,7 +299,54 @@ export async function updateInvoiceStatusAction(
 
   revalidatePath("/admin/invoices");
   revalidatePath(`/admin/invoices/${invoiceId}`);
+
+  if (status === InvoiceStatus.PAID) {
+    // Nie blokuj oznaczenia faktury jako opłaconej, jeśli wypłaty zawiodą —
+    // każda próba transferu loguje własne błędy i nie rzuca wyjątku.
+    await triggerPayoutsForInvoice(invoiceId, invoice.brandId, invoice.periodFrom, invoice.periodTo);
+  }
+
   return { success: true };
+}
+
+/**
+ * Po opłaceniu faktury przez markę zwalnia wypłaty influencerów, których
+ * komisje mieszczą się w okresie i marce tej faktury. Konta ze skończonym
+ * onboardingiem Stripe dostają automatyczny transfer; reszta zostaje w
+ * statusie PROCESSING do ręcznego przelewu (executeStripeTransferAction
+ * sam to rozróżnia i nigdy nie rzuca wyjątku).
+ */
+async function triggerPayoutsForInvoice(
+  invoiceId: string,
+  brandId: string,
+  periodFrom: Date,
+  periodTo: Date
+): Promise<void> {
+  const payouts = await prisma.payout.findMany({
+    where: {
+      status: PayoutStatus.PROCESSING,
+      commission: {
+        brandId,
+        createdAt: { gte: periodFrom, lte: periodTo },
+      },
+    },
+    select: { id: true },
+  });
+
+  for (const payout of payouts) {
+    const result = await executeStripeTransferAction(payout.id);
+    if (!result.success) {
+      console.error(
+        `[invoice] auto payout trigger left payout ${payout.id} for manual transfer:`,
+        result.error
+      );
+    }
+  }
+
+  await prisma.invoice.update({
+    where: { id: invoiceId },
+    data: { payoutsTriggered: true, paidViaStripe: payouts.length > 0 },
+  });
 }
 
 export async function deleteInvoiceAction(invoiceId: string): Promise<ActionResult> {

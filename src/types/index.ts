@@ -42,3 +42,17 @@ export interface InvoiceItem {
   unitPrice: number;
   totalPrice: number;
 }
+
+export type StripeAccountStatus =
+  | "not_connected"
+  | "pending"
+  | "active"
+  | "restricted";
+
+export interface StripeConnectStatus {
+  status: StripeAccountStatus;
+  accountId: string | null;
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+  onboardingDone: boolean;
+}
