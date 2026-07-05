@@ -21,20 +21,31 @@ export function ImageUpload({ value, onChange, label = "Zdjęcie" }: ImageUpload
     setIsUploading(true);
     setError(null);
     try {
+      console.log("[ImageUpload] starting upload:", file.name, file.type, file.size);
+
       const formData = new FormData();
       formData.append("file", file);
+
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
+
+      console.log("[ImageUpload] response status:", response.status);
+
       const data = await response.json();
-      if (!data.success) {
-        setError(data.error ?? "Błąd uploadu");
+      console.log("[ImageUpload] response data:", data);
+
+      if (!response.ok || !data.success) {
+        setError(data.error ?? `Błąd serwera: ${response.status}`);
         return;
       }
+
+      console.log("[ImageUpload] SUCCESS url:", data.url);
       onChange(data.url);
-    } catch {
-      setError("Błąd połączenia. Spróbuj ponownie.");
+    } catch (err) {
+      console.error("[ImageUpload] fetch error:", err);
+      setError("Błąd połączenia: " + String(err));
     } finally {
       setIsUploading(false);
     }

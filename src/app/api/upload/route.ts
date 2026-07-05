@@ -28,6 +28,8 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
     console.log("[upload] file:", file?.name, file?.type, file?.size);
+    console.log("[upload] R2_KEY exists:", !!process.env.CLOUDFLARE_R2_ACCESS_KEY_ID);
+    console.log("[upload] R2_SECRET exists:", !!process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY);
 
     if (!file) {
       return NextResponse.json(
@@ -74,7 +76,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("[upload] R2 error:", error);
     return NextResponse.json(
-      { success: false, error: "Błąd uploadu" },
+      { success: false, error: `Błąd uploadu: ${String(error)}` },
       { status: 500 }
     );
   }

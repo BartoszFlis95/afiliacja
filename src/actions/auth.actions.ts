@@ -1,7 +1,10 @@
 "use server";
 
+import { after } from "next/server";
 import { signIn, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendEmail } from "@/lib/resend";
+import WelcomeEmail from "@/emails/WelcomeEmail";
 import { LoginSchema, RegisterSchema } from "@/lib/validations/auth.schema";
 import { Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
@@ -89,6 +92,17 @@ export async function registerAction(formData: FormData) {
       role: role as Role,
     },
   });
+
+  // Nie blokuj rejestracji na wysyłce maila — fire-and-forget, ale zaplanowane
+  // przez after() tak, żeby dokończyło się nawet po zamrożeniu funkcji serverless.
+  const displayName = email.split("@")[0];
+  after(() =>
+    sendEmail({
+      to: email,
+      subject: "Witaj w Deneeu! 🎉",
+      react: WelcomeEmail({ name: displayName, role: role as "BRAND" | "INFLUENCER" }),
+    }).catch((err) => console.error("[email] welcome failed:", err))
+  );
 
   try {
     await signIn("credentials", {

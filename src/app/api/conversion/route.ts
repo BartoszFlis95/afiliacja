@@ -1,7 +1,11 @@
 export const dynamic = "force-dynamic";
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendEmail } from "@/lib/resend";
+import { formatEmailAmount } from "@/emails/utils";
+import NewCommissionEmail from "@/emails/NewCommissionEmail";
+import CommissionPendingBrandEmail from "@/emails/CommissionPendingBrandEmail";
 import { CommissionStatus } from "@prisma/client";
 import crypto from "crypto";
 
@@ -19,6 +23,7 @@ export async function POST(request: NextRequest) {
 
     const brand = await prisma.brandProfile.findUnique({
       where: { apiKey },
+      include: { user: { select: { email: true } } },
     });
 
     if (!brand) {
@@ -74,7 +79,10 @@ export async function POST(request: NextRequest) {
           ...(productSlug ? { slug: productSlug as string } : {}),
         },
       },
-      include: { product: true },
+      include: {
+        product: true,
+        influencerProfile: { include: { user: { select: { email: true } } } },
+      },
       orderBy: { createdAt: "desc" },
       take: 1,
     });
@@ -130,6 +138,43 @@ export async function POST(request: NextRequest) {
         },
       }),
     ]);
+
+    // Nie blokuj odpowiedzi webhooka na wysyłce maili — fire-and-forget, przez after().
+    const influencerEmail = link.influencerProfile.user.email;
+    if (influencerEmail) {
+      after(() =>
+        sendEmail({
+          to: influencerEmail,
+          subject: `🎉 Nowa prowizja! +${formatEmailAmount(influencerCommission)}`,
+          react: NewCommissionEmail({
+            influencerName: link.influencerProfile.displayName,
+            productName: link.product.name,
+            brandName: brand.companyName,
+            orderValue: orderAmount,
+            commissionAmount: influencerCommission,
+            commissionPercent: influencerRate,
+          }),
+        }).catch((err) => console.error("[email] new commission (influencer) failed:", err))
+      );
+    }
+
+    const brandEmail = brand.user.email;
+    if (brandEmail) {
+      after(() =>
+        sendEmail({
+          to: brandEmail,
+          subject: "📋 Nowa prowizja do zatwierdzenia",
+          react: CommissionPendingBrandEmail({
+            brandName: brand.companyName,
+            influencerName: link.influencerProfile.displayName,
+            productName: link.product.name,
+            orderValue: orderAmount,
+            commissionAmount: influencerCommission,
+            orderId: String(orderId),
+          }),
+        }).catch((err) => console.error("[email] commission pending (brand) failed:", err))
+      );
+    }
 
     return NextResponse.json({
       success: true,

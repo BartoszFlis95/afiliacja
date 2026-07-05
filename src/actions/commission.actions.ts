@@ -1,9 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendEmail } from "@/lib/resend";
+import { formatEmailAmount } from "@/emails/utils";
+import CommissionApprovedEmail from "@/emails/CommissionApprovedEmail";
+import PayoutApprovedEmail from "@/emails/PayoutApprovedEmail";
+import PayoutCompletedEmail from "@/emails/PayoutCompletedEmail";
 import {
   CommissionStatus,
   PayoutStatus,
@@ -60,7 +66,16 @@ export async function approveCommissionAction(
 
   const commission = await prisma.commission.findUnique({
     where: { id: commissionId },
-    select: { brandId: true, status: true },
+    select: {
+      brandId: true,
+      status: true,
+      influencerId: true,
+      commissionAmount: true,
+      product: { select: { name: true } },
+      influencer: {
+        select: { displayName: true, user: { select: { email: true } } },
+      },
+    },
   });
 
   if (!commission || commission.brandId !== brandId) {
@@ -76,6 +91,37 @@ export async function approveCommissionAction(
   });
 
   revalidatePath("/brand/commissions");
+
+  const influencerEmail = commission.influencer.user.email;
+  if (influencerEmail) {
+    const commissionAmount = Number(commission.commissionAmount);
+    // Nie blokuj akcji na wysyłce maila — fire-and-forget, przez after().
+    after(() =>
+      prisma.commission
+        .aggregate({
+          where: {
+            influencerId: commission.influencerId,
+            status: CommissionStatus.APPROVED,
+            payout: null,
+          },
+          _sum: { commissionAmount: true },
+        })
+        .then((balanceAggregate) =>
+          sendEmail({
+            to: influencerEmail,
+            subject: `✅ Prowizja zatwierdzona! Możesz wypłacić ${formatEmailAmount(commissionAmount)}`,
+            react: CommissionApprovedEmail({
+              influencerName: commission.influencer.displayName,
+              productName: commission.product.name,
+              commissionAmount,
+              availableBalance: Number(balanceAggregate._sum.commissionAmount ?? 0),
+            }),
+          })
+        )
+        .catch((err) => console.error("[email] commission approved failed:", err))
+    );
+  }
+
   return { success: true };
 }
 
@@ -234,7 +280,19 @@ export async function adminApprovePayoutAction(
 
   const payout = await prisma.payout.findUnique({
     where: { id: payoutId },
-    select: { status: true },
+    select: {
+      status: true,
+      amount: true,
+      influencer: {
+        select: {
+          displayName: true,
+          bankAccountIban: true,
+          paypalEmail: true,
+          preferredPayout: true,
+          user: { select: { email: true } },
+        },
+      },
+    },
   });
 
   if (!payout) return { success: false, error: "Nie znaleziono wypłaty." };
@@ -248,6 +306,25 @@ export async function adminApprovePayoutAction(
   });
 
   revalidatePath("/admin/payouts");
+
+  const influencerEmail = payout.influencer.user.email;
+  if (influencerEmail) {
+    const amount = Number(payout.amount);
+    after(() =>
+      sendEmail({
+        to: influencerEmail,
+        subject: `💸 Wypłata zatwierdzona — ${formatEmailAmount(amount)} w drodze`,
+        react: PayoutApprovedEmail({
+          influencerName: payout.influencer.displayName,
+          amount,
+          bankAccount: payout.influencer.bankAccountIban ?? undefined,
+          paypalEmail: payout.influencer.paypalEmail ?? undefined,
+          preferredPayout: payout.influencer.preferredPayout ?? undefined,
+        }),
+      }).catch((err) => console.error("[email] payout approved failed:", err))
+    );
+  }
+
   return { success: true };
 }
 
@@ -259,7 +336,14 @@ export async function adminMarkPayoutPaidAction(
 
   const payout = await prisma.payout.findUnique({
     where: { id: payoutId },
-    select: { status: true, commissionId: true },
+    select: {
+      status: true,
+      commissionId: true,
+      amount: true,
+      influencer: {
+        select: { displayName: true, user: { select: { email: true } } },
+      },
+    },
   });
 
   if (!payout) return { success: false, error: "Nie znaleziono wypłaty." };
@@ -280,5 +364,21 @@ export async function adminMarkPayoutPaidAction(
   ]);
 
   revalidatePath("/admin/payouts");
+
+  const influencerEmail = payout.influencer.user.email;
+  if (influencerEmail) {
+    after(() =>
+      sendEmail({
+        to: influencerEmail,
+        subject: `✅ Wypłata zrealizowana — ${formatEmailAmount(Number(payout.amount))} wysłane!`,
+        react: PayoutCompletedEmail({
+          influencerName: payout.influencer.displayName,
+          amount: Number(payout.amount),
+          referenceNumber: payoutId,
+        }),
+      }).catch((err) => console.error("[email] payout completed failed:", err))
+    );
+  }
+
   return { success: true };
 }

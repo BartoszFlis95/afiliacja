@@ -1,8 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getAppUrl, sendEmail } from "@/lib/resend";
+import { formatEmailAmount, formatEmailDate } from "@/emails/utils";
+import InvoiceEmail from "@/emails/InvoiceEmail";
 import { generateInvoiceNumber } from "@/lib/invoice-number";
 import { GenerateInvoiceSchema } from "@/lib/validations/invoice.schema";
 import { InvoiceStatus } from "@prisma/client";
@@ -115,6 +119,25 @@ export async function generateInvoiceAction(
 
   revalidatePath("/admin/invoices");
   revalidatePath("/admin/dashboard");
+
+  if (invoice.brandEmail) {
+    after(() =>
+      sendEmail({
+        to: invoice.brandEmail,
+        subject: `📄 Faktura ${invoice.invoiceNumber} — ${formatEmailAmount(Number(invoice.grossAmount))}`,
+        react: InvoiceEmail({
+          brandName: invoice.brandCompanyName,
+          invoiceNumber: invoice.invoiceNumber,
+          grossAmount: Number(invoice.grossAmount),
+          dueDate: formatEmailDate(invoice.dueDate),
+          periodFrom: formatEmailDate(invoice.periodFrom),
+          periodTo: formatEmailDate(invoice.periodTo),
+          invoiceUrl: `${getAppUrl()}/api/invoices/${invoice.id}/pdf`,
+          bankAccount: process.env.DENEEU_BANK_ACCOUNT ?? "—",
+        }),
+      }).catch((err) => console.error("[email] invoice failed:", err))
+    );
+  }
 
   return { success: true, data: { id: invoice.id, invoiceNumber: invoice.invoiceNumber } };
 }
