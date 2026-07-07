@@ -1,61 +1,19 @@
 "use client";
 
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+// recharts jest ciężkie (~100kB+) — leniwe ładowanie całego komponentu wykresu
+// (nie pojedynczych named exports z recharts, bo AreaChart/XAxis/Tooltip muszą
+// renderować się razem w jednym drzewie JSX) usuwa je z początkowego bundle'a
+// strony i ładuje dopiero gdy wykres faktycznie się montuje.
+import dynamic from "next/dynamic";
 
 interface ClicksChartProps {
   data: { date: string; clicks: number }[];
 }
 
-export function ClicksChart({ data }: ClicksChartProps) {
-  if (data.length === 0) {
-    return (
-      <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
-        Brak kliknięć z ostatnich 30 dni.
-      </div>
-    );
+export const ClicksChart = dynamic<ClicksChartProps>(
+  () => import("./ClicksChartImpl").then((mod) => mod.ClicksChart),
+  {
+    ssr: false,
+    loading: () => <div className="h-[220px] animate-pulse rounded-xl bg-blue-50" />,
   }
-
-  return (
-    <ResponsiveContainer width="100%" height={220}>
-      <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-        <defs>
-          <linearGradient id="clicks-gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#2563EB" stopOpacity={0.2} />
-            <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
-          </linearGradient>
-        </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-        <XAxis
-          dataKey="date"
-          tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-          tickFormatter={(v: string) => v.slice(5)}
-        />
-        <YAxis
-          tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-          allowDecimals={false}
-          width={28}
-        />
-        <Tooltip
-          contentStyle={{ fontSize: 12, borderRadius: 8 }}
-          labelFormatter={(label) => `Data: ${label}`}
-          formatter={(value) => [value, "Kliknięcia"]}
-        />
-        <Area
-          type="monotone"
-          dataKey="clicks"
-          stroke="#2563EB"
-          strokeWidth={2}
-          fill="url(#clicks-gradient)"
-        />
-      </AreaChart>
-    </ResponsiveContainer>
-  );
-}
+);
