@@ -70,7 +70,10 @@ export default async function BrandProductsPage({
       orderBy: { createdAt: "desc" },
     }),
     prisma.conversion.findMany({
-      where: { affiliateLink: { product: { brandProfileId: brandProfile.id } }, status: "CONFIRMED" },
+      where: {
+        affiliateLink: { product: { brandProfileId: brandProfile.id } },
+        status: { in: ["CONFIRMED", "PAID"] },
+      },
       select: { amount: true, affiliateLink: { select: { productId: true } } },
     }),
   ]);

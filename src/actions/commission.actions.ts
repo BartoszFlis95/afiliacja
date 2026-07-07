@@ -12,6 +12,7 @@ import PayoutApprovedEmail from "@/emails/PayoutApprovedEmail";
 import PayoutCompletedEmail from "@/emails/PayoutCompletedEmail";
 import {
   CommissionStatus,
+  ConversionStatus,
   PayoutStatus,
   Role,
 } from "@prisma/client";
@@ -51,6 +52,24 @@ async function getInfluencerProfileId(userId: string) {
   return profile?.id ?? null;
 }
 
+/**
+ * Commission i Conversion są tworzone razem w /api/track, ale nie mają
+ * bezpośredniej relacji (tylko wspólne affiliateLinkId+orderId) — bez tego
+ * kroku Conversion.status zostaje na zawsze PENDING, a dashboardy, statystyki
+ * i generowanie faktur filtrują właśnie po statusie CONFIRMED/PAID.
+ */
+async function syncConversionStatus(
+  affiliateLinkId: string,
+  orderId: string | null,
+  status: ConversionStatus
+) {
+  if (!orderId) return;
+  await prisma.conversion.updateMany({
+    where: { affiliateLinkId, orderId },
+    data: { status },
+  });
+}
+
 // ---------------------------------------------------------------------------
 // BRAND
 // ---------------------------------------------------------------------------
@@ -62,6 +81,8 @@ async function approveCommissionCore(commissionId: string): Promise<ActionResult
       status: true,
       influencerId: true,
       commissionAmount: true,
+      affiliateLinkId: true,
+      orderId: true,
       product: { select: { name: true } },
       influencer: {
         select: { displayName: true, user: { select: { email: true } } },
@@ -78,6 +99,12 @@ async function approveCommissionCore(commissionId: string): Promise<ActionResult
     where: { id: commissionId },
     data: { status: CommissionStatus.APPROVED },
   });
+
+  await syncConversionStatus(
+    commission.affiliateLinkId,
+    commission.orderId,
+    ConversionStatus.CONFIRMED
+  );
 
   const influencerEmail = commission.influencer.user.email;
   if (influencerEmail) {
@@ -115,7 +142,7 @@ async function approveCommissionCore(commissionId: string): Promise<ActionResult
 async function rejectCommissionCore(commissionId: string): Promise<ActionResult> {
   const commission = await prisma.commission.findUnique({
     where: { id: commissionId },
-    select: { status: true },
+    select: { status: true, affiliateLinkId: true, orderId: true },
   });
 
   if (!commission) return { success: false, error: "Nie znaleziono komisji." };
@@ -127,6 +154,12 @@ async function rejectCommissionCore(commissionId: string): Promise<ActionResult>
     where: { id: commissionId },
     data: { status: CommissionStatus.REJECTED },
   });
+
+  await syncConversionStatus(
+    commission.affiliateLinkId,
+    commission.orderId,
+    ConversionStatus.REJECTED
+  );
 
   return { success: true };
 }
@@ -409,6 +442,7 @@ export async function adminMarkPayoutPaidAction(
       status: true,
       commissionId: true,
       amount: true,
+      commission: { select: { affiliateLinkId: true, orderId: true } },
       influencer: {
         select: { displayName: true, user: { select: { email: true } } },
       },
@@ -431,6 +465,12 @@ export async function adminMarkPayoutPaidAction(
       data: { status: CommissionStatus.PAID },
     }),
   ]);
+
+  await syncConversionStatus(
+    payout.commission.affiliateLinkId,
+    payout.commission.orderId,
+    ConversionStatus.PAID
+  );
 
   revalidatePath("/admin/payouts");
 

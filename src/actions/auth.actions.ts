@@ -90,6 +90,10 @@ export async function registerAction(formData: FormData) {
       email,
       passwordHash,
       role: role as Role,
+      // Brak osobnego flow do weryfikacji maila — rejestracja jest równoznaczna
+      // z potwierdzeniem, inaczej authorize() w lib/auth.ts nigdy nie wpuści
+      // tego użytkownika (wymaga emailVerified).
+      emailVerified: new Date(),
     },
   });
 
@@ -104,21 +108,28 @@ export async function registerAction(formData: FormData) {
     }).catch((err) => console.error("[email] welcome failed:", err))
   );
 
+  let redirectTo = "/influencer/dashboard";
+  if (role === "BRAND") redirectTo = "/brand/dashboard";
+
   try {
     await signIn("credentials", {
       email,
       password,
       redirect: false,
     });
-    let redirectTo = "/influencer/dashboard";
-    if (role === "BRAND") redirectTo = "/brand/dashboard";
-    return { success: true, redirectTo };
-  } catch {
+  } catch (error) {
+    // Patrz loginAction: Auth.js v5 czasem rzuca NEXT_REDIRECT mimo redirect:false
+    // (edge case Next.js 16) — konto i sesja i tak powstały, więc to sukces.
+    if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
+      return { success: true, redirectTo };
+    }
     return {
       success: false,
       error: "Konto utworzone, ale logowanie nie powiodło się. Zaloguj się ręcznie.",
     };
   }
+
+  return { success: true, redirectTo };
 }
 
 export async function logoutAction() {

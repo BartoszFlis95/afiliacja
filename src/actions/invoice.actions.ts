@@ -53,7 +53,10 @@ export async function generateInvoiceAction(
     where: {
       affiliateLink: { product: { brandProfileId: brandId } },
       createdAt: { gte: from, lte: to },
-      status: "CONFIRMED",
+      // PAID (influencer already wypłacony) jest tak samo rozliczalne wobec
+      // marki jak CONFIRMED — inaczej opłacona konwersja nigdy nie trafia
+      // na fakturę.
+      status: { in: ["CONFIRMED", "PAID"] },
     },
     include: {
       affiliateLink: { include: { product: { select: { id: true, name: true } } } },
@@ -175,7 +178,10 @@ export async function previewInvoiceAction(data: {
     where: {
       affiliateLink: { product: { brandProfileId: data.brandId } },
       createdAt: { gte: from, lte: to },
-      status: "CONFIRMED",
+      // PAID (influencer already wypłacony) jest tak samo rozliczalne wobec
+      // marki jak CONFIRMED — inaczej opłacona konwersja nigdy nie trafia
+      // na fakturę.
+      status: { in: ["CONFIRMED", "PAID"] },
     },
     include: {
       affiliateLink: { include: { product: { select: { id: true, name: true } } } },

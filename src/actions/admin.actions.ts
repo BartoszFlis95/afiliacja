@@ -87,7 +87,7 @@ export async function getPlatformStatsAction() {
       _sum: { amount: true },
     }),
     prisma.conversion.aggregate({
-      where: { status: "CONFIRMED" },
+      where: { status: { in: ["CONFIRMED", "PAID"] } },
       _sum: { platformCommission: true },
     }),
   ]);
@@ -120,13 +120,16 @@ export async function getFinanceSummaryAction() {
     payoutsByInfluencer,
     revenueByBrandConversions,
   ] = await Promise.all([
-    prisma.conversion.aggregate({ where: { status: "CONFIRMED" }, _sum: { amount: true } }),
     prisma.conversion.aggregate({
-      where: { status: "CONFIRMED" },
+      where: { status: { in: ["CONFIRMED", "PAID"] } },
+      _sum: { amount: true },
+    }),
+    prisma.conversion.aggregate({
+      where: { status: { in: ["CONFIRMED", "PAID"] } },
       _sum: { influencerCommission: true },
     }),
     prisma.conversion.aggregate({
-      where: { status: "CONFIRMED" },
+      where: { status: { in: ["CONFIRMED", "PAID"] } },
       _sum: { platformCommission: true },
     }),
     prisma.payout.aggregate({
@@ -135,7 +138,7 @@ export async function getFinanceSummaryAction() {
     }),
     prisma.payout.aggregate({ where: { status: "COMPLETED" }, _sum: { amount: true } }),
     prisma.conversion.findMany({
-      where: { status: "CONFIRMED", createdAt: { gte: start12MonthsAgo } },
+      where: { status: { in: ["CONFIRMED", "PAID"] }, createdAt: { gte: start12MonthsAgo } },
       select: { amount: true, createdAt: true },
     }),
     prisma.payout.findMany({
@@ -143,7 +146,7 @@ export async function getFinanceSummaryAction() {
       include: { influencer: { select: { displayName: true } } },
     }),
     prisma.conversion.findMany({
-      where: { status: "CONFIRMED" },
+      where: { status: { in: ["CONFIRMED", "PAID"] } },
       select: {
         amount: true,
         affiliateLink: {

@@ -67,11 +67,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // BUG-03: orderId idempotency — check both Commission and Conversion tables
+  // BUG-03: orderId idempotency — check both Commission and Conversion tables,
+  // scoped to this brand (order IDs come from each brand's own store and can
+  // collide across unrelated brands).
   if (orderId) {
     const [existingCommission, existingConversion] = await Promise.all([
-      prisma.commission.findFirst({ where: { orderId } }),
-      prisma.conversion.findFirst({ where: { orderId } }),
+      prisma.commission.findFirst({ where: { orderId, brandId: brand.id } }),
+      prisma.conversion.findFirst({
+        where: { orderId, affiliateLink: { product: { brandProfileId: brand.id } } },
+      }),
     ]);
     if (existingCommission || existingConversion) {
       return NextResponse.json(

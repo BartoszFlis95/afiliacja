@@ -77,7 +77,7 @@ export default async function BrandDashboardPage() {
     prisma.conversion.aggregate({
       where: {
         affiliateLink: { product: { brandProfileId: brandProfile.id } },
-        status: "CONFIRMED",
+        status: { in: ["CONFIRMED", "PAID"] },
       },
       _sum: { amount: true },
     }),
@@ -85,7 +85,7 @@ export default async function BrandDashboardPage() {
     prisma.conversion.findMany({
       where: {
         affiliateLink: { product: { brandProfileId: brandProfile.id } },
-        status: "CONFIRMED",
+        status: { in: ["CONFIRMED", "PAID"] },
         createdAt: { gte: start30DaysAgo },
       },
       select: { amount: true, createdAt: true },
@@ -93,7 +93,7 @@ export default async function BrandDashboardPage() {
     prisma.conversion.findMany({
       where: {
         affiliateLink: { product: { brandProfileId: brandProfile.id } },
-        status: "CONFIRMED",
+        status: { in: ["CONFIRMED", "PAID"] },
       },
       select: { amount: true, affiliateLink: { select: { product: { select: { name: true } } } } },
     }),

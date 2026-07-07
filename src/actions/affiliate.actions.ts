@@ -197,7 +197,7 @@ export async function getBrandStatsAction() {
     const totalRevenue = await prisma.conversion.aggregate({
       where: {
         affiliateLink: { productId: { in: productIds } },
-        status: "CONFIRMED",
+        status: { in: ["CONFIRMED", "PAID"] },
       },
       _sum: { amount: true },
     });

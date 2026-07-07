@@ -75,7 +75,7 @@ export default async function AdminDashboardPage() {
       select: { createdAt: true },
     }),
     prisma.conversion.findMany({
-      where: { status: "CONFIRMED", createdAt: { gte: start30DaysAgo } },
+      where: { status: { in: ["CONFIRMED", "PAID"] }, createdAt: { gte: start30DaysAgo } },
       select: { platformCommission: true, createdAt: true },
     }),
     prisma.user.findMany({

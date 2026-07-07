@@ -129,7 +129,7 @@ export async function getBrandStatsAction() {
       prisma.conversion.aggregate({
         where: {
           affiliateLink: { product: { brandProfileId: brandProfile.id } },
-          status: "CONFIRMED",
+          status: { in: ["CONFIRMED", "PAID"] },
         },
         _sum: { amount: true },
       }),
@@ -192,7 +192,7 @@ export async function getBrandRangeStatsAction(
       prisma.conversion.findMany({
         where: {
           affiliateLink: { product: { brandProfileId: brandProfile.id } },
-          status: "CONFIRMED",
+          status: { in: ["CONFIRMED", "PAID"] },
           createdAt: { gte: from },
         },
         select: {
