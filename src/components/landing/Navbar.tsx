@@ -18,6 +18,7 @@ const NAV_LINKS = [
   { href: "#korzysci", label: "Korzyści" },
   { href: "#dla-kogo", label: "Dla marek" },
   { href: "#dla-kogo", label: "Dla influencerów" },
+  { href: "/docs", label: "Dokumentacja" },
 ];
 
 export function Navbar() {

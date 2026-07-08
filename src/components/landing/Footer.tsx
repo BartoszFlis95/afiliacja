@@ -11,6 +11,7 @@ const FOOTER_COLUMNS: {
       { href: "#korzysci", label: "Korzyści" },
       { href: "#dla-kogo", label: "Dla marek" },
       { href: "#dla-kogo", label: "Dla influencerów" },
+      { href: "/docs", label: "Dokumentacja API" },
     ],
   },
   {

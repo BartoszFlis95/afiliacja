@@ -15,6 +15,7 @@ import {
   CreditCard,
   FileText,
   DollarSign,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/actions/auth.actions";
@@ -41,6 +42,7 @@ const NAV_ITEMS: Record<Role, { title: string; href: string; icon: React.Element
     { title: "Statystyki",   href: "/brand/stats",        icon: BarChart3 },
     { title: "Influencerzy", href: "/brand/influencers",  icon: Users },
     { title: "Ustawienia",   href: "/brand/settings",     icon: Settings },
+    { title: "Dokumentacja API", href: "/docs",           icon: BookOpen },
   ],
   INFLUENCER: [
     { title: "Dashboard",  href: "/influencer/dashboard",   icon: LayoutDashboard },
