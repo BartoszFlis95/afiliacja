@@ -34,9 +34,9 @@ const FOOTER_COLUMNS: {
 export function Footer() {
   return (
     <footer className="border-t border-slate-800 bg-[#0F172A]">
-      <div className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-4">
+          <div className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
               <span className="text-xl font-black text-white">Deneeu</span>
@@ -67,7 +67,7 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col gap-2 border-t border-slate-800 pt-8 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col items-center gap-2 border-t border-slate-800 pt-8 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
           <p className="text-sm text-slate-600">
             © {new Date().getFullYear()} Deneeu. Wszelkie prawa zastrzeżone.
           </p>

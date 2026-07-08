@@ -116,45 +116,49 @@ export default async function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen overflow-x-hidden bg-white">
       <Navbar />
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#EFF6FF] via-white to-[#DBEAFE] px-6 pt-32 pb-20 scroll-mt-24">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-2">
-          <div>
+      <section className="scroll-mt-24 bg-gradient-to-br from-[#EFF6FF] via-white to-[#DBEAFE] px-4 pt-24 pb-12 sm:px-6 sm:pt-28 sm:pb-16 lg:px-8 lg:pt-32 lg:pb-20">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 sm:gap-12 lg:grid-cols-2 lg:gap-16">
+          <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
             <span className="inline-flex rounded-full bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700">
               🚀 Platforma CPS dla marek i influencerów
             </span>
 
-            <h1 className="mt-6 text-5xl font-black leading-tight text-[#0F172A] lg:text-6xl">
+            <h1 className="mt-6 text-3xl font-black leading-tight text-[#0F172A] sm:text-4xl lg:text-6xl">
               Łączymy marki z influencerami przez marketing afiliacyjny
             </h1>
 
-            <p className="mt-4 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-2xl font-bold text-transparent lg:text-3xl">
+            <p className="mt-4 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-xl font-bold text-transparent sm:text-2xl lg:text-3xl">
               Automatyzuj prowizje, śledzenie konwersji i wypłaty
             </p>
 
-            <p className="mt-6 max-w-lg text-lg text-slate-500">
+            <p className="mt-6 max-w-lg text-base text-slate-500 sm:text-lg">
               Platforma CPS (Cost Per Sale) która łączy marki z
               influencerami. Płacisz tylko za wyniki.
             </p>
 
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <Button asChild size="lg" className="rounded-xl px-8 py-4 text-lg h-auto">
+            <div className="mt-10 flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
+              <Button
+                asChild
+                size="lg"
+                className="h-auto w-full rounded-xl px-6 py-3 text-base sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+              >
                 <Link href="/register">Zacznij teraz →</Link>
               </Button>
               <Button
                 asChild
                 size="lg"
                 variant="outline"
-                className="rounded-xl px-8 py-4 text-lg h-auto"
+                className="h-auto w-full rounded-xl px-6 py-3 text-base sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
               >
                 <a href="#jak-to-dziala">Jak to działa ↓</a>
               </Button>
             </div>
 
-            <ul className="mt-10 flex flex-col gap-2 text-sm text-slate-500 sm:flex-row sm:gap-6">
+            <ul className="mt-10 flex flex-col items-center gap-2 text-sm text-slate-500 sm:flex-row sm:gap-6 lg:items-start">
               <li className="flex items-center gap-2">
                 <span className="text-blue-600">✓</span> Darmowa rejestracja
               </li>
@@ -168,7 +172,7 @@ export default async function LandingPage() {
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-blue-100 bg-white p-4 shadow-2xl">
+          <div className="hidden rounded-2xl border border-blue-100 bg-white p-4 shadow-2xl lg:block">
             <div className="flex items-center gap-2 rounded-xl bg-[#0F172A] p-3">
               <span className="flex gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-white/70" />
@@ -211,19 +215,19 @@ export default async function LandingPage() {
       {/* Jak to działa */}
       <section
         id="jak-to-dziala"
-        className="scroll-mt-24 bg-[#EFF6FF] px-6 py-24"
+        className="scroll-mt-24 bg-[#EFF6FF] px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24"
       >
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-4xl font-black text-[#0F172A]">
+            <h2 className="text-3xl font-black text-[#0F172A] sm:text-4xl">
               Jak to działa?
             </h2>
-            <p className="mt-3 text-slate-500">
+            <p className="mt-3 text-base text-slate-500 sm:text-lg">
               Trzy proste kroki do automatycznych prowizji
             </p>
           </div>
 
-          <div className="mt-16 grid grid-cols-1 gap-10 lg:grid-cols-3">
+          <div className="mt-10 grid grid-cols-1 gap-8 sm:gap-6 lg:mt-16 lg:grid-cols-3 lg:gap-8">
             {STEPS.map((step, index) => (
               <div key={step.number} className="relative text-center">
                 <div className="inline-flex rounded-2xl bg-blue-100 p-4 text-4xl">
@@ -251,23 +255,26 @@ export default async function LandingPage() {
       </section>
 
       {/* Dla kogo */}
-      <section id="dla-kogo" className="scroll-mt-24 bg-white px-6 py-24">
+      <section
+        id="dla-kogo"
+        className="scroll-mt-24 bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24"
+      >
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-4xl font-black text-[#0F172A]">
+            <h2 className="text-3xl font-black text-[#0F172A] sm:text-4xl">
               Dla marek i influencerów
             </h2>
-            <p className="mt-3 text-slate-500">
+            <p className="mt-3 text-base text-slate-500 sm:text-lg">
               Jedna platforma — dwie strony sukcesu
             </p>
           </div>
 
-          <div className="mt-16 grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <div className="mt-10 grid grid-cols-1 gap-8 lg:mt-16 lg:grid-cols-2">
             <div>
               <div className="rounded-t-2xl bg-blue-600 p-6">
                 <h3 className="text-xl font-bold text-white">🏢 Dla Marek</h3>
               </div>
-              <div className="rounded-b-2xl border border-blue-100 bg-[#EFF6FF] p-8">
+              <div className="rounded-b-2xl border border-blue-100 bg-[#EFF6FF] p-6 sm:p-8 lg:p-10">
                 <ul className="space-y-3">
                   {BRAND_BENEFITS.map((benefit) => (
                     <li
@@ -278,7 +285,7 @@ export default async function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Button asChild className="mt-8 w-full">
+                <Button asChild className="mt-8 h-12 w-full text-base">
                   <Link href="/register">Zarejestruj markę →</Link>
                 </Button>
               </div>
@@ -290,7 +297,7 @@ export default async function LandingPage() {
                   🎯 Dla Influencerów
                 </h3>
               </div>
-              <div className="rounded-b-2xl border border-blue-100 bg-white p-8">
+              <div className="rounded-b-2xl border border-blue-100 bg-white p-6 sm:p-8 lg:p-10">
                 <ul className="space-y-3">
                   {INFLUENCER_BENEFITS.map((benefit) => (
                     <li
@@ -303,7 +310,7 @@ export default async function LandingPage() {
                 </ul>
                 <Button
                   asChild
-                  className="mt-8 w-full bg-[#0F172A] hover:bg-[#1E293B]"
+                  className="mt-8 h-12 w-full bg-[#0F172A] text-base hover:bg-[#1E293B]"
                 >
                   <Link href="/register">Zarejestruj się →</Link>
                 </Button>
@@ -314,18 +321,21 @@ export default async function LandingPage() {
       </section>
 
       {/* Korzyści */}
-      <section id="korzysci" className="scroll-mt-24 bg-[#EFF6FF] px-6 py-24">
+      <section
+        id="korzysci"
+        className="scroll-mt-24 bg-[#EFF6FF] px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24"
+      >
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-4xl font-black text-[#0F172A]">
+            <h2 className="text-3xl font-black text-[#0F172A] sm:text-4xl">
               Dlaczego Deneeu?
             </h2>
-            <p className="mt-3 text-slate-500">
+            <p className="mt-3 text-base text-slate-500 sm:text-lg">
               Wszystko czego potrzebujesz w jednym miejscu
             </p>
           </div>
 
-          <div className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:mt-16 lg:grid-cols-3 lg:gap-8">
             {FEATURES.map((feature) => (
               <div
                 key={feature.title}
@@ -347,18 +357,18 @@ export default async function LandingPage() {
       </section>
 
       {/* CTA końcowe */}
-      <section className="mx-4 my-20 max-w-5xl rounded-3xl bg-gradient-to-r from-blue-600 to-blue-800 px-8 py-16 text-center lg:mx-auto">
-        <h2 className="text-4xl font-black text-white">
+      <section className="mx-4 my-12 max-w-5xl rounded-3xl bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-10 text-center sm:px-8 lg:mx-auto lg:my-20 lg:py-16">
+        <h2 className="text-3xl font-black text-white sm:text-4xl">
           Gotowy aby zacząć?
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-lg text-blue-200">
+        <p className="mx-auto mt-4 max-w-xl text-base text-blue-200 sm:text-lg">
           Dołącz do platformy i zacznij zarabiać na afiliacji już dziś.
           Rejestracja jest darmowa.
         </p>
         <Button
           asChild
           size="lg"
-          className="mt-8 h-auto rounded-xl bg-white px-10 py-4 text-lg font-bold text-blue-600 hover:bg-blue-50"
+          className="mt-8 h-12 w-full rounded-xl bg-white px-8 text-base font-bold text-blue-600 hover:bg-blue-50 sm:h-auto sm:w-auto sm:py-4 sm:text-lg"
         >
           <Link href="/register">Utwórz konto za darmo →</Link>
         </Button>
