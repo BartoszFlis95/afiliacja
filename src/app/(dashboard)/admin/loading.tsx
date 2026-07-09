@@ -1,13 +1,33 @@
+import { StatsCardSkeleton } from "@/components/shared/StatsCard";
+import { Skeleton } from "@/components/ui/skeleton";
+
 export default function Loading() {
   return (
-    <div className="p-6 lg:p-8 space-y-6">
-      <div className="h-8 w-48 bg-blue-100 rounded-lg animate-pulse" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-32 bg-blue-50 rounded-xl animate-pulse border border-blue-100" />
+    <div className="space-y-8">
+      <Skeleton className="h-8 w-56" />
+
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {[...Array(8)].map((_, i) => (
+          <StatsCardSkeleton key={i} />
         ))}
       </div>
-      <div className="h-64 bg-blue-50 rounded-xl animate-pulse border border-blue-100" />
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Skeleton className="h-72 rounded-xl" />
+        <Skeleton className="h-72 rounded-xl" />
+      </div>
+
+      <Skeleton className="h-64 rounded-xl" />
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Skeleton className="h-28 rounded-xl" />
+        <Skeleton className="h-28 rounded-xl" />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <Skeleton className="h-64 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
     </div>
   );
 }

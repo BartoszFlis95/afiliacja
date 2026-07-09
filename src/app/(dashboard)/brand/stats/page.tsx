@@ -1,5 +1,6 @@
 // src/app/(dashboard)/brand/stats/page.tsx
 import { redirect } from "next/navigation";
+import { BarChart3, Package, Receipt } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -7,6 +8,7 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { getBrandRangeStatsAction } from "@/actions/brand.actions";
 import { BrandStatsClient } from "@/components/brand/BrandStatsClient";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { EmptyState } from "@/components/shared/EmptyState";
 import {
   Card,
   CardContent,
@@ -83,33 +85,33 @@ export default async function BrandStatsPage() {
           <CardHeader>
             <CardTitle>Top 5 produktów (wg liczby linków)</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Produkt</TableHead>
-                  <TableHead className="text-right">Linki</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {topProducts.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={2} className="text-center text-muted-foreground">
-                      Brak danych.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  topProducts.map((product) => (
-                    <TableRow key={product.id}>
-                      <TableCell className="font-medium">{product.name}</TableCell>
-                      <TableCell className="text-right">
-                        {product._count.affiliateLinks.toLocaleString("pl-PL")}
-                      </TableCell>
+          <CardContent className="p-0">
+            {topProducts.length === 0 ? (
+              <div className="p-6">
+                <EmptyState icon={Package} title="Brak danych" className="border-0" />
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table className="min-w-[360px]">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="pl-6">Produkt</TableHead>
+                      <TableHead className="pr-6 text-right">Linki</TableHead>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {topProducts.map((product) => (
+                      <TableRow key={product.id}>
+                        <TableCell className="pl-6 font-medium">{product.name}</TableCell>
+                        <TableCell className="pr-6 text-right">
+                          {product._count.affiliateLinks.toLocaleString("pl-PL")}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -117,35 +119,35 @@ export default async function BrandStatsPage() {
           <CardHeader>
             <CardTitle>Top 5 influencerów (wg zarobków)</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Influencer</TableHead>
-                  <TableHead className="text-right">Zarobki</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {topInfluencers.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={2} className="text-center text-muted-foreground">
-                      Brak danych.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  topInfluencers.map((link) => (
-                    <TableRow key={link.id}>
-                      <TableCell className="font-medium">
-                        {link.influencerProfile?.displayName ?? "—"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(Number(link.totalEarnings))}
-                      </TableCell>
+          <CardContent className="p-0">
+            {topInfluencers.length === 0 ? (
+              <div className="p-6">
+                <EmptyState icon={BarChart3} title="Brak danych" className="border-0" />
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table className="min-w-[360px]">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="pl-6">Influencer</TableHead>
+                      <TableHead className="pr-6 text-right">Zarobki</TableHead>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {topInfluencers.map((link) => (
+                      <TableRow key={link.id}>
+                        <TableCell className="pl-6 font-medium">
+                          {link.influencerProfile?.displayName ?? "—"}
+                        </TableCell>
+                        <TableCell className="pr-6 text-right">
+                          {formatCurrency(Number(link.totalEarnings))}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </CardContent>
         </Card>
       </section>
@@ -154,47 +156,47 @@ export default async function BrandStatsPage() {
         <CardHeader>
           <CardTitle>Ostatnie konwersje</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Produkt</TableHead>
-                <TableHead className="text-right">Kwota</TableHead>
-                <TableHead className="text-right">Prowizja</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Data</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentConversions.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    Brak konwersji.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                recentConversions.map((conversion) => (
-                  <TableRow key={conversion.id}>
-                    <TableCell className="font-medium">
-                      {conversion.affiliateLink?.product?.name ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatCurrency(Number(conversion.amount))}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatCurrency(Number(conversion.commission))}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={conversion.status} />
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatDate(conversion.createdAt)}
-                    </TableCell>
+        <CardContent className="p-0">
+          {recentConversions.length === 0 ? (
+            <div className="p-6">
+              <EmptyState icon={Receipt} title="Brak konwersji" className="border-0" />
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table className="min-w-[640px]">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="pl-6">Produkt</TableHead>
+                    <TableHead className="text-right">Kwota</TableHead>
+                    <TableHead className="text-right">Prowizja</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="pr-6">Data</TableHead>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                  {recentConversions.map((conversion) => (
+                    <TableRow key={conversion.id}>
+                      <TableCell className="pl-6 font-medium">
+                        {conversion.affiliateLink?.product?.name ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(Number(conversion.amount))}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(Number(conversion.commission))}
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge status={conversion.status} />
+                      </TableCell>
+                      <TableCell className="pr-6 text-muted-foreground">
+                        {formatDate(conversion.createdAt)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

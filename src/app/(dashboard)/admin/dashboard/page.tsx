@@ -138,7 +138,7 @@ export default async function AdminDashboardPage() {
         </p>
       </header>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <StatsCard title="Użytkownicy łącznie" value={stats.totalUsers.toLocaleString("pl-PL")} icon={Users} />
         <StatsCard title="Nowi (7 dni)" value={newUsers7Days.toLocaleString("pl-PL")} icon={UserPlus} />
         <StatsCard title="Marki" value={stats.totalBrands.toLocaleString("pl-PL")} icon={Building2} />

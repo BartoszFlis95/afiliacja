@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { Package } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -11,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { ToggleProductButton } from "@/components/admin/ToggleProductButton";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +32,7 @@ export default async function AdminProductsPage() {
   });
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold text-[#0F172A]">Produkty</h1>
         <p className="mt-1 text-muted-foreground">
@@ -38,8 +40,8 @@ export default async function AdminProductsPage() {
         </p>
       </header>
 
-      <div className="rounded-lg border">
-        <Table>
+      <div className="overflow-x-auto rounded-lg border">
+        <Table className="min-w-[820px]">
           <TableHeader>
             <TableRow>
               <TableHead>Nazwa</TableHead>
@@ -54,8 +56,13 @@ export default async function AdminProductsPage() {
           <TableBody>
             {products.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground">
-                  Brak produktów.
+                <TableCell colSpan={7} className="p-0">
+                  <EmptyState
+                    icon={Package}
+                    title="Brak produktów"
+                    description="Żadna marka nie dodała jeszcze produktu."
+                    className="border-0"
+                  />
                 </TableCell>
               </TableRow>
             ) : (

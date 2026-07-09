@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { CopyLinkButton } from "@/components/influencer/CopyLinkButton";
 import { GenerateLinkButton } from "@/components/influencer/GenerateLinkButton";
+import { EmptyState } from "@/components/shared/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -73,9 +74,11 @@ export default async function InfluencerProductsPage() {
       </header>
 
       {serializedProducts.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-slate-300 py-20 text-center text-slate-400">
-          Brak dostępnych produktów.
-        </div>
+        <EmptyState
+          icon={ImageIcon}
+          title="Brak dostępnych produktów"
+          description="Marki nie dodały jeszcze żadnego aktywnego produktu do promocji."
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {serializedProducts.map((product) => {

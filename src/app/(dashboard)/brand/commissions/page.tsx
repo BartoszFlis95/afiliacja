@@ -17,16 +17,17 @@ export default async function BrandCommissionsPage() {
     where: { userId: session.user.id },
     select: { id: true },
   });
+  if (!brandProfile) {
+    redirect("/brand/onboarding");
+  }
 
   const [result, products] = await Promise.all([
     getBrandCommissionsAction(),
-    brandProfile
-      ? prisma.product.findMany({
-          where: { brandProfileId: brandProfile.id },
-          select: { id: true, name: true },
-          orderBy: { name: "asc" },
-        })
-      : Promise.resolve([]),
+    prisma.product.findMany({
+      where: { brandProfileId: brandProfile.id },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
   ]);
 
   const commissions = result.success ? result.data ?? [] : [];

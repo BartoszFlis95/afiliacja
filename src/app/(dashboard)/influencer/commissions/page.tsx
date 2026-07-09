@@ -190,7 +190,7 @@ export default async function InfluencerCommissionsPage() {
     : undefined;
 
   const availableBalance = commissions
-    .filter((c) => c.status === "APPROVED")
+    .filter((c) => c.status === "APPROVED" && !c.payout)
     .reduce((sum, c) => sum + Number(c.commissionAmount), 0);
 
   const byStatus = (status: string) =>

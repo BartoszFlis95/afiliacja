@@ -21,8 +21,6 @@ export function ImageUpload({ value, onChange, label = "Zdjęcie" }: ImageUpload
     setIsUploading(true);
     setError(null);
     try {
-      console.log("[ImageUpload] starting upload:", file.name, file.type, file.size);
-
       const formData = new FormData();
       formData.append("file", file);
 
@@ -31,21 +29,17 @@ export function ImageUpload({ value, onChange, label = "Zdjęcie" }: ImageUpload
         body: formData,
       });
 
-      console.log("[ImageUpload] response status:", response.status);
-
       const data = await response.json();
-      console.log("[ImageUpload] response data:", data);
 
       if (!response.ok || !data.success) {
         setError(data.error ?? `Błąd serwera: ${response.status}`);
         return;
       }
 
-      console.log("[ImageUpload] SUCCESS url:", data.url);
       onChange(data.url);
     } catch (err) {
       console.error("[ImageUpload] fetch error:", err);
-      setError("Błąd połączenia: " + String(err));
+      setError("Błąd połączenia. Spróbuj ponownie.");
     } finally {
       setIsUploading(false);
     }

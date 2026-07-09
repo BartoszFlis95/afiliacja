@@ -1,5 +1,6 @@
 // src/app/(dashboard)/admin/users/page.tsx
 import { redirect } from "next/navigation";
+import { Users } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -13,7 +14,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ToggleUserButton } from "@/components/admin/ToggleUserButton";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { UserDetailsButton } from "@/components/admin/UserDetailsButton";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +47,7 @@ export default async function AdminUsersPage() {
   });
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold text-[#0F172A]">Użytkownicy</h1>
         <p className="mt-1 text-muted-foreground">
@@ -53,8 +55,8 @@ export default async function AdminUsersPage() {
         </p>
       </header>
 
-      <div className="rounded-lg border">
-        <Table>
+      <div className="overflow-x-auto rounded-lg border">
+        <Table className="min-w-[720px]">
           <TableHeader>
             <TableRow>
               <TableHead>Email</TableHead>
@@ -68,8 +70,13 @@ export default async function AdminUsersPage() {
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  Brak użytkowników.
+                <TableCell colSpan={6} className="p-0">
+                  <EmptyState
+                    icon={Users}
+                    title="Brak użytkowników"
+                    description="Na razie nikt się nie zarejestrował."
+                    className="border-0"
+                  />
                 </TableCell>
               </TableRow>
             ) : (
@@ -98,7 +105,7 @@ export default async function AdminUsersPage() {
                     {formatDate(user.createdAt)}
                   </TableCell>
                   <TableCell className="text-right">
-                    <ToggleUserButton userId={user.id} />
+                    <UserDetailsButton user={user} />
                   </TableCell>
                 </TableRow>
               ))

@@ -75,7 +75,6 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
 
   function onSubmit(data: ProductFormData) {
     setError(null);
-    console.log("[ProductForm] submit data.imageUrl:", data.imageUrl);
     startTransition(async () => {
       const result =
         mode === "edit" && initialData?.id
@@ -132,7 +131,7 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="price">Cena (PLN)</Label>
               <Input
@@ -170,7 +169,7 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="influencerCommissionRate">Dla influencera (%) *</Label>
               <Input
@@ -257,6 +256,7 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
               <SelectContent>
                 <SelectItem value="DRAFT">Szkic</SelectItem>
                 <SelectItem value="ACTIVE">Aktywny</SelectItem>
+                <SelectItem value="INACTIVE">Nieaktywny</SelectItem>
               </SelectContent>
             </Select>
             {errors.status && (

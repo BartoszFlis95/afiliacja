@@ -111,7 +111,7 @@ export default async function AdminInvoiceDetailPage({
             </div>
 
             {/* Dates */}
-            <div className="grid grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">
               <div>
                 <p className="text-muted-foreground">Data wystawienia</p>
                 <p className="font-medium">{formatDate(invoice.issuedAt)}</p>
@@ -132,7 +132,7 @@ export default async function AdminInvoiceDetailPage({
             <hr className="border-slate-200" />
 
             {/* Parties */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div className="rounded-lg bg-slate-50 p-4 text-sm space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Sprzedawca</p>
                 <p className="font-semibold text-slate-900">{invoice.issuerName}</p>
@@ -156,7 +156,8 @@ export default async function AdminInvoiceDetailPage({
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Pozycje</p>
               <Card className="overflow-hidden">
-                <Table>
+                <div className="overflow-x-auto">
+                <Table className="min-w-[520px]">
                   <TableHeader>
                     <TableRow className="bg-slate-900 hover:bg-slate-900">
                       <TableHead className="pl-4 text-white">Opis</TableHead>
@@ -176,6 +177,7 @@ export default async function AdminInvoiceDetailPage({
                     ))}
                   </TableBody>
                 </Table>
+                </div>
               </Card>
             </div>
 

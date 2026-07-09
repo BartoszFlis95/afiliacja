@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getInvoicesAction, getBrandsListAction } from "@/actions/invoice.actions";
 import { GenerateInvoiceModal } from "@/components/admin/GenerateInvoiceModal";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -91,7 +92,8 @@ export default async function AdminInvoicesPage() {
 
       {/* Table */}
       <Card className="overflow-hidden">
-        <Table>
+        <div className="overflow-x-auto">
+        <Table className="min-w-[820px]">
           <TableHeader>
             <TableRow>
               <TableHead className="pl-6">Nr faktury</TableHead>
@@ -106,9 +108,13 @@ export default async function AdminInvoicesPage() {
           <TableBody>
             {invoices.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="py-16 text-center text-muted-foreground">
-                  <FileText className="mx-auto mb-3 h-8 w-8 opacity-30" />
-                  Brak faktur. Użyj przycisku „Wystaw fakturę", aby dodać pierwszą.
+                <TableCell colSpan={7} className="p-0">
+                  <EmptyState
+                    icon={FileText}
+                    title="Brak faktur"
+                    description='Użyj przycisku „Wystaw fakturę", aby dodać pierwszą.'
+                    className="border-0"
+                  />
                 </TableCell>
               </TableRow>
             ) : (
@@ -150,6 +156,7 @@ export default async function AdminInvoicesPage() {
             )}
           </TableBody>
         </Table>
+        </div>
       </Card>
     </div>
   );
