@@ -8,8 +8,46 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Deneeu | Platforma Affiliate Marketing",
-  description: "Łączymy marki z influencerami",
+  metadataBase: new URL("https://www.deneeu.pl"),
+  title: {
+    default: "Deneeu — Platforma Affiliate Marketing CPS",
+    template: "%s | Deneeu",
+  },
+  description:
+    "Łączymy marki z influencerami przez marketing afiliacyjny CPS. Automatyczne prowizje, śledzenie konwersji i wypłaty.",
+  keywords: [
+    "affiliate marketing",
+    "marketing afiliacyjny",
+    "CPS",
+    "influencer marketing",
+    "prowizje",
+  ],
+  authors: [{ name: "Deneeu" }],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "pl_PL",
+    url: "https://www.deneeu.pl",
+    siteName: "Deneeu",
+    title: "Deneeu — Affiliate Marketing dla Marek i Influencerów",
+    description: "Platforma CPS łącząca marki z influencerami.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Deneeu — Affiliate Marketing Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Deneeu — Affiliate Marketing CPS",
+    description: "Platforma CPS łącząca marki z influencerami.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
