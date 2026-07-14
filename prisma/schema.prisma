@@ -200,6 +200,8 @@ model Click {
   ip              String?
   userAgent       String?
   referer         String?
+  isFraud         Boolean  @default(false)
+  fraudReason     String?
   createdAt       DateTime @default(now())
 
   affiliateLink AffiliateLink @relation(fields: [affiliateLinkId], references: [id], onDelete: Cascade)
@@ -232,6 +234,9 @@ model Commission {
   commissionPercent Float
   commissionAmount  Decimal
   status            CommissionStatus @default(PENDING)
+  ipAddress         String?
+  isSuspicious      Boolean          @default(false)
+  suspiciousReason  String?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
 

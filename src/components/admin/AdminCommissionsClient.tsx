@@ -51,10 +51,19 @@ export function AdminCommissionsClient({
   const [statusFilter, setStatusFilter] = useState<(typeof STATUS_OPTIONS)[number]>("ALL");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [suspiciousOnly, setSuspiciousOnly] = useState(false);
+  const [activeTab, setActiveTab] = useState<"all" | "suspicious">("all");
+
+  const suspiciousCount = useMemo(
+    () => commissions.filter((c) => c.isSuspicious).length,
+    [commissions]
+  );
 
   const filtered = useMemo(() => {
     const q = influencerSearch.trim().toLowerCase();
     return commissions.filter((c) => {
+      if (activeTab === "suspicious" && !c.isSuspicious) return false;
+      if (suspiciousOnly && !c.isSuspicious) return false;
       if (brandFilter !== "ALL" && c.brandId !== brandFilter) return false;
       if (statusFilter !== "ALL" && c.status !== statusFilter) return false;
       if (q && !(c.influencer?.displayName ?? "").toLowerCase().includes(q)) return false;
@@ -62,7 +71,7 @@ export function AdminCommissionsClient({
       if (dateTo && new Date(c.createdAt) > new Date(`${dateTo}T23:59:59`)) return false;
       return true;
     });
-  }, [commissions, brandFilter, statusFilter, influencerSearch, dateFrom, dateTo]);
+  }, [commissions, activeTab, suspiciousOnly, brandFilter, statusFilter, influencerSearch, dateFrom, dateTo]);
 
   function handleAction(
     action: (id: string) => Promise<{ success: boolean; error?: string }>,
@@ -85,12 +94,48 @@ export function AdminCommissionsClient({
     "Wartość zamówienia": Number(c.orderValue).toFixed(2),
     "Kwota prowizji": Number(c.commissionAmount).toFixed(2),
     Status: c.status,
+    Podejrzane: c.isSuspicious ? "Tak" : "Nie",
+    Powód: c.suspiciousReason ?? "",
     Data: formatDate(c.createdAt),
   }));
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center gap-1 border-b border-slate-200">
+        <button
+          type="button"
+          onClick={() => setActiveTab("all")}
+          className={`px-3 py-2 text-sm font-medium ${
+            activeTab === "all"
+              ? "border-b-2 border-slate-900 text-slate-900"
+              : "text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          Wszystkie
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("suspicious")}
+          className={`px-3 py-2 text-sm font-medium ${
+            activeTab === "suspicious"
+              ? "border-b-2 border-amber-500 text-amber-700"
+              : "text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          ⚠️ Podejrzane{suspiciousCount > 0 ? ` (${suspiciousCount})` : ""}
+        </button>
+      </div>
+
       <div className="flex flex-wrap items-center gap-2">
+        <label className="flex items-center gap-2 text-xs text-slate-600">
+          <input
+            type="checkbox"
+            checked={suspiciousOnly}
+            onChange={(e) => setSuspiciousOnly(e.target.checked)}
+            className="h-3.5 w-3.5 rounded border-slate-300"
+          />
+          Pokaż tylko podejrzane
+        </label>
         <Select value={brandFilter} onValueChange={setBrandFilter}>
           <SelectTrigger className="h-8 w-[180px] text-xs">
             <SelectValue placeholder="Marka" />
@@ -157,6 +202,7 @@ export function AdminCommissionsClient({
                 <TableHead className="text-right">Wartość</TableHead>
                 <TableHead className="text-right">Kwota</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Powód</TableHead>
                 <TableHead>Data</TableHead>
                 <TableHead className="text-right">Akcje</TableHead>
               </TableRow>
@@ -174,7 +220,17 @@ export function AdminCommissionsClient({
                     {formatCurrency(Number(c.commissionAmount))}
                   </TableCell>
                   <TableCell>
-                    <StatusBadge status={c.status} />
+                    <div className="flex flex-wrap items-center gap-1">
+                      <StatusBadge status={c.status} />
+                      {c.isSuspicious && (
+                        <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                          ⚠️ Podejrzane
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="max-w-[220px] text-xs text-slate-500">
+                    {c.suspiciousReason ?? "—"}
                   </TableCell>
                   <TableCell className="text-slate-500">{formatDate(c.createdAt)}</TableCell>
                   <TableCell className="text-right">
@@ -185,7 +241,7 @@ export function AdminCommissionsClient({
                           disabled={isPending}
                           onClick={() => handleAction(adminApproveCommissionAction, c.id)}
                         >
-                          Zatwierdź
+                          {c.isSuspicious ? "Zatwierdź mimo to" : "Zatwierdź"}
                         </Button>
                         <Button
                           size="sm"
