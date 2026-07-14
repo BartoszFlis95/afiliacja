@@ -39,8 +39,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
+        // Rzucamy zamiast zwracać null, żeby loginAction mógł rozróżnić ten
+        // przypadek od błędnych danych logowania i pokazać dedykowany UI.
         if (!user.emailVerified) {
-          return null;
+          throw new Error("EMAIL_NOT_VERIFIED");
         }
 
         // Zwracany obiekt trafia do callbacku jwt jako `user`.

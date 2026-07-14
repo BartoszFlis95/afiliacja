@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { render } from "@react-email/render";
 
 import WelcomeEmail from "@/emails/WelcomeEmail";
+import VerifyEmailEmail from "@/emails/VerifyEmailEmail";
 import NewCommissionEmail from "@/emails/NewCommissionEmail";
 import CommissionApprovedEmail from "@/emails/CommissionApprovedEmail";
 import CommissionPendingBrandEmail from "@/emails/CommissionPendingBrandEmail";
@@ -12,6 +13,14 @@ import InvoiceEmail from "@/emails/InvoiceEmail";
 export const dynamic = "force-dynamic";
 
 const templates: { name: string; subject: string; element: React.ReactElement }[] = [
+  {
+    name: "VerifyEmailEmail",
+    subject: "Potwierdź swój email w Deneeu",
+    element: VerifyEmailEmail({
+      name: "Kasia",
+      verifyUrl: "https://deneeu.pl/verify-email?token=example-token",
+    }),
+  },
   {
     name: "WelcomeEmail (BRAND)",
     subject: "Witaj w Deneeu! 🎉",

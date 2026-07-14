@@ -6,27 +6,49 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { loginAction } from "@/actions/auth.actions";
+import { loginAction, resendVerificationEmailAction } from "@/actions/auth.actions";
 
 export function LoginForm() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [notVerifiedEmail, setNotVerifiedEmail] = useState<string | null>(null);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [isResending, startResendTransition] = useTransition();
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setNotVerifiedEmail(null);
+    setResendMessage(null);
     const formData = new FormData(event.currentTarget);
 
     startTransition(async () => {
       const result = await loginAction(formData);
-      if (result?.error) {
-        setError(result.error);
-      } else if (result?.redirectTo) {
-        // Brief delay lets the browser finish processing the Set-Cookie
-        // header from the Server Action response before the next request.
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        window.location.href = result.redirectTo;
+      if (!result.success) {
+        if (result.code === "EMAIL_NOT_VERIFIED") {
+          setNotVerifiedEmail(result.email ?? null);
+        } else {
+          setError(result.error);
+        }
+        return;
       }
+      // Brief delay lets the browser finish processing the Set-Cookie
+      // header from the Server Action response before the next request.
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      window.location.href = result.redirectTo;
+    });
+  }
+
+  function handleResend() {
+    if (!notVerifiedEmail) return;
+    setResendMessage(null);
+    startResendTransition(async () => {
+      const result = await resendVerificationEmailAction(notVerifiedEmail);
+      setResendMessage(
+        result.success
+          ? "Wysłaliśmy nowy link weryfikacyjny."
+          : result.error ?? "Nie udało się wysłać emaila."
+      );
     });
   }
 
@@ -48,6 +70,27 @@ export function LoginForm() {
             className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
           >
             {error}
+          </div>
+        )}
+
+        {notVerifiedEmail && (
+          <div
+            role="alert"
+            className="space-y-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+          >
+            <p className="font-medium">⚠️ Email niezweryfikowany</p>
+            <p>Potwierdź swój email przed logowaniem.</p>
+            {resendMessage && <p className="text-xs">{resendMessage}</p>}
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={isResending}
+              onClick={handleResend}
+              className="border-amber-300 bg-white text-amber-800 hover:bg-amber-100"
+            >
+              {isResending ? "Wysyłanie…" : "📧 Wyślij email ponownie"}
+            </Button>
           </div>
         )}
 
