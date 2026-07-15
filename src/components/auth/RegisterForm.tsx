@@ -38,7 +38,7 @@ const ROLE_OPTIONS: {
 ];
 
 export function RegisterForm() {
-  const [role, setRole] = useState<Role | null>(null);
+  const [role, setRole] = useState<Role>("BRAND");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -54,7 +54,7 @@ export function RegisterForm() {
       email:           String(formData.get("email") ?? ""),
       password:        String(formData.get("password") ?? ""),
       confirmPassword: String(formData.get("confirmPassword") ?? ""),
-      role:            role ?? "",
+      role,
     };
 
     const parsed = RegisterSchema.safeParse(values);
@@ -92,6 +92,11 @@ export function RegisterForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        {/* Przyciski wyboru roli poniżej nie są natywnymi polami formularza
+            (brak name/value) — bez tego hidden inputu `role` nigdy nie
+            trafiłby do FormData wysyłanego do registerAction. */}
+        <input type="hidden" name="role" value={role} />
+
         {/* Typ konta */}
         <div className="space-y-2">
           <Label className="text-sm font-medium text-slate-700">Typ konta</Label>
