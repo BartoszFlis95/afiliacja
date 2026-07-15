@@ -128,14 +128,14 @@ export default async function LandingPage() {
           <Image
             src="/logo.png"
             alt="Deneeu"
-            width={600}
-            height={600}
+            width={540}
+            height={540}
             className="
               object-contain
               drop-shadow-2xl
-              w-[300px] h-[300px]
-              sm:w-[450px] sm:h-[450px]
-              lg:w-[600px] lg:h-[600px]
+              w-[270px] h-[270px]
+              sm:w-[405px] sm:h-[405px]
+              lg:w-[540px] lg:h-[540px]
               mx-auto
             "
             priority
