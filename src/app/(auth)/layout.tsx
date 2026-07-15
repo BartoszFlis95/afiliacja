@@ -14,17 +14,16 @@ export default function AuthLayout({
         <div className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-blue-600/20 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 right-0 h-64 w-64 rounded-full bg-violet-600/10 blur-3xl" />
 
-        <Link href="/" className="relative flex items-center gap-2 z-10">
+        <Link href="/" className="relative flex items-center z-10">
           <Image
             src="/logo.png"
             alt="Deneeu"
             width={40}
             height={40}
-            className="object-contain rounded-lg"
+            unoptimized
+            className="aspect-square h-10 w-10 rounded-lg object-contain"
             priority
           />
-          <span className="text-lg font-bold">Deneeu</span>
-          <span className="h-2 w-2 rounded-full bg-blue-500" />
         </Link>
 
         <div className="relative z-10 flex flex-1 flex-col justify-center max-w-sm">
@@ -59,17 +58,20 @@ export default function AuthLayout({
       {/* Right panel — form */}
       <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE]">
         <div className="w-full max-w-sm rounded-2xl border border-blue-100 bg-white p-8 shadow-xl">
-          <Link href="/" className="mb-8 flex items-center gap-2 lg:hidden">
-            <Image
-              src="/logo.png"
-              alt="Deneeu"
-              width={40}
-              height={40}
-              className="object-contain rounded-lg"
-              priority
-            />
-            <span className="text-3xl font-black text-[#0F172A]">Deneeu</span>
-            <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+          <Link href="/" className="mb-8 flex justify-center lg:hidden">
+            <div className="relative">
+              <Image
+                src="/logo.png"
+                alt="Deneeu"
+                width={120}
+                height={120}
+                unoptimized
+                className="aspect-square h-24 w-24 rounded-2xl object-contain sm:h-[120px] sm:w-[120px]"
+                priority
+              />
+              {/* Delikatny cień "pod spodem" logo, nie zwykły box-shadow */}
+              <div className="absolute inset-x-6 -bottom-2 h-3 rounded-full bg-blue-900/20 blur-md" />
+            </div>
           </Link>
           {children}
         </div>

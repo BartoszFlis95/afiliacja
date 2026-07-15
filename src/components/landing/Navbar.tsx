@@ -28,19 +28,18 @@ export function Navbar() {
   return (
     <header className="fixed top-0 z-50 w-full border-b border-blue-100 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-6 lg:px-8">
-        <Link href="/" className="flex shrink-0 items-center gap-2">
+        <Link href="/" className="flex shrink-0 items-center">
+          {/* h-10/w-10 na mobile, rośnie do docelowych 56x56 od sm: — inaczej
+              logo nachodziłoby na przycisk menu w wąskim pasku h-16. */}
           <Image
             src="/logo.png"
             alt="Deneeu"
-            width={40}
-            height={40}
-            className="object-contain rounded-lg"
+            width={56}
+            height={56}
+            unoptimized
+            className="aspect-square h-10 w-10 rounded-xl object-contain shadow-sm sm:h-14 sm:w-14"
             priority
           />
-          <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />
-          <span className="text-lg font-black text-[#0F172A] sm:text-xl">
-            Deneeu
-          </span>
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">
@@ -83,18 +82,14 @@ export function Navbar() {
             <SheetContent side="right" className="flex w-4/5 flex-col sm:max-w-sm">
               <SheetHeader>
                 <SheetTitle className="text-left normal-case tracking-normal">
-                  <span className="flex items-center gap-2 font-black text-[#0F172A]">
-                    <Image
-                      src="/logo.png"
-                      alt="Deneeu"
-                      width={40}
-                      height={40}
-                      className="object-contain rounded-lg"
-                      priority
-                    />
-                    <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />
-                    Deneeu
-                  </span>
+                  <Image
+                    src="/logo.png"
+                    alt="Deneeu"
+                    width={40}
+                    height={40}
+                    unoptimized
+                    className="aspect-square h-10 w-10 rounded-xl object-contain shadow-sm"
+                  />
                 </SheetTitle>
               </SheetHeader>
 

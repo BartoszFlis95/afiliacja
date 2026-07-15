@@ -39,17 +39,15 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-4">
           <div className="sm:col-span-2 lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center">
               <Image
                 src="/logo.png"
                 alt="Deneeu"
-                width={40}
-                height={40}
-                className="object-contain rounded-lg"
-                priority
+                width={48}
+                height={48}
+                unoptimized
+                className="aspect-square h-12 w-12 rounded-lg object-contain"
               />
-              <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
-              <span className="text-xl font-black text-white">Deneeu</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm text-slate-400">
               Platforma affiliate marketing CPS łącząca marki z

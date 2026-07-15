@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -82,11 +83,22 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
 
   return (
     <Sidebar className="border-r border-[#1E293B]">
-      {/* Logo */}
-      <SidebarHeader className="h-14 border-b border-[#1E293B] px-4">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl font-bold text-white">Deneeu</span>
-          <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+      {/* Logo — kontener na białym/jasnoniebieskim tle, bo logo.png ma
+          nieprzezroczyste szare tło i "invert" zniekształciłby jego
+          niebieskie gradienty na granatowym sidebarze. */}
+      <SidebarHeader className="border-b border-[#1E293B] px-4 py-3">
+        <Link href="/" className="flex items-center justify-center">
+          <div className="inline-block rounded-xl bg-blue-50 p-1 shadow-inner">
+            <Image
+              src="/logo.png"
+              alt="Deneeu"
+              width={64}
+              height={64}
+              unoptimized
+              className="aspect-square h-16 w-16 rounded-lg object-contain"
+              priority
+            />
+          </div>
         </Link>
       </SidebarHeader>
 
