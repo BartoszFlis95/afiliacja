@@ -63,8 +63,10 @@
   body {
     @apply bg-background text-foreground antialiased;
     line-height: 1.6;
+    font-family: var(--font-lato), sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
     line-height: 1.4;
+    font-family: var(--font-playfair), serif;
   }
 }

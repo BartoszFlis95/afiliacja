@@ -1,11 +1,21 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Playfair_Display, Lato } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  weight: ["400", "600", "700", "800", "900"],
+});
+
+const lato = Lato({
+  subsets: ["latin"],
+  variable: "--font-lato",
+  weight: ["300", "400", "700", "900"],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.deneeu.pl"),
@@ -57,7 +67,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pl" className="scroll-smooth">
-      <body className={inter.className}>
+      <body className={`${lato.variable} ${playfair.variable}`}>
         <SessionProvider>
           <TooltipProvider>
             {children}
