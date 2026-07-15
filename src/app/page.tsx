@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
@@ -122,6 +123,25 @@ export default async function LandingPage() {
       {/* Hero */}
       <section className="scroll-mt-24 bg-gradient-to-br from-[#EFF6FF] via-white to-[#DBEAFE] px-4 pt-24 pb-12 sm:px-6 sm:pt-28 sm:pb-16 lg:px-8 lg:pt-32 lg:pb-20">
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 sm:gap-12 lg:grid-cols-2 lg:gap-16">
+          {/* Logo dominujące — na mobile wyśrodkowane nad tekstem (grid
+              zwija się do jednej kolumny), na lg: lewa kolumna obok tekstu. */}
+          <Image
+            src="/logo.png"
+            alt="Deneeu"
+            width={600}
+            height={600}
+            className="
+              object-contain
+              drop-shadow-2xl
+              w-[300px] h-[300px]
+              sm:w-[450px] sm:h-[450px]
+              lg:w-[600px] lg:h-[600px]
+              mx-auto
+            "
+            priority
+            unoptimized
+          />
+
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
             <span className="inline-flex rounded-full bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700">
               🚀 Platforma CPS dla marek i influencerów
@@ -170,44 +190,6 @@ export default async function LandingPage() {
                 24h
               </li>
             </ul>
-          </div>
-
-          <div className="hidden rounded-2xl border border-blue-100 bg-white p-4 shadow-2xl lg:block">
-            <div className="flex items-center gap-2 rounded-xl bg-[#0F172A] p-3">
-              <span className="flex gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-white/70" />
-                <span className="h-2.5 w-2.5 rounded-full bg-white/70" />
-                <span className="h-2.5 w-2.5 rounded-full bg-white/70" />
-              </span>
-              <span className="ml-2 text-sm font-medium text-white">
-                Deneeu Dashboard
-              </span>
-            </div>
-
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              <div className="rounded-lg bg-[#EFF6FF] p-3">
-                <p className="text-lg font-bold text-[#0F172A]">2 847</p>
-                <p className="text-xs text-slate-500">kliknięć</p>
-              </div>
-              <div className="rounded-lg bg-[#EFF6FF] p-3">
-                <p className="text-lg font-bold text-[#0F172A]">143</p>
-                <p className="text-xs text-slate-500">konwersje</p>
-              </div>
-              <div className="rounded-lg bg-[#EFF6FF] p-3">
-                <p className="text-lg font-bold text-[#0F172A]">4 280 zł</p>
-                <p className="text-xs text-slate-500">zarobki</p>
-              </div>
-            </div>
-
-            <div className="mt-4 flex h-32 items-end gap-2 rounded-xl bg-[#EFF6FF] p-4">
-              <div className="h-[40%] w-full rounded-t bg-blue-200" />
-              <div className="h-[65%] w-full rounded-t bg-blue-400" />
-              <div className="h-[45%] w-full rounded-t bg-blue-200" />
-              <div className="h-[85%] w-full rounded-t bg-blue-600" />
-              <div className="h-[55%] w-full rounded-t bg-blue-400" />
-              <div className="h-[70%] w-full rounded-t bg-blue-600" />
-              <div className="h-[50%] w-full rounded-t bg-blue-200" />
-            </div>
           </div>
         </div>
       </section>
