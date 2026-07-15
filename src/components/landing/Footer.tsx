@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const FOOTER_COLUMNS: {
@@ -39,6 +40,14 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-4">
           <div className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/logo.png"
+                alt="Deneeu"
+                width={40}
+                height={40}
+                className="object-contain rounded-lg"
+                priority
+              />
               <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
               <span className="text-xl font-black text-white">Deneeu</span>
             </Link>

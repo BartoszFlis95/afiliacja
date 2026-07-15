@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function AuthLayout({
@@ -14,6 +15,14 @@ export default function AuthLayout({
         <div className="pointer-events-none absolute bottom-0 right-0 h-64 w-64 rounded-full bg-violet-600/10 blur-3xl" />
 
         <Link href="/" className="relative flex items-center gap-2 z-10">
+          <Image
+            src="/logo.png"
+            alt="Deneeu"
+            width={40}
+            height={40}
+            className="object-contain rounded-lg"
+            priority
+          />
           <span className="text-lg font-bold">Deneeu</span>
           <span className="h-2 w-2 rounded-full bg-blue-500" />
         </Link>
@@ -51,6 +60,14 @@ export default function AuthLayout({
       <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE]">
         <div className="w-full max-w-sm rounded-2xl border border-blue-100 bg-white p-8 shadow-xl">
           <Link href="/" className="mb-8 flex items-center gap-2 lg:hidden">
+            <Image
+              src="/logo.png"
+              alt="Deneeu"
+              width={40}
+              height={40}
+              className="object-contain rounded-lg"
+              priority
+            />
             <span className="text-3xl font-black text-[#0F172A]">Deneeu</span>
             <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
           </Link>
