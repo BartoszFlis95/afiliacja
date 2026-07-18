@@ -4,6 +4,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { logFraud } from "@/lib/fraud-logger";
+import { calculateCommissionSplit } from "@/lib/commission";
 import { sendEmail } from "@/lib/resend";
 import { formatEmailAmount } from "@/emails/utils";
 import NewCommissionEmail from "@/emails/NewCommissionEmail";
@@ -131,12 +132,15 @@ export async function POST(request: NextRequest) {
   }
 
   // BUG-01b: use influencerCommissionRate for influencer earnings (not total commissionRate)
-  const influencerCommissionAmount =
-    orderValue * (product.influencerCommissionRate / 100);
-  const totalCommissionAmount =
-    orderValue * (product.commissionRate / 100);
-  const platformCommissionAmount =
-    totalCommissionAmount - influencerCommissionAmount;
+  const {
+    totalCommission: totalCommissionAmount,
+    influencerCommission: influencerCommissionAmount,
+    platformCommission: platformCommissionAmount,
+  } = calculateCommissionSplit(
+    orderValue,
+    product.commissionRate,
+    product.influencerCommissionRate
+  );
 
   // FRAUD 5 — suspicious conversion detection: nie blokujemy, tylko oznaczamy
   // flagą do ręcznej weryfikacji przez admina/markę.

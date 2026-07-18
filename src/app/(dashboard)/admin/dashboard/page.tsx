@@ -9,11 +9,12 @@ import {
   MousePointerClick,
   Wallet,
   Clock,
+  AlertTriangle,
 } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { getPlatformStatsAction } from "@/actions/admin.actions";
+import { getPlatformStatsAction, getSuspiciousCommissionsAction } from "@/actions/admin.actions";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { StatsCard } from "@/components/shared/StatsCard";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -58,6 +59,7 @@ export default async function AdminDashboardPage() {
     activeProducts,
     clicksThisMonth,
     pendingCommissions,
+    suspiciousCommissions,
     registrationsRaw,
     platformRevenueRaw,
     recentUsers,
@@ -70,6 +72,7 @@ export default async function AdminDashboardPage() {
     prisma.product.count({ where: { status: "ACTIVE" } }),
     prisma.click.count({ where: { createdAt: { gte: monthStart } } }),
     prisma.commission.count({ where: { status: "PENDING" } }),
+    getSuspiciousCommissionsAction(),
     prisma.user.findMany({
       where: { createdAt: { gte: start30DaysAgo } },
       select: { createdAt: true },
@@ -157,6 +160,14 @@ export default async function AdminDashboardPage() {
           icon={Clock}
           description={pendingCommissions > 0 ? "wymaga akcji" : "brak zaległości"}
         />
+        <Link href="/admin/commissions?tab=suspicious" className="block">
+          <StatsCard
+            title="Podejrzane komisje"
+            value={suspiciousCommissions.length}
+            icon={AlertTriangle}
+            description={suspiciousCommissions.length > 0 ? "wymaga weryfikacji" : "brak zgłoszeń"}
+          />
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

@@ -45,9 +45,9 @@ export const metadata: Metadata = {
     description: "Platforma CPS łącząca marki z influencerami.",
     images: [
       {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
+        url: "/logo.png",
+        width: 1024,
+        height: 1024,
         alt: "Deneeu — Affiliate Marketing Platform",
       },
     ],
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Deneeu — Affiliate Marketing CPS",
     description: "Platforma CPS łącząca marki z influencerami.",
-    images: ["/og-image.png"],
+    images: ["/logo.png"],
   },
 };
 

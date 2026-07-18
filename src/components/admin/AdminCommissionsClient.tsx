@@ -40,9 +40,11 @@ const STATUS_OPTIONS = ["ALL", "PENDING", "APPROVED", "REJECTED", "PAID"] as con
 export function AdminCommissionsClient({
   commissions,
   brands,
+  initialTab = "all",
 }: {
   commissions: CommissionRow[];
   brands: { id: string; companyName: string }[];
+  initialTab?: "all" | "suspicious";
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -52,7 +54,7 @@ export function AdminCommissionsClient({
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [suspiciousOnly, setSuspiciousOnly] = useState(false);
-  const [activeTab, setActiveTab] = useState<"all" | "suspicious">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "suspicious">(initialTab);
 
   const suspiciousCount = useMemo(
     () => commissions.filter((c) => c.isSuspicious).length,

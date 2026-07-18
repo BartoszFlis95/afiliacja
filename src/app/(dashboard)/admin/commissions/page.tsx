@@ -7,11 +7,17 @@ import { AdminCommissionsClient } from "@/components/admin/AdminCommissionsClien
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminCommissionsPage() {
+export default async function AdminCommissionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
     redirect("/login");
   }
+
+  const { tab } = await searchParams;
 
   const [result, brands] = await Promise.all([
     getAllCommissionsAction(),
@@ -30,7 +36,11 @@ export default async function AdminCommissionsPage() {
         <p className="mt-1 text-sm text-slate-500">Wszystkie komisje z platformy.</p>
       </header>
 
-      <AdminCommissionsClient commissions={commissions} brands={brands} />
+      <AdminCommissionsClient
+        commissions={commissions}
+        brands={brands}
+        initialTab={tab === "suspicious" ? "suspicious" : "all"}
+      />
     </div>
   );
 }

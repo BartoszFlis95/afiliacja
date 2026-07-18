@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse, after } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { calculateCommissionSplit } from "@/lib/commission";
 import { sendEmail } from "@/lib/resend";
 import { formatEmailAmount } from "@/emails/utils";
 import NewCommissionEmail from "@/emails/NewCommissionEmail";
@@ -99,9 +100,8 @@ export async function POST(request: NextRequest) {
     const totalCommissionRate = Number(link.product.commissionRate);
     const influencerRate = Number(link.product.influencerCommissionRate);
 
-    const totalCommission = (orderAmount * totalCommissionRate) / 100;
-    const influencerCommission = (orderAmount * influencerRate) / 100;
-    const platformCommission = totalCommission - influencerCommission;
+    const { totalCommission, influencerCommission, platformCommission } =
+      calculateCommissionSplit(orderAmount, totalCommissionRate, influencerRate);
 
     await prisma.$transaction([
       prisma.conversion.create({

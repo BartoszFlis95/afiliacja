@@ -64,6 +64,30 @@ export async function toggleProductStatusAction(productId: string) {
   return updated;
 }
 
+/**
+ * Komisje oznaczone przez fraud detection (isSuspicious=true) jako wymagające
+ * ręcznej weryfikacji admina — patrz reguły w src/app/api/track/route.ts.
+ */
+export async function getSuspiciousCommissionsAction() {
+  await assertAdmin();
+
+  const commissions = await prisma.commission.findMany({
+    where: { isSuspicious: true },
+    include: {
+      influencer: { select: { displayName: true } },
+      brand: { select: { companyName: true } },
+      product: { select: { name: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return commissions.map((c) => ({
+    ...c,
+    orderValue: Number(c.orderValue),
+    commissionAmount: Number(c.commissionAmount),
+  }));
+}
+
 export async function getPlatformStatsAction() {
   await assertAdmin();
 

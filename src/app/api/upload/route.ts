@@ -9,16 +9,10 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export async function POST(request: NextRequest) {
-  console.log("[upload] POST /api/upload called");
-  console.log("[upload] R2_BUCKET:", R2_BUCKET);
-  console.log("[upload] R2_PUBLIC_URL:", R2_PUBLIC_URL);
-
   try {
     const session = await auth();
-    console.log("[upload] session userId:", session?.user?.id ?? "BRAK");
 
     if (!session?.user?.id) {
-      console.log("[upload] ERROR: Unauthorized - no session");
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 }
@@ -27,9 +21,6 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
-    console.log("[upload] file:", file?.name, file?.type, file?.size);
-    console.log("[upload] R2_KEY exists:", !!process.env.CLOUDFLARE_R2_ACCESS_KEY_ID);
-    console.log("[upload] R2_SECRET exists:", !!process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY);
 
     if (!file) {
       return NextResponse.json(
@@ -55,7 +46,6 @@ export async function POST(request: NextRequest) {
     const ext = file.name.split(".").pop() ?? "jpg";
     const random = Math.random().toString(36).substring(2, 10);
     const fileName = `${session.user.id}/${Date.now()}-${random}.${ext}`;
-    console.log("[upload] fileName:", fileName);
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
@@ -71,7 +61,6 @@ export async function POST(request: NextRequest) {
     );
 
     const url = `${R2_PUBLIC_URL}/${fileName}`;
-    console.log("[upload] SUCCESS url:", url);
     return NextResponse.json({ success: true, url });
   } catch (error) {
     console.error("[upload] R2 error:", error);
