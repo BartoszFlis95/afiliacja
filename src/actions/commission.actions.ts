@@ -21,6 +21,11 @@ type ActionResult<T = undefined> =
   | { success: true; data?: T }
   | { success: false; error: string };
 
+// Stała platformowa — brak górnego limitu wypłaty, ale poniżej tej kwoty
+// wniosek jest odrzucany (dawniej konfigurowalne per-influencer pole
+// InfluencerProfile.minimumPayout, usunięte na rzecz jednej stałej wartości).
+const MINIMUM_PAYOUT = 50;
+
 /**
  * Resolves the session and asserts the caller has the required role.
  * Returns the userId on success, or an error result the action can return as-is.
@@ -354,6 +359,19 @@ export async function requestPayoutAction(
   }
   if (commission.payout) {
     return { success: false, error: "Wniosek o wypłatę już istnieje." };
+  }
+
+  const balanceAgg = await prisma.commission.aggregate({
+    where: { influencerId, status: CommissionStatus.APPROVED, payout: null },
+    _sum: { commissionAmount: true },
+  });
+  const totalAmount = Number(balanceAgg._sum.commissionAmount ?? 0);
+
+  if (totalAmount < MINIMUM_PAYOUT) {
+    return {
+      success: false,
+      error: `Minimalna kwota wypłaty to ${MINIMUM_PAYOUT} zł. Masz dostępne ${totalAmount.toFixed(2)} zł.`,
+    };
   }
 
   await prisma.payout.create({

@@ -138,7 +138,6 @@ model InfluencerProfile {
   bankSwift        String?
   paypalEmail      String?
   preferredPayout  String?
-  minimumPayout    Decimal?  @default(100)
   phone            String?
   city             String?
   country          String?

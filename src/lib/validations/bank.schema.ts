@@ -3,7 +3,6 @@ import { z } from "zod";
 const ibanRegex = /^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/;
 
 const commonFields = {
-  minimumPayout: z.number().min(50).max(500),
   phone: z.string().optional(),
   city: z.string().optional(),
   country: z.string().optional(),

@@ -331,7 +331,6 @@ export type BankDetailsData = {
   bankAccountBank: string | null;
   bankSwift: string | null;
   paypalEmail: string | null;
-  minimumPayout: number | null;
   phone: string | null;
   city: string | null;
   country: string | null;
@@ -352,7 +351,6 @@ export async function getBankDetailsAction(): Promise<ActionResult<BankDetailsDa
       bankAccountBank: true,
       bankSwift: true,
       paypalEmail: true,
-      minimumPayout: true,
       phone: true,
       city: true,
       country: true,
@@ -377,7 +375,6 @@ export async function getBankDetailsAction(): Promise<ActionResult<BankDetailsDa
       bankAccountBank: profile.bankAccountBank,
       bankSwift: profile.bankSwift,
       paypalEmail: profile.paypalEmail,
-      minimumPayout: profile.minimumPayout ? Number(profile.minimumPayout) : null,
       phone: profile.phone,
       city: profile.city,
       country: profile.country,
@@ -412,7 +409,6 @@ export async function updateBankDetailsAction(
     where: { userId: session.user.id },
     data: {
       preferredPayout: data.preferredPayout,
-      minimumPayout: data.minimumPayout,
       phone: data.phone || null,
       city: data.city || null,
       country: data.country || null,

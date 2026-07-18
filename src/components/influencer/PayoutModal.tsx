@@ -19,6 +19,11 @@ import {
 } from "@/components/ui/dialog";
 import { requestPayoutAction } from "@/actions/commission.actions";
 
+// Stała platformowa — musi być zgodna z MINIMUM_PAYOUT w
+// src/actions/commission.actions.ts (serwer i tak to egzekwuje niezależnie od
+// UI, to tylko odzwierciedlenie tej samej wartości w interfejsie).
+const MINIMUM_PAYOUT = 50;
+
 const formatPLN = (value: number) =>
   new Intl.NumberFormat("pl-PL", { style: "currency", currency: "PLN" }).format(value);
 
@@ -35,16 +40,17 @@ interface BankDetails {
   preferredPayout: string | null;
   bankAccountIban: string | null;
   paypalEmail: string | null;
-  minimumPayout: number | null;
 }
 
 interface PayoutModalProps {
   commissionId: string;
   amount: number;
+  /** Suma wszystkich zatwierdzonych, jeszcze nie wypłaconych komisji influencera. */
+  availableAmount: number;
   bankDetails?: BankDetails;
 }
 
-export function PayoutModal({ commissionId, amount, bankDetails }: PayoutModalProps) {
+export function PayoutModal({ commissionId, amount, availableAmount, bankDetails }: PayoutModalProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [bankAccount, setBankAccount] = useState("");
@@ -52,8 +58,7 @@ export function PayoutModal({ commissionId, amount, bankDetails }: PayoutModalPr
   const [isPending, startTransition] = useTransition();
 
   const usesSavedDetails = !!bankDetails;
-  const minimumPayout = bankDetails?.minimumPayout ?? 50;
-  const belowMinimum = usesSavedDetails && amount < minimumPayout;
+  const belowMinimum = availableAmount < MINIMUM_PAYOUT;
 
   function getSavedAccountString(): string {
     if (!bankDetails) return "";
@@ -106,6 +111,26 @@ export function PayoutModal({ commissionId, amount, bankDetails }: PayoutModalPr
             </div>
           )}
 
+          <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-700">
+            ℹ️ Minimalna kwota wypłaty: {MINIMUM_PAYOUT} zł
+          </div>
+
+          {belowMinimum ? (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+              <p className="text-sm font-medium text-amber-800">
+                ⚠️ Za mało środków do wypłaty
+              </p>
+              <p className="mt-1 text-xs text-amber-600">
+                Masz {formatPLN(availableAmount)}. Minimalna kwota wypłaty to{" "}
+                {MINIMUM_PAYOUT} zł. Zbieraj prowizje i wróć gdy osiągniesz minimum.
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm font-medium text-emerald-700">
+              Wypłacisz: {formatPLN(amount)}
+            </p>
+          )}
+
           {usesSavedDetails ? (
             <>
               {!bankDetails!.hasBankDetails ? (
@@ -122,15 +147,7 @@ export function PayoutModal({ commissionId, amount, bankDetails }: PayoutModalPr
                     </p>
                   </div>
                 </div>
-              ) : belowMinimum ? (
-                <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-800">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                  <p>
-                    Minimalna kwota wypłaty to <strong>{formatPLN(minimumPayout)}</strong>.
-                    Obecna kwota ({formatPLN(amount)}) jest za niska.
-                  </p>
-                </div>
-              ) : (
+              ) : !belowMinimum ? (
                 <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 space-y-1">
                   <p className="text-xs text-muted-foreground">
                     {bankDetails!.preferredPayout === "paypal" ? "Konto PayPal" : "Numer konta IBAN"}
@@ -141,7 +158,7 @@ export function PayoutModal({ commissionId, amount, bankDetails }: PayoutModalPr
                       : maskIban(bankDetails!.bankAccountIban!)}
                   </p>
                 </div>
-              )}
+              ) : null}
             </>
           ) : (
             <div className="space-y-2">
@@ -165,7 +182,7 @@ export function PayoutModal({ commissionId, amount, bankDetails }: PayoutModalPr
           <DialogFooter>
             <Button
               type="submit"
-              disabled={isPending || (usesSavedDetails && (!bankDetails!.hasBankDetails || belowMinimum))}
+              disabled={isPending || belowMinimum || (usesSavedDetails && !bankDetails!.hasBankDetails)}
               className="bg-slate-900 text-white hover:bg-slate-700"
             >
               {isPending ? "Wysyłanie…" : "Złóż wniosek o wypłatę"}

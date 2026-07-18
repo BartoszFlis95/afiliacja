@@ -36,7 +36,6 @@ export function BankDetailsForm({ initial }: Props) {
   const [bankAccountBank, setBankAccountBank] = useState(initial.bankAccountBank ?? "");
   const [bankSwift, setBankSwift] = useState(initial.bankSwift ?? "");
   const [paypalEmail, setPaypalEmail] = useState(initial.paypalEmail ?? "");
-  const [minimumPayout, setMinimumPayout] = useState(initial.minimumPayout ?? 100);
   const [phone, setPhone] = useState(initial.phone ?? "");
   const [city, setCity] = useState(initial.city ?? "");
   const [country, setCountry] = useState(initial.country ?? "");
@@ -59,7 +58,6 @@ export function BankDetailsForm({ initial }: Props) {
             bankAccountIban: bankAccountIban.replace(/\s/g, ""),
             bankAccountBank,
             bankSwift: bankSwift || undefined,
-            minimumPayout,
             phone: phone || undefined,
             city: city || undefined,
             country: country || undefined,
@@ -67,7 +65,6 @@ export function BankDetailsForm({ initial }: Props) {
         : {
             preferredPayout: "paypal" as const,
             paypalEmail,
-            minimumPayout,
             phone: phone || undefined,
             city: city || undefined,
             country: country || undefined,
@@ -203,30 +200,11 @@ export function BankDetailsForm({ initial }: Props) {
             </div>
           )}
 
-          {/* Minimum payout slider */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Minimalna kwota wypłaty</Label>
-              <span className="text-sm font-semibold text-slate-900">
-                {minimumPayout} zł
-              </span>
-            </div>
-            <div className="px-1 sm:px-2">
-              <input
-                type="range"
-                min={50}
-                max={500}
-                step={50}
-                value={minimumPayout}
-                onChange={(e) => setMinimumPayout(Number(e.target.value))}
-                disabled={isPending}
-                className="w-full accent-slate-900"
-              />
-            </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>50 zł</span>
-              <span>500 zł</span>
-            </div>
+          {/* Minimalna kwota wypłaty — stała platformowa, patrz MINIMUM_PAYOUT
+              w src/actions/commission.actions.ts */}
+          <div className="rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm text-blue-700">
+            ℹ️ Minimalna kwota wypłaty na platformie Deneeu wynosi 50 zł. Nie ma
+            górnego limitu wypłaty.
           </div>
 
           {/* Optional personal details */}

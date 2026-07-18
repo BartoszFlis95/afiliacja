@@ -93,9 +93,10 @@ function PayoutStepper({ status }: { status: string }) {
   );
 }
 
-function CommissionsTable({ commissions, bankDetails }: {
+function CommissionsTable({ commissions, bankDetails, availableBalance }: {
   commissions: CommissionRow[];
   bankDetails?: Parameters<typeof PayoutModal>[0]["bankDetails"];
+  availableBalance: number;
 }) {
   if (commissions.length === 0) {
     return (
@@ -144,6 +145,7 @@ function CommissionsTable({ commissions, bankDetails }: {
                 <PayoutModal
                   commissionId={commission.id}
                   amount={Number(commission.commissionAmount)}
+                  availableAmount={availableBalance}
                   bankDetails={bankDetails}
                 />
               ) : null}
@@ -185,13 +187,15 @@ export default async function InfluencerCommissionsPage() {
         preferredPayout: bankResult.data!.preferredPayout,
         bankAccountIban: bankResult.data!.bankAccountIban,
         paypalEmail: bankResult.data!.paypalEmail,
-        minimumPayout: bankResult.data!.minimumPayout,
       }
     : undefined;
 
   const availableBalance = commissions
     .filter((c) => c.status === "APPROVED" && !c.payout)
     .reduce((sum, c) => sum + Number(c.commissionAmount), 0);
+
+  const MINIMUM_PAYOUT = 50;
+  const canWithdraw = availableBalance >= MINIMUM_PAYOUT;
 
   const byStatus = (status: string) =>
     status === "ALL" ? commissions : commissions.filter((c) => c.status === status);
@@ -219,6 +223,15 @@ export default async function InfluencerCommissionsPage() {
             </div>
           </div>
           <p className="mt-3 text-xs text-muted-foreground">Suma zatwierdzonych prowizji</p>
+          {canWithdraw ? (
+            <div className="mt-3 text-sm text-green-600">
+              ✅ {formatCurrency(availableBalance)} — możesz wypłacić
+            </div>
+          ) : (
+            <div className="mt-3 text-sm text-amber-600">
+              ⚠️ {formatCurrency(availableBalance)} — minimum to {MINIMUM_PAYOUT} zł
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -237,7 +250,11 @@ export default async function InfluencerCommissionsPage() {
         {TABS.map((tab) => (
           <TabsContent key={tab.value} value={tab.value} className="mt-4">
             <Card className="overflow-hidden">
-              <CommissionsTable commissions={byStatus(tab.value)} bankDetails={bankDetails} />
+              <CommissionsTable
+                commissions={byStatus(tab.value)}
+                bankDetails={bankDetails}
+                availableBalance={availableBalance}
+              />
             </Card>
           </TabsContent>
         ))}
