@@ -308,5 +308,5 @@ model Invoice {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
-  brand           BrandProfile   @relation(fields: [brandId], references: [id])
+  brand           BrandProfile   @relation(fields: [brandId], references: [id], onDelete: Cascade)
 }
