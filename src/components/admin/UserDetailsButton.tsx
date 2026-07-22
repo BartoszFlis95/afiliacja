@@ -28,8 +28,8 @@ interface UserDetailsButtonProps {
       city: string | null;
       country: string | null;
       followersCount: number | null;
-      bankAccountIban: string | null;
-      paypalEmail: string | null;
+      hasIban: boolean;
+      hasPaypal: boolean;
       stripeAccountId: string | null;
       stripeOnboardingDone: boolean;
     } | null;
@@ -119,9 +119,9 @@ export function UserDetailsButton({ user }: UserDetailsButtonProps) {
               <div className="flex items-center justify-between gap-4">
                 <span className="text-slate-500">Metoda wypłat</span>
                 <span className="font-medium text-[#0F172A]">
-                  {user.influencerProfile.bankAccountIban
+                  {user.influencerProfile.hasIban
                     ? "IBAN"
-                    : user.influencerProfile.paypalEmail
+                    : user.influencerProfile.hasPaypal
                     ? "PayPal"
                     : "—"}
                 </span>

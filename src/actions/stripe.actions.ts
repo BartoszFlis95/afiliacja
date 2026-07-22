@@ -9,7 +9,8 @@ import { stripe } from "@/lib/stripe";
 import { getAppUrl, sendEmail } from "@/lib/resend";
 import { formatEmailAmount } from "@/emails/utils";
 import PayoutCompletedEmail from "@/emails/PayoutCompletedEmail";
-import { CommissionStatus, PayoutStatus } from "@prisma/client";
+import { syncConversionStatus } from "@/actions/commission.actions";
+import { CommissionStatus, ConversionStatus, PayoutStatus } from "@prisma/client";
 import type { StripeAccountStatus, StripeConnectStatus } from "@/types";
 
 type ActionResult<T = unknown> = {
@@ -221,6 +222,7 @@ export async function executeStripeTransferAction(
       commissionId: true,
       stripeTransferId: true,
       influencerId: true,
+      commission: { select: { affiliateLinkId: true, orderId: true } },
       influencer: {
         select: {
           displayName: true,
@@ -283,6 +285,14 @@ export async function executeStripeTransferAction(
       data: { status: CommissionStatus.PAID },
     }),
   ]);
+
+  // Ten sam krok co w adminMarkPayoutPaidAction (wypłata ręczna) — bez tego
+  // Conversion zostaje na CONFIRMED, mimo że Commission ma już status PAID.
+  await syncConversionStatus(
+    payout.commission.affiliateLinkId,
+    payout.commission.orderId,
+    ConversionStatus.PAID
+  );
 
   revalidatePath("/admin/payouts");
 

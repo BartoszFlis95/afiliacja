@@ -36,33 +36,59 @@ export async function POST(request: NextRequest) {
 
     const body = await request.text();
 
-    if (signature) {
-      const expectedSignature = crypto
-        .createHmac("sha256", brand.webhookSecret)
-        .update(body)
-        .digest("hex");
+    // HMAC jest teraz WYMAGANY, nie opcjonalny — wcześniej brak nagłówka
+    // x-signature po prostu pomijał weryfikację, więc jedynym realnym
+    // sekretem był apiKey (widoczny np. w konfiguracji integracji marki).
+    if (!signature) {
+      return NextResponse.json(
+        { success: false, error: "Missing x-signature header" },
+        { status: 401 }
+      );
+    }
 
-      if (signature !== expectedSignature) {
-        return NextResponse.json(
-          { success: false, error: "Invalid HMAC signature" },
-          { status: 401 }
-        );
-      }
+    const expectedSignature = crypto
+      .createHmac("sha256", brand.webhookSecret)
+      .update(body)
+      .digest("hex");
+
+    if (signature !== expectedSignature) {
+      return NextResponse.json(
+        { success: false, error: "Invalid HMAC signature" },
+        { status: 401 }
+      );
     }
 
     const data = JSON.parse(body);
     const { orderId, amount, ref, currency = "PLN", email, productSlug } = data;
 
-    if (!orderId || !amount || !ref) {
+    if (!orderId) {
       return NextResponse.json(
-        { success: false, error: "Missing required fields: orderId, amount, ref" },
+        { success: false, error: "orderId jest wymagany" },
         { status: 400 }
       );
     }
 
+    if (!amount || !ref) {
+      return NextResponse.json(
+        { success: false, error: "Missing required fields: amount, ref" },
+        { status: 400 }
+      );
+    }
+
+    // Scope po marce (brand.id z apiKey, ustalony wyżej) — orderId pochodzi
+    // z systemu marki i różne marki mogą używać tych samych, np.
+    // sekwencyjnych numerów zamówień. Bez tego scope'a marka B z tym samym
+    // orderId co marka A dostawała fałszywe 409 i traciła konwersję.
     const [existingConversion, existingCommission] = await Promise.all([
-      prisma.conversion.findFirst({ where: { orderId: String(orderId) } }),
-      prisma.commission.findFirst({ where: { orderId: String(orderId) } }),
+      prisma.conversion.findFirst({
+        where: {
+          orderId: String(orderId),
+          affiliateLink: { product: { brandProfileId: brand.id } },
+        },
+      }),
+      prisma.commission.findFirst({
+        where: { orderId: String(orderId), brandId: brand.id },
+      }),
     ]);
 
     if (existingConversion || existingCommission) {

@@ -41,17 +41,68 @@ export default async function AdminUsersPage() {
     redirect("/login");
   }
 
+  // select zamiast include: passwordHash, apiKey, webhookSecret i pełne dane
+  // bankowe nigdy nie są pobierane z bazy dla tego widoku.
   const users = await prisma.user.findMany({
-    include: { brandProfile: true, influencerProfile: true },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      createdAt: true,
+      emailVerified: true,
+      brandProfile: {
+        select: {
+          companyName: true,
+          industry: true,
+          website: true,
+          isVerified: true,
+        },
+      },
+      influencerProfile: {
+        select: {
+          displayName: true,
+          city: true,
+          country: true,
+          followersCount: true,
+          stripeAccountId: true,
+          stripeOnboardingDone: true,
+          bankAccountIban: true,
+          paypalEmail: true,
+        },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
+
+  // Granica Server → Client Component (UserDetailsButton to "use client"):
+  // IBAN/PayPal są tu tylko po to, by ustalić obecność metody wypłat — do
+  // klienta trafiają wyłącznie flagi boolean, nigdy surowe wartości.
+  const usersForDisplay = users.map((user) => ({
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    createdAt: user.createdAt,
+    brandProfile: user.brandProfile,
+    influencerProfile: user.influencerProfile
+      ? {
+          displayName: user.influencerProfile.displayName,
+          city: user.influencerProfile.city,
+          country: user.influencerProfile.country,
+          followersCount: user.influencerProfile.followersCount,
+          stripeAccountId: user.influencerProfile.stripeAccountId,
+          stripeOnboardingDone: user.influencerProfile.stripeOnboardingDone,
+          hasIban: Boolean(user.influencerProfile.bankAccountIban),
+          hasPaypal: Boolean(user.influencerProfile.paypalEmail),
+        }
+      : null,
+  }));
 
   return (
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold text-[#0F172A]">Użytkownicy</h1>
         <p className="mt-1 text-muted-foreground">
-          {users.length.toLocaleString("pl-PL")} kont w systemie.
+          {usersForDisplay.length.toLocaleString("pl-PL")} kont w systemie.
         </p>
       </header>
 
@@ -68,7 +119,7 @@ export default async function AdminUsersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.length === 0 ? (
+            {usersForDisplay.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="p-0">
                   <EmptyState
@@ -80,7 +131,7 @@ export default async function AdminUsersPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              users.map((user) => (
+              usersForDisplay.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.email}</TableCell>
                   <TableCell>

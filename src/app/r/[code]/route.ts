@@ -39,33 +39,54 @@ export async function GET(
   const referer = request.headers.get("referer") ?? null;
 
   // FRAUD 1 — self-click: influencer klikający własny link.
-  // Blokujemy zapis Click i przekierowujemy prosto na productUrl.
+  // Zapisujemy Click jako fraud (audyt), nie liczymy do totalClicks, 403.
   const session = await auth();
   if (session?.user?.id && session.user.id === link.influencerProfile.userId) {
     logFraud("self-click", { userId: session.user.id, linkCode: code });
-    console.warn("[fraud] self-click blocked:", session.user.id);
 
-    const response = NextResponse.redirect(link.product.productUrl, { status: 302 });
-    response.headers.set("X-Fraud-Reason", "self-click");
-    return response;
+    await prisma.click.create({
+      data: {
+        affiliateLinkId: link.id,
+        ip,
+        userAgent,
+        referer,
+        isFraud: true,
+        fraudReason: "self_click",
+      },
+    });
+
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   // FRAUD 2 — limit kliknięć per IP: max 10 kliknięć/godzinę/link.
+  // Do limitu liczą się tylko klik-i NIE oznaczone jako fraud — inaczej
+  // zapisywanie zablokowanych prób (ta zmiana) sztucznie podbijałoby licznik.
   if (ip) {
     const oneHourAgo = new Date(Date.now() - IP_RATE_WINDOW_MS);
     const recentClicks = await prisma.click.count({
       where: {
         affiliateLinkId: link.id,
         ip,
+        isFraud: false,
         createdAt: { gte: oneHourAgo },
       },
     });
 
     if (recentClicks >= IP_RATE_LIMIT) {
       logFraud("ip-rate-limit", { ip, linkCode: code, count: recentClicks });
-      console.warn("[fraud] IP rate limit:", ip);
 
-      return NextResponse.redirect(link.product.productUrl, { status: 302 });
+      await prisma.click.create({
+        data: {
+          affiliateLinkId: link.id,
+          ip,
+          userAgent,
+          referer,
+          isFraud: true,
+          fraudReason: "ip_rate_limit",
+        },
+      });
+
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
   }
 

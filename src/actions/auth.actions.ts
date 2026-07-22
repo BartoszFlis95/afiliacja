@@ -126,7 +126,8 @@ export async function registerAction(formData: FormData) {
     return { success: false, error: parsed.error.errors[0].message };
   }
 
-  const { email, password, role } = parsed.data;
+  const email = parsed.data.email.toLowerCase();
+  const { password, role } = parsed.data;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {

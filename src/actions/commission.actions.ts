@@ -63,7 +63,7 @@ async function getInfluencerProfileId(userId: string) {
  * kroku Conversion.status zostaje na zawsze PENDING, a dashboardy, statystyki
  * i generowanie faktur filtrują właśnie po statusie CONFIRMED/PAID.
  */
-async function syncConversionStatus(
+export async function syncConversionStatus(
   affiliateLinkId: string,
   orderId: string | null,
   status: ConversionStatus
@@ -361,16 +361,15 @@ export async function requestPayoutAction(
     return { success: false, error: "Wniosek o wypłatę już istnieje." };
   }
 
-  const balanceAgg = await prisma.commission.aggregate({
-    where: { influencerId, status: CommissionStatus.APPROVED, payout: null },
-    _sum: { commissionAmount: true },
-  });
-  const totalAmount = Number(balanceAgg._sum.commissionAmount ?? 0);
-
-  if (totalAmount < MINIMUM_PAYOUT) {
+  // Payout jest tworzony dla POJEDYNCZEJ komisji (nie zagregowanego salda),
+  // więc to właśnie kwota tej komisji musi spełniać minimum — sprawdzanie
+  // zagregowanego salda influencera pozwalało obejść limit, zlecając wypłatę
+  // wielu osobnych komisji poniżej progu.
+  const commissionAmount = Number(commission.commissionAmount);
+  if (commissionAmount < MINIMUM_PAYOUT) {
     return {
       success: false,
-      error: `Minimalna kwota wypłaty to ${MINIMUM_PAYOUT} zł. Masz dostępne ${totalAmount.toFixed(2)} zł.`,
+      error: `Minimalna kwota wypłaty to ${MINIMUM_PAYOUT} zł.`,
     };
   }
 

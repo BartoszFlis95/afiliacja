@@ -211,7 +211,7 @@ model Click {
 model Conversion {
   id                   String           @id @default(cuid())
   affiliateLinkId      String
-  orderId              String?          @unique
+  orderId              String?
   customerEmail        String?
   amount               Decimal
   commission           Decimal
@@ -222,6 +222,11 @@ model Conversion {
   updatedAt            DateTime         @updatedAt
 
   affiliateLink AffiliateLink @relation(fields: [affiliateLinkId], references: [id], onDelete: Cascade)
+
+  // orderId pochodzi z systemu marki i różne marki mogą używać tych samych
+  // numerów zamówień (np. sekwencyjnych 1001, 1002...) — unikalność musi być
+  // per-link, nie globalna, inaczej druga marka z tym samym orderId dostaje P2002.
+  @@unique([orderId, affiliateLinkId])
 }
 
 model Commission {
