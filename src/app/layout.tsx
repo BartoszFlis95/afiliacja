@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Lato } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/components/ui/toaster";
@@ -58,6 +58,11 @@ export const metadata: Metadata = {
     description: "Platforma CPS łącząca marki z influencerami.",
     images: ["/logo.png"],
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

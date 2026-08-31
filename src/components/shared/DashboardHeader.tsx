@@ -60,8 +60,8 @@ export function DashboardHeader({ email, role }: DashboardHeaderProps) {
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-2 border-b border-blue-100 bg-white px-4 shadow-sm">
-      <SidebarTrigger className="text-slate-500 hover:text-[#0F172A]" />
-      <Separator orientation="vertical" className="mr-1 h-5" />
+      <SidebarTrigger className="text-slate-500 hover:text-[#0F172A] md:hidden" />
+      <Separator orientation="vertical" className="mr-1 h-5 md:hidden" />
 
       <Breadcrumb>
         <BreadcrumbList>

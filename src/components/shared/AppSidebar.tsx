@@ -33,6 +33,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 type Role = "BRAND" | "INFLUENCER" | "ADMIN";
@@ -81,9 +82,16 @@ interface AppSidebarProps {
 
 export function AppSidebar({ role, email }: AppSidebarProps) {
   const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
   const normalizedRole = (role as Role) in NAV_ITEMS ? (role as Role) : "INFLUENCER";
   const items = NAV_ITEMS[normalizedRole];
   const initials = email.slice(0, 2).toUpperCase();
+
+  // Na mobile sidebar to nakładka (Sheet) — po przejściu na inną stronę
+  // trzeba ją zamknąć, inaczej zasłania nową stronę do ręcznego zamknięcia.
+  const closeMobileSidebar = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   return (
     <Sidebar className="border-r border-[#1E293B]">
@@ -128,7 +136,7 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
                           : "text-slate-400 hover:bg-[#1E293B] hover:text-white"
                       )}
                     >
-                      <Link href={href}>
+                      <Link href={href} onClick={closeMobileSidebar}>
                         <Icon className="h-4 w-4 shrink-0" />
                         <span>{title}</span>
                       </Link>
