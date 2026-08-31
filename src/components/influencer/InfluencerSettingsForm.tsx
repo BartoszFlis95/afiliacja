@@ -62,43 +62,43 @@ export function SettingsForm({ profile }: { profile: InfluencerProfileValues }) 
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base sm:text-lg">Profil influencera</CardTitle>
+    <Card className="w-full">
+      <CardHeader className="p-4 md:p-6">
+        <CardTitle className="text-base md:text-lg">Profil influencera</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="displayName">Nazwa wyświetlana *</Label>
-            <Input
-              id="displayName"
-              name="displayName"
-              required
-              defaultValue={profile.displayName}
-            />
-          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="displayName">Nazwa wyświetlana *</Label>
+              <Input
+                id="displayName"
+                name="displayName"
+                required
+                defaultValue={profile.displayName}
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            <Textarea
-              id="bio"
-              name="bio"
-              rows={3}
-              defaultValue={profile.bio ?? ""}
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="website">Strona WWW</Label>
+              <Input
+                id="website"
+                name="website"
+                type="url"
+                defaultValue={profile.website ?? ""}
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="website">Strona WWW</Label>
-            <Input
-              id="website"
-              name="website"
-              type="url"
-              defaultValue={profile.website ?? ""}
-            />
-          </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="bio">Bio</Label>
+              <Textarea
+                id="bio"
+                name="bio"
+                rows={3}
+                defaultValue={profile.bio ?? ""}
+              />
+            </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="instagramUrl">Instagram</Label>
               <Input
@@ -126,17 +126,16 @@ export function SettingsForm({ profile }: { profile: InfluencerProfileValues }) 
                 defaultValue={profile.tiktokUrl ?? ""}
               />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="followersCount">Liczba obserwujących</Label>
-            <Input
-              id="followersCount"
-              name="followersCount"
-              type="number"
-              min={0}
-              defaultValue={profile.followersCount}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="followersCount">Liczba obserwujących</Label>
+              <Input
+                id="followersCount"
+                name="followersCount"
+                type="number"
+                min={0}
+                defaultValue={profile.followersCount}
+              />
+            </div>
           </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
@@ -145,7 +144,7 @@ export function SettingsForm({ profile }: { profile: InfluencerProfileValues }) 
           <Button
             type="submit"
             disabled={isPending}
-            className="w-full sm:w-auto"
+            className="w-full md:w-auto"
           >
             {isPending ? "Zapisywanie..." : "Zapisz zmiany"}
           </Button>

@@ -53,16 +53,16 @@ export default async function InfluencerSettingsPage({
   const stripeAutoRefresh = params.success === "true" || params.refresh === "true";
 
   return (
-    <div className="mx-auto max-w-2xl p-4 sm:p-6 space-y-5 sm:space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-6 lg:p-8">
       <header>
-        <h1 className="text-2xl font-bold text-[#0F172A]">Ustawienia</h1>
+        <h1 className="text-xl font-bold text-[#0F172A] md:text-2xl lg:text-3xl">Ustawienia</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Zarządzaj profilem i danymi konta.
         </p>
       </header>
 
       <Tabs defaultValue={defaultTab}>
-        <TabsList className="flex h-auto flex-wrap gap-1 p-1 mb-5 sm:mb-6 sm:grid sm:grid-cols-5">
+        <TabsList className="flex h-auto flex-wrap gap-1 p-1 mb-5 md:mb-6 md:grid md:grid-cols-5">
           <TabsTrigger
             value="profile"
             className="text-xs sm:text-sm px-2 py-1.5 sm:px-3 sm:py-2"
