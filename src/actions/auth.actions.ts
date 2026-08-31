@@ -6,7 +6,13 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail, getAppUrl } from "@/lib/resend";
 import WelcomeEmail from "@/emails/WelcomeEmail";
 import VerifyEmailEmail from "@/emails/VerifyEmailEmail";
-import { LoginSchema, RegisterSchema } from "@/lib/validations/auth.schema";
+import PasswordResetEmail from "@/emails/PasswordResetEmail";
+import {
+  LoginSchema,
+  RegisterSchema,
+  ForgotPasswordSchema,
+  PasswordSchema,
+} from "@/lib/validations/auth.schema";
 import { Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
@@ -279,6 +285,98 @@ export async function resendVerificationEmailAction(
   }
 
   await sendVerificationEmail(normalizedEmail);
+
+  return { success: true };
+}
+
+// ---------------------------------------------------------------------------
+// PASSWORD RESET
+// ---------------------------------------------------------------------------
+
+const PASSWORD_RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
+
+async function sendPasswordResetEmail(email: string, token: string) {
+  const resetUrl = `${getAppUrl()}/reset-password?token=${token}`;
+  const displayName = email.split("@")[0];
+
+  after(() =>
+    sendEmail({
+      to: email,
+      subject: "Zresetuj hasło w Deneeu",
+      react: PasswordResetEmail({ name: displayName, resetUrl }),
+    }).catch((err) => console.error("[email] password reset failed:", err))
+  );
+}
+
+export async function forgotPasswordAction(
+  email: string
+): Promise<{ success: boolean; error?: string }> {
+  const parsed = ForgotPasswordSchema.safeParse({ email });
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.errors[0].message };
+  }
+
+  const normalizedEmail = parsed.data.email.toLowerCase();
+  const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+
+  // Nie ujawniamy, czy konto istnieje — token generujemy i mail wysyłamy
+  // tylko gdy user faktycznie istnieje, ale odpowiedź zawsze jest sukcesem.
+  if (user) {
+    const token = crypto.randomUUID();
+    await prisma.passwordResetToken.create({
+      data: {
+        token,
+        email: normalizedEmail,
+        expiresAt: new Date(Date.now() + PASSWORD_RESET_TOKEN_TTL_MS),
+      },
+    });
+    await sendPasswordResetEmail(normalizedEmail, token);
+  }
+
+  return { success: true };
+}
+
+export async function resetPasswordAction(
+  token: string,
+  password: string
+): Promise<{ success: boolean; error?: string; code?: string }> {
+  if (!token) {
+    return { success: false, error: "Brak tokena.", code: "TOKEN_INVALID" };
+  }
+
+  const parsedPassword = PasswordSchema.safeParse(password);
+  if (!parsedPassword.success) {
+    return { success: false, error: parsedPassword.error.errors[0].message };
+  }
+
+  const resetToken = await prisma.passwordResetToken.findUnique({ where: { token } });
+
+  if (!resetToken || resetToken.usedAt !== null || resetToken.expiresAt < new Date()) {
+    return {
+      success: false,
+      error: "Link wygasł lub został już wykorzystany.",
+      code: "TOKEN_INVALID",
+    };
+  }
+
+  const user = await prisma.user.findUnique({ where: { email: resetToken.email } });
+  if (!user) {
+    return {
+      success: false,
+      error: "Nie znaleziono konta powiązanego z tym linkiem.",
+      code: "TOKEN_INVALID",
+    };
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: user.id }, data: { passwordHash } }),
+    prisma.passwordResetToken.update({
+      where: { token },
+      data: { usedAt: new Date() },
+    }),
+  ]);
 
   return { success: true };
 }

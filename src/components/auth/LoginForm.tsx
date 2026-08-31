@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { loginAction, resendVerificationEmailAction } from "@/actions/auth.actions";
 
 export function LoginForm() {
+  const searchParams = useSearchParams();
+  const passwordResetDone = searchParams.get("reset") === "success";
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [notVerifiedEmail, setNotVerifiedEmail] = useState<string | null>(null);
@@ -64,6 +67,15 @@ export function LoginForm() {
       </div>
 
       <form onSubmit={onSubmit} className="space-y-4">
+        {passwordResetDone && (
+          <div
+            role="status"
+            className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+          >
+            Hasło zmienione. Zaloguj się nowym hasłem.
+          </div>
+        )}
+
         {error && (
           <div
             role="alert"
@@ -122,6 +134,14 @@ export function LoginForm() {
             placeholder="••••••••"
             disabled={isPending}
           />
+          <p className="text-right">
+            <Link
+              href="/forgot-password"
+              className="text-xs font-medium text-blue-600 hover:text-blue-500 transition-colors"
+            >
+              Zapomniałeś hasła?
+            </Link>
+          </p>
         </div>
 
         <Button type="submit" disabled={isPending} className="w-full mt-2">

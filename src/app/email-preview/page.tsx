@@ -3,6 +3,7 @@ import { render } from "@react-email/render";
 
 import WelcomeEmail from "@/emails/WelcomeEmail";
 import VerifyEmailEmail from "@/emails/VerifyEmailEmail";
+import PasswordResetEmail from "@/emails/PasswordResetEmail";
 import NewCommissionEmail from "@/emails/NewCommissionEmail";
 import CommissionApprovedEmail from "@/emails/CommissionApprovedEmail";
 import CommissionPendingBrandEmail from "@/emails/CommissionPendingBrandEmail";
@@ -19,6 +20,14 @@ const templates: { name: string; subject: string; element: React.ReactElement }[
     element: VerifyEmailEmail({
       name: "Kasia",
       verifyUrl: "https://deneeu.pl/verify-email?token=example-token",
+    }),
+  },
+  {
+    name: "PasswordResetEmail",
+    subject: "Zresetuj hasło w Deneeu",
+    element: PasswordResetEmail({
+      name: "Kasia",
+      resetUrl: "https://deneeu.pl/reset-password?token=example-token",
     }),
   },
   {

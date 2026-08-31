@@ -31,5 +31,27 @@ export const RegisterSchema = z
     path: ["inviteCode"],
   });
 
+export const PasswordSchema = z
+  .string()
+  .min(8, "Hasło musi mieć co najmniej 8 znaków")
+  .regex(/[A-Z]/, "Hasło musi zawierać wielką literę")
+  .regex(/[0-9]/, "Hasło musi zawierać cyfrę");
+
+export const ForgotPasswordSchema = z.object({
+  email: z.string().email("Nieprawidłowy adres email"),
+});
+
+export const ResetPasswordSchema = z
+  .object({
+    password: PasswordSchema,
+    confirmPassword: z.string().min(1, "Potwierdzenie hasła jest wymagane"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Hasła nie są zgodne",
+    path: ["confirmPassword"],
+  });
+
 export type LoginSchemaType = z.infer<typeof LoginSchema>;
 export type RegisterSchemaType = z.infer<typeof RegisterSchema>;
+export type ForgotPasswordSchemaType = z.infer<typeof ForgotPasswordSchema>;
+export type ResetPasswordSchemaType = z.infer<typeof ResetPasswordSchema>;
