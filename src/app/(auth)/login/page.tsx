@@ -1,10 +1,11 @@
-import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
 
-export default function LoginPage() {
-  return (
-    <Suspense>
-      <LoginForm />
-    </Suspense>
-  );
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reset?: string }>;
+}) {
+  const params = await searchParams;
+
+  return <LoginForm passwordResetDone={params.reset === "success"} />;
 }

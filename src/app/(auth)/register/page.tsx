@@ -1,10 +1,16 @@
-import { Suspense } from "react";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 
-export default function RegisterPage() {
+export default async function RegisterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ invite?: string; role?: string }>;
+}) {
+  const params = await searchParams;
+
   return (
-    <Suspense>
-      <RegisterForm />
-    </Suspense>
+    <RegisterForm
+      inviteCode={params.invite ?? ""}
+      defaultRole={params.role === "INFLUENCER" ? "INFLUENCER" : undefined}
+    />
   );
 }

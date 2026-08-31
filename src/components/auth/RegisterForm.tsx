@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useSearchParams } from "next/navigation";
 import { Building2, Megaphone } from "lucide-react";
 
 import { registerAction } from "@/actions/auth.actions";
@@ -38,11 +37,15 @@ const ROLE_OPTIONS: {
   },
 ];
 
-export function RegisterForm() {
-  const searchParams = useSearchParams();
-  const inviteFromUrl = searchParams.get("invite") ?? "";
+interface Props {
+  inviteCode?: string;
+  defaultRole?: Role;
+}
+
+export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
+  const inviteFromUrl = inviteCode;
   const [role, setRole] = useState<Role>(
-    inviteFromUrl ? "BRAND" : ((searchParams.get("role") as Role) === "INFLUENCER" ? "INFLUENCER" : "BRAND")
+    inviteFromUrl ? "BRAND" : defaultRole === "INFLUENCER" ? "INFLUENCER" : "BRAND"
   );
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);

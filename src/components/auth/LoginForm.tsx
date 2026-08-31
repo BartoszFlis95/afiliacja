@@ -2,16 +2,13 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginAction, resendVerificationEmailAction } from "@/actions/auth.actions";
 
-export function LoginForm() {
-  const searchParams = useSearchParams();
-  const passwordResetDone = searchParams.get("reset") === "success";
+export function LoginForm({ passwordResetDone = false }: { passwordResetDone?: boolean }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [notVerifiedEmail, setNotVerifiedEmail] = useState<string | null>(null);
