@@ -53,16 +53,16 @@ export default async function InfluencerSettingsPage({
   const stripeAutoRefresh = params.success === "true" || params.refresh === "true";
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-6 lg:p-8">
-      <header>
+    <div className="mx-auto w-full max-w-2xl space-y-6 p-4 md:p-6 lg:p-8">
+      <header className="w-full">
         <h1 className="text-xl font-bold text-[#0F172A] md:text-2xl lg:text-3xl">Ustawienia</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Zarządzaj profilem i danymi konta.
         </p>
       </header>
 
-      <Tabs defaultValue={defaultTab}>
-        <TabsList className="flex h-auto flex-wrap gap-1 p-1 mb-5 md:mb-6 md:grid md:grid-cols-5">
+      <Tabs defaultValue={defaultTab} className="w-full">
+        <TabsList className="flex h-auto w-full flex-wrap gap-1 p-1 mb-5 md:mb-6 md:grid md:grid-cols-5">
           <TabsTrigger
             value="profile"
             className="text-xs sm:text-sm px-2 py-1.5 sm:px-3 sm:py-2"
@@ -105,7 +105,7 @@ export default async function InfluencerSettingsPage({
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="profile">
+        <TabsContent value="profile" className="w-full">
           <SettingsForm
             profile={{
               displayName: profile.displayName,
@@ -119,7 +119,7 @@ export default async function InfluencerSettingsPage({
           />
         </TabsContent>
 
-        <TabsContent value="bank">
+        <TabsContent value="bank" className="w-full">
           {bankDetails ? (
             <BankDetailsForm initial={bankDetails} />
           ) : (
@@ -129,15 +129,15 @@ export default async function InfluencerSettingsPage({
           )}
         </TabsContent>
 
-        <TabsContent value="billing">
+        <TabsContent value="billing" className="w-full">
           <BillingTypeForm initialData={{ billingType: profile.billingType }} />
         </TabsContent>
 
-        <TabsContent value="stripe">
+        <TabsContent value="stripe" className="w-full">
           <StripeConnectSection initialStatus={stripeStatus} autoRefresh={stripeAutoRefresh} />
         </TabsContent>
 
-        <TabsContent value="security">
+        <TabsContent value="security" className="w-full">
           <ChangePasswordForm />
         </TabsContent>
       </Tabs>
