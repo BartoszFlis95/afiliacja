@@ -53,7 +53,7 @@ export default async function InfluencerSettingsPage({
   const stripeAutoRefresh = params.success === "true" || params.refresh === "true";
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 p-4 md:p-6 lg:p-8">
+    <div className="w-full space-y-6 p-4 md:p-6 lg:p-8">
       <header className="w-full">
         <h1 className="text-xl font-bold text-[#0F172A] md:text-2xl lg:text-3xl">Ustawienia</h1>
         <p className="mt-1 text-sm text-muted-foreground">
