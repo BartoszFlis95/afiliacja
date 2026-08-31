@@ -40,16 +40,37 @@ export default async function AdminFinancePage() {
         <p className="mt-1 text-sm text-slate-500">Podsumowanie finansowe platformy.</p>
       </header>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <StatsCard title="Łączny obrót" value={formatCurrency(summary.totalRevenue)} icon={TrendingUp} />
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+        <StatsCard
+          title="Łączny obrót"
+          value={formatCurrency(summary.totalRevenue)}
+          icon={<TrendingUp />}
+          color="blue"
+        />
         <StatsCard
           title="Prowizje influencerów"
           value={formatCurrency(summary.influencerCommissions)}
-          icon={Wallet2}
+          icon={<Wallet2 />}
+          color="purple"
         />
-        <StatsCard title="Przychód platformy" value={formatCurrency(summary.platformRevenue)} icon={Banknote} />
-        <StatsCard title="Oczekujące wypłaty" value={formatCurrency(summary.pendingPayouts)} icon={Clock3} />
-        <StatsCard title="Wypłacone łącznie" value={formatCurrency(summary.totalPaidOut)} icon={Wallet} />
+        <StatsCard
+          title="Przychód platformy"
+          value={formatCurrency(summary.platformRevenue)}
+          icon={<Banknote />}
+          color="green"
+        />
+        <StatsCard
+          title="Oczekujące wypłaty"
+          value={formatCurrency(summary.pendingPayouts)}
+          icon={<Clock3 />}
+          color="orange"
+        />
+        <StatsCard
+          title="Wypłacone łącznie"
+          value={formatCurrency(summary.totalPaidOut)}
+          icon={<Wallet />}
+          color="green"
+        />
       </div>
 
       <Card>

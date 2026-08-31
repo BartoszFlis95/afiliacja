@@ -184,60 +184,60 @@ export default async function AdminDashboardPage() {
         <StatsCard
           title="Użytkownicy łącznie"
           value={stats.totalUsers.toLocaleString("pl-PL")}
-          icon={Users}
-          iconColor="zinc"
+          icon={<Users />}
+          color="zinc"
         />
         <StatsCard
           title="Nowi (7 dni)"
           value={newUsers7Days.toLocaleString("pl-PL")}
-          icon={UserPlus}
-          iconColor="emerald"
+          icon={<UserPlus />}
+          color="green"
         />
         <StatsCard
           title="Marki"
           value={stats.totalBrands.toLocaleString("pl-PL")}
-          icon={Building2}
-          iconColor="blue"
+          icon={<Building2 />}
+          color="blue"
         />
         <StatsCard
           title="Influencerzy"
           value={stats.totalInfluencers.toLocaleString("pl-PL")}
-          icon={Megaphone}
-          iconColor="violet"
+          icon={<Megaphone />}
+          color="purple"
         />
         <StatsCard
           title="Aktywne produkty"
           value={activeProducts.toLocaleString("pl-PL")}
-          icon={Package}
-          iconColor="blue"
+          icon={<Package />}
+          color="blue"
         />
         <StatsCard
           title="Kliknięcia"
           value={clicksThisMonth.toLocaleString("pl-PL")}
-          icon={MousePointerClick}
+          icon={<MousePointerClick />}
           description="ten miesiąc"
-          iconColor="zinc"
+          color="zinc"
         />
         <StatsCard
           title="Przychód platformy"
           value={formatCurrency(stats.platformCommission)}
-          icon={Wallet}
-          iconColor="emerald"
+          icon={<Wallet />}
+          color="green"
         />
         <StatsCard
           title="Prowizje do zatwierdzenia"
           value={pendingCommissions}
-          icon={Clock}
+          icon={<Clock />}
           description={pendingCommissions > 0 ? "wymaga akcji" : "brak zaległości"}
-          iconColor="amber"
+          color="orange"
         />
         <Link href="/admin/commissions?tab=suspicious" className="block">
           <StatsCard
             title="Podejrzane komisje"
             value={suspiciousCommissions.length}
-            icon={AlertTriangle}
+            icon={<AlertTriangle />}
             description={suspiciousCommissions.length > 0 ? "wymaga weryfikacji" : "brak zgłoszeń"}
-            iconColor="red"
+            color="red"
           />
         </Link>
       </div>

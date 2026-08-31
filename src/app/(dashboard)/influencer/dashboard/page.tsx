@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import {
   MousePointerClick,
   TrendingUp,
-  Wallet,
   PiggyBank,
   AlertTriangle,
   ImageIcon,
@@ -33,15 +32,15 @@ import {
 
 export const dynamic = "force-dynamic";
 
-function pctTrend(current: number, previous: number): { value: string; positive: boolean } | undefined {
+function pctTrend(current: number, previous: number): { value: number; label: string } | undefined {
   if (previous === 0) {
     if (current === 0) return undefined;
-    return { value: "Nowe", positive: true };
+    return { value: 100, label: "nowe w tym miesiącu" };
   }
   const change = ((current - previous) / previous) * 100;
   return {
-    value: `${change > 0 ? "+" : ""}${change.toFixed(1)}%`,
-    positive: change >= 0,
+    value: Math.round(change * 10) / 10,
+    label: "vs poprzedni miesiąc",
   };
 }
 
@@ -143,6 +142,7 @@ export default async function InfluencerDashboardPage() {
   const totalEarnings = Number(totalsAgg._sum.totalEarnings ?? 0);
   const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0;
   const availableBalance = Number(approvedBalanceAgg._sum.commissionAmount ?? 0);
+  const influencerClicksTrend = pctTrend(clicksThisMonth, clicksLastMonth);
 
   // Bucketuj kliknięcia dziennie na potrzeby AreaChart (ostatnie 30 dni).
   const dailyClicksMap = new Map<string, number>();
@@ -212,13 +212,14 @@ export default async function InfluencerDashboardPage() {
       </div>
 
       {/* Earnings highlight */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-zinc-900 to-zinc-800 p-6 text-white sm:p-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-700 p-6 text-white sm:p-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-zinc-400">
-              <Wallet className="h-3.5 w-3.5" /> Zarobki łącznie
+            <p className="text-sm text-zinc-400">Łączne zarobki</p>
+            <p className="mt-1 text-4xl font-bold">{formatCurrency(totalEarnings)} PLN</p>
+            <p className="mt-2 text-sm text-zinc-400">
+              {totalConversions.toLocaleString("pl-PL")} konwersji • {totalClicks.toLocaleString("pl-PL")} kliknięć
             </p>
-            <p className="mt-2 text-3xl font-semibold sm:text-4xl">{formatCurrency(totalEarnings)}</p>
           </div>
           <div className="flex items-center justify-between gap-4 rounded-xl bg-white/5 px-4 py-3 ring-1 ring-white/10 sm:justify-start">
             <div>
@@ -242,17 +243,16 @@ export default async function InfluencerDashboardPage() {
         <StatsCard
           title="Łączne kliknięcia"
           value={totalClicks.toLocaleString("pl-PL")}
-          icon={MousePointerClick}
-          trend={pctTrend(clicksThisMonth, clicksLastMonth)}
-          description="vs poprzedni miesiąc"
-          iconColor="blue"
+          icon={<MousePointerClick />}
+          trend={influencerClicksTrend}
+          color="blue"
         />
         <StatsCard
           title="Konwersje"
           value={totalConversions.toLocaleString("pl-PL")}
-          icon={TrendingUp}
+          icon={<TrendingUp />}
           description={`CR ${conversionRate.toFixed(1)}%`}
-          iconColor="emerald"
+          color="green"
         />
       </div>
 
@@ -300,16 +300,16 @@ export default async function InfluencerDashboardPage() {
                   className="flex flex-col gap-3 rounded-xl border border-zinc-100 p-4 transition-all duration-200 hover:border-zinc-200 hover:shadow-sm sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-medium text-zinc-900">
+                    <p className="truncate font-bold text-zinc-900">
                       {link.product?.name ?? "—"}
                     </p>
-                    <p className="mt-0.5 text-xs text-zinc-500">
-                      {link.totalClicks.toLocaleString("pl-PL")} kliknięć ·{" "}
-                      {link.totalConversions.toLocaleString("pl-PL")} konwersji ·{" "}
+                    <div className="mt-1.5 flex items-center gap-4 text-xs text-zinc-500">
+                      <span>{link.totalClicks.toLocaleString("pl-PL")} kliknięć</span>
+                      <span>{link.totalConversions.toLocaleString("pl-PL")} konwersji</span>
                       <span className="font-medium text-emerald-600">
                         {formatCurrency(Number(link.totalEarnings))}
                       </span>
-                    </p>
+                    </div>
                   </div>
                   <CopyLinkButton code={link.code} />
                 </div>

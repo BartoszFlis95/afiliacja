@@ -6,15 +6,15 @@ import {
   AlertTriangle,
   BarChart3,
   Clock,
+  DollarSign,
   MousePointerClick,
   Package,
   PlusCircle,
   TrendingUp,
   Users,
-  Wallet,
 } from "lucide-react";
 
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, cn } from "@/lib/utils";
 import { StatsCard } from "@/components/shared/StatsCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { SimpleLineChart } from "@/components/charts/SimpleLineChart";
@@ -31,6 +31,13 @@ import {
 } from "@/components/ui/table";
 
 export const dynamic = "force-dynamic";
+
+const AVATAR_COLORS = [
+  "bg-blue-100 text-blue-700",
+  "bg-purple-100 text-purple-700",
+  "bg-green-100 text-green-700",
+  "bg-orange-100 text-orange-700",
+];
 
 export default async function BrandDashboardPage() {
   const session = await auth();
@@ -167,20 +174,19 @@ export default async function BrandDashboardPage() {
       )}
 
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-2xl border border-zinc-100 bg-gradient-to-br from-zinc-50 via-white to-blue-50/50 p-6 sm:p-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-xl font-semibold text-zinc-900 sm:text-2xl lg:text-3xl">
-              Witaj, {brandProfile.companyName}!
-            </h1>
-            <p className="mt-1 text-sm text-zinc-500">
-              Oto podsumowanie Twojej działalności afiliacyjnej.
-            </p>
-          </div>
-          <Button asChild className="shadow-sm transition-all duration-200 hover:shadow-md">
-            <Link href="/brand/products/new">Dodaj produkt</Link>
-          </Button>
-        </div>
+      <div className="rounded-2xl bg-gradient-to-r from-zinc-900 to-zinc-700 p-6 text-white sm:p-8">
+        <h1 className="text-xl font-semibold sm:text-2xl lg:text-3xl">
+          Witaj, {brandProfile.companyName}!
+        </h1>
+        <p className="mt-1 text-sm text-zinc-400">
+          Oto podsumowanie Twojej działalności afiliacyjnej.
+        </p>
+        <Button
+          asChild
+          className="mt-4 bg-white text-zinc-900 shadow-sm transition-all duration-200 hover:bg-zinc-100 hover:shadow-md"
+        >
+          <Link href="/brand/products/new">Dodaj produkt</Link>
+        </Button>
       </div>
 
       {/* Quick actions */}
@@ -204,34 +210,34 @@ export default async function BrandDashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatsCard title="Aktywne produkty" value={activeProducts} icon={Package} iconColor="blue" />
-        <StatsCard title="Aktywni influencerzy" value={activeInfluencers} icon={Users} iconColor="violet" />
+        <StatsCard title="Produkty" value={activeProducts} icon={<Package />} color="blue" />
         <StatsCard
           title="Kliknięcia"
           value={clicksThisMonth.toLocaleString("pl-PL")}
-          icon={MousePointerClick}
+          icon={<MousePointerClick />}
           description="ten miesiąc"
-          iconColor="zinc"
+          color="purple"
         />
         <StatsCard
           title="Konwersje"
           value={conversionsThisMonth.toLocaleString("pl-PL")}
-          icon={TrendingUp}
+          icon={<TrendingUp />}
           description="ten miesiąc"
-          iconColor="emerald"
+          color="green"
         />
         <StatsCard
-          title="Przychód z afiliacji"
+          title="Przychód"
           value={formatCurrency(totalRevenue)}
-          icon={Wallet}
-          iconColor="emerald"
+          icon={<DollarSign />}
+          color="orange"
         />
+        <StatsCard title="Aktywni influencerzy" value={activeInfluencers} icon={<Users />} color="purple" />
         <StatsCard
           title="Prowizje do zatwierdzenia"
           value={pendingCommissions}
-          icon={Clock}
+          icon={<Clock />}
           description={pendingCommissions > 0 ? "wymaga akcji" : "brak zaległości"}
-          iconColor="amber"
+          color="orange"
         />
       </div>
 
@@ -284,15 +290,21 @@ export default async function BrandDashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {topInfluencers.map((link) => {
+                  {topInfluencers.map((link, index) => {
                     const cr = link.totalClicks > 0 ? (link.totalConversions / link.totalClicks) * 100 : 0;
                     const earningsShare = (Number(link.totalEarnings) / maxInfluencerEarnings) * 100;
                     const initials = link.influencerProfile.displayName.slice(0, 2).toUpperCase();
+                    const avatarColor = AVATAR_COLORS[index % AVATAR_COLORS.length];
                     return (
-                      <TableRow key={link.id}>
-                        <TableCell className="pl-6 font-medium">
+                      <TableRow key={link.id} className="hover:bg-zinc-50">
+                        <TableCell className="py-4 pl-6 font-medium">
                           <div className="flex items-center gap-3">
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-xs font-semibold text-white">
+                            <div
+                              className={cn(
+                                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                                avatarColor
+                              )}
+                            >
                               {initials}
                             </div>
                             <div className="min-w-0">
@@ -306,13 +318,13 @@ export default async function BrandDashboardPage() {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right text-muted-foreground">
+                        <TableCell className="py-4 text-right text-muted-foreground">
                           {link.totalClicks.toLocaleString("pl-PL")}
                         </TableCell>
-                        <TableCell className="text-right text-muted-foreground">
+                        <TableCell className="py-4 text-right text-muted-foreground">
                           {cr.toFixed(1)}%
                         </TableCell>
-                        <TableCell className="pr-6 text-right font-medium text-emerald-600">
+                        <TableCell className="py-4 pr-6 text-right font-medium text-emerald-600">
                           {formatCurrency(Number(link.totalEarnings))}
                         </TableCell>
                       </TableRow>
