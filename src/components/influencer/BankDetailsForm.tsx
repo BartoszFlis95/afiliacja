@@ -97,10 +97,10 @@ export function BankDetailsForm({ initial }: Props) {
     (mode === "paypal" && !!initial.paypalEmail && initial.preferredPayout === "paypal");
 
   return (
-    <Card>
-      <CardHeader className="pb-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="text-base sm:text-lg">Dane do wypłat</CardTitle>
+    <Card className="w-full">
+      <CardHeader className="p-4 pb-4 md:p-6 md:pb-4">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <CardTitle className="text-base md:text-lg">Dane do wypłat</CardTitle>
           <Badge
             variant={hasBankDetails ? "success" : "destructive"}
             className="text-xs sm:text-sm whitespace-nowrap w-fit"
@@ -110,7 +110,7 @@ export function BankDetailsForm({ initial }: Props) {
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Mode toggle */}
           <div className="flex gap-2 rounded-lg border border-slate-200 bg-slate-50 p-1">
@@ -153,14 +153,14 @@ export function BankDetailsForm({ initial }: Props) {
                   onChange={(e) => handleIbanChange(e.target.value)}
                   placeholder="PL00 0000 0000 0000 0000 0000 00"
                   disabled={isPending}
-                  className="font-mono text-sm w-full tracking-wider sm:tracking-widest"
+                  className="font-mono text-sm w-full tracking-wider md:tracking-widest"
                 />
                 {errors.bankAccountIban && (
                   <p className="text-xs text-destructive">{errors.bankAccountIban}</p>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label>Nazwa banku</Label>
                   <Input
@@ -208,7 +208,7 @@ export function BankDetailsForm({ initial }: Props) {
           </div>
 
           {/* Optional personal details */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-1.5">
               <Label>Telefon</Label>
               <Input
@@ -241,7 +241,7 @@ export function BankDetailsForm({ initial }: Props) {
           <Button
             type="submit"
             disabled={isPending}
-            className="w-full sm:w-auto bg-slate-900 text-white hover:bg-slate-700"
+            className="w-full md:w-auto bg-slate-900 text-white hover:bg-slate-700"
           >
             {isPending ? "Zapisywanie…" : "Zapisz dane bankowe"}
           </Button>

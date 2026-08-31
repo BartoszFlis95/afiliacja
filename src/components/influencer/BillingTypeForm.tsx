@@ -64,17 +64,17 @@ export function BillingTypeForm({ initialData }: Props) {
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-4">
-        <CardTitle className="text-base sm:text-lg">Typ rozliczenia</CardTitle>
+    <Card className="w-full">
+      <CardHeader className="p-4 pb-4 md:p-6 md:pb-4">
+        <CardTitle className="text-base md:text-lg">Typ rozliczenia</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 p-4 pt-0 md:p-6 md:pt-0">
         <p className="text-sm text-muted-foreground">
           Wybierz formę rozliczenia. Wpłynie to na rodzaj dokumentów wystawianych
           przez platformę przy wypłatach prowizji.
         </p>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {BILLING_OPTIONS.map(({ value, label, sub, icon: Icon }) => (
             <button
               key={value}
