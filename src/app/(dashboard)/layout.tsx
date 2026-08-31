@@ -24,10 +24,10 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider defaultOpen={true}>
       <AppSidebar role={role} email={email} />
-      <SidebarInset>
+      <SidebarInset className="min-w-0">
         <DashboardHeader role={role} email={email} />
-        <main className="flex-1 bg-background p-4 pb-24 sm:p-6 md:pb-6 lg:p-8 min-h-[calc(100vh-3.5rem)]">
-          <div className="w-full">
+        <main className="min-w-0 flex-1 bg-background p-4 pb-24 sm:p-6 md:pb-6 lg:p-8 min-h-[calc(100vh-3.5rem)]">
+          <div className="w-full min-w-0">
             {children}
           </div>
         </main>
