@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -55,34 +57,32 @@ export default async function PublicProductsPage({
       </nav>
 
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Produkty</h1>
-          <p className="mt-2 text-muted-foreground">
+        <header className="relative mb-8 overflow-hidden rounded-2xl border border-zinc-100 bg-gradient-to-br from-zinc-50 via-white to-blue-50/50 p-8 sm:p-10">
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl lg:text-4xl">
+            Produkty
+          </h1>
+          <p className="mt-2 text-zinc-500">
             Odkryj produkty dostępne w programie afiliacyjnym.
           </p>
         </header>
 
         <form
           method="get"
-          className="mb-8 flex flex-wrap items-end gap-4 rounded-lg border p-4"
+          className="mb-8 flex flex-wrap items-end gap-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm"
         >
-          <div className="flex flex-col gap-1">
-            <label htmlFor="category" className="text-sm font-medium">
-              Kategoria
-            </label>
-            <input
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="category">Kategoria</Label>
+            <Input
               id="category"
               name="category"
               defaultValue={category ?? ""}
               placeholder="np. Moda"
-              className="h-9 rounded-md border bg-background px-3 text-sm"
+              className="h-9 w-40"
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="minCommission" className="text-sm font-medium">
-              Min. prowizja (%)
-            </label>
-            <input
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="minCommission">Min. prowizja (%)</Label>
+            <Input
               id="minCommission"
               name="minCommission"
               type="number"
@@ -90,7 +90,7 @@ export default async function PublicProductsPage({
               step="0.5"
               defaultValue={minCommission ?? ""}
               placeholder="np. 10"
-              className="h-9 w-36 rounded-md border bg-background px-3 text-sm"
+              className="h-9 w-36"
             />
           </div>
           <Button type="submit" size="sm">
@@ -113,9 +113,9 @@ export default async function PublicProductsPage({
                 href={`/products/${product.slug}`}
                 className="group"
               >
-                <Card className="h-full overflow-hidden transition-shadow group-hover:shadow-md">
+                <Card className="h-full overflow-hidden rounded-2xl border-zinc-100 shadow-sm transition-all duration-200 group-hover:-translate-y-[1px] group-hover:shadow-md">
                   {/* Miniaturka */}
-                  <div className="relative w-full h-44 bg-slate-100">
+                  <div className="relative w-full h-44 bg-zinc-100">
                     {product.imageUrl ? (
                       <Image
                         src={product.imageUrl}
@@ -127,7 +127,7 @@ export default async function PublicProductsPage({
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <ImageIcon className="w-12 h-12 text-slate-300" />
+                        <ImageIcon className="w-12 h-12 text-zinc-300" />
                       </div>
                     )}
                   </div>

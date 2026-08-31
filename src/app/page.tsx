@@ -4,9 +4,11 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
+import { AnimatedStat } from "@/components/landing/AnimatedStat";
 
 export const metadata: Metadata = {
   title: "Deneeu — Platforma Affiliate Marketing CPS",
@@ -77,36 +79,42 @@ const FEATURES = [
     title: "Bezpieczne webhooky",
     description:
       "Weryfikacja apiKey i HMAC dla każdego żądania. Twoje dane są bezpieczne.",
+    gradient: "from-blue-50 to-blue-100/50",
   },
   {
     icon: "📊",
     title: "Statystyki w czasie rzeczywistym",
     description:
       "Kliknięcia, konwersje i zarobki aktualizowane na bieżąco.",
+    gradient: "from-emerald-50 to-emerald-100/50",
   },
   {
     icon: "⚡",
     title: "Szybkie wypłaty",
     description:
       "Wypłaty przez IBAN lub Stripe Connect. Pieniądze trafiają bezpośrednio na konto.",
+    gradient: "from-amber-50 to-amber-100/50",
   },
   {
     icon: "🔗",
     title: "Unikalne linki afiliacyjne",
     description:
       "Każdy influencer ma swój link z UTM tracking i cookie 30 dni.",
+    gradient: "from-violet-50 to-violet-100/50",
   },
   {
     icon: "📧",
     title: "Automatyczne powiadomienia",
     description:
       "Emaile o nowych komisjach, zatwierdzeniach i wypłatach. Zero ręcznej pracy.",
+    gradient: "from-rose-50 to-rose-100/50",
   },
   {
     icon: "📱",
     title: "Responsywny panel",
     description:
       "Zarządzaj platformą z telefonu, tabletu lub komputera. Zawsze pod ręką.",
+    gradient: "from-zinc-100 to-zinc-200/50",
   },
 ];
 
@@ -116,12 +124,20 @@ export default async function LandingPage() {
     redirect(ROLE_REDIRECT[session.user.role] ?? "/login");
   }
 
+  // Prawdziwe liczby z bazy — nie fikcyjne statystyki marketingowe.
+  const [totalBrands, totalInfluencers, totalProducts, totalConversions] = await Promise.all([
+    prisma.brandProfile.count(),
+    prisma.influencerProfile.count(),
+    prisma.product.count({ where: { status: "ACTIVE" } }),
+    prisma.conversion.count(),
+  ]);
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-white">
       <Navbar />
 
       {/* Hero */}
-      <section className="scroll-mt-24 bg-gradient-to-br from-[#EFF6FF] via-white to-[#DBEAFE] px-4 pt-24 pb-12 sm:px-6 sm:pt-28 sm:pb-16 lg:px-8 lg:pt-32 lg:pb-20">
+      <section className="scroll-mt-24 bg-gradient-to-br from-zinc-50 via-white to-blue-50/60 px-4 pt-24 pb-12 sm:px-6 sm:pt-28 sm:pb-16 lg:px-8 lg:pt-32 lg:pb-20">
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 sm:gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Logo dominujące — na mobile wyśrodkowane nad tekstem (grid
               zwija się do jednej kolumny), na lg: lewa kolumna obok tekstu. */}
@@ -147,15 +163,15 @@ export default async function LandingPage() {
               🚀 Platforma CPS dla marek i influencerów
             </span>
 
-            <h1 className="mt-6 text-3xl font-black leading-tight text-[#0F172A] sm:text-4xl lg:text-6xl">
+            <h1 className="mt-6 text-3xl font-semibold leading-tight text-zinc-900 sm:text-4xl lg:text-6xl">
               Łączymy marki z influencerami przez marketing afiliacyjny
             </h1>
 
-            <p className="mt-4 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-xl font-bold text-transparent sm:text-2xl lg:text-3xl">
+            <p className="mt-4 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-xl font-semibold text-transparent sm:text-2xl lg:text-3xl">
               Automatyzuj prowizje, śledzenie konwersji i wypłaty
             </p>
 
-            <p className="mt-6 max-w-lg text-base text-slate-500 sm:text-lg">
+            <p className="mt-6 max-w-lg text-base text-zinc-500 sm:text-lg">
               Platforma CPS (Cost Per Sale) która łączy marki z
               influencerami. Płacisz tylko za wyniki.
             </p>
@@ -178,15 +194,15 @@ export default async function LandingPage() {
               </Button>
             </div>
 
-            <ul className="mt-10 flex flex-col items-center gap-2 text-sm text-slate-500 sm:flex-row sm:gap-6 lg:items-start">
+            <ul className="mt-10 flex flex-col items-center gap-2 text-sm text-zinc-500 sm:flex-row sm:gap-6 lg:items-start">
               <li className="flex items-center gap-2">
-                <span className="text-blue-600">✓</span> Darmowa rejestracja
+                <span className="text-emerald-600">✓</span> Darmowa rejestracja
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-blue-600">✓</span> Bez karty kredytowej
+                <span className="text-emerald-600">✓</span> Bez karty kredytowej
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-blue-600">✓</span> Pierwsze wyniki w
+                <span className="text-emerald-600">✓</span> Pierwsze wyniki w
                 24h
               </li>
             </ul>
@@ -194,17 +210,27 @@ export default async function LandingPage() {
         </div>
       </section>
 
+      {/* Statystyki */}
+      <section className="border-y border-zinc-100 bg-white px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 sm:grid-cols-4">
+          <AnimatedStat value={totalBrands} label="Marek na platformie" />
+          <AnimatedStat value={totalInfluencers} label="Influencerów" />
+          <AnimatedStat value={totalProducts} label="Aktywnych produktów" />
+          <AnimatedStat value={totalConversions} label="Śledzonych konwersji" />
+        </div>
+      </section>
+
       {/* Jak to działa */}
       <section
         id="jak-to-dziala"
-        className="scroll-mt-24 bg-[#EFF6FF] px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24"
+        className="scroll-mt-24 bg-zinc-50 px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24"
       >
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-black text-[#0F172A] sm:text-4xl">
+            <h2 className="text-3xl font-semibold text-zinc-900 sm:text-4xl">
               Jak to działa?
             </h2>
-            <p className="mt-3 text-base text-slate-500 sm:text-lg">
+            <p className="mt-3 text-base text-zinc-500 sm:text-lg">
               Trzy proste kroki do automatycznych prowizji
             </p>
           </div>
@@ -212,21 +238,21 @@ export default async function LandingPage() {
           <div className="mt-10 grid grid-cols-1 gap-8 sm:gap-6 lg:mt-16 lg:grid-cols-3 lg:gap-8">
             {STEPS.map((step, index) => (
               <div key={step.number} className="relative text-center">
-                <div className="inline-flex rounded-2xl bg-blue-100 p-4 text-4xl">
+                <div className="inline-flex rounded-2xl bg-zinc-100 p-4 text-4xl shadow-sm">
                   {step.icon}
                 </div>
-                <div className="mx-auto -mt-4 flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
+                <div className="mx-auto -mt-4 flex h-8 w-8 items-center justify-center rounded-full bg-zinc-900 text-sm font-semibold text-white">
                   {step.number}
                 </div>
-                <h3 className="mt-4 text-lg font-bold text-[#0F172A]">
+                <h3 className="mt-4 text-lg font-semibold text-zinc-900">
                   {step.title}
                 </h3>
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-sm text-zinc-500">
                   {step.description}
                 </p>
 
                 {index < STEPS.length - 1 && (
-                  <span className="absolute right-[-1.5rem] top-8 hidden text-4xl text-blue-300 lg:block">
+                  <span className="absolute right-[-1.5rem] top-8 hidden text-4xl text-zinc-300 lg:block">
                     →
                   </span>
                 )}
@@ -243,25 +269,25 @@ export default async function LandingPage() {
       >
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-black text-[#0F172A] sm:text-4xl">
+            <h2 className="text-3xl font-semibold text-zinc-900 sm:text-4xl">
               Dla marek i influencerów
             </h2>
-            <p className="mt-3 text-base text-slate-500 sm:text-lg">
+            <p className="mt-3 text-base text-zinc-500 sm:text-lg">
               Jedna platforma — dwie strony sukcesu
             </p>
           </div>
 
           <div className="mt-10 grid grid-cols-1 gap-8 lg:mt-16 lg:grid-cols-2">
-            <div>
-              <div className="rounded-t-2xl bg-blue-600 p-6">
-                <h3 className="text-xl font-bold text-white">🏢 Dla Marek</h3>
+            <div className="overflow-hidden rounded-2xl border border-zinc-100 shadow-sm">
+              <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-6">
+                <h3 className="text-xl font-semibold text-white">🏢 Dla Marek</h3>
               </div>
-              <div className="rounded-b-2xl border border-blue-100 bg-[#EFF6FF] p-6 sm:p-8 lg:p-10">
+              <div className="bg-zinc-50 p-6 sm:p-8 lg:p-10">
                 <ul className="space-y-3">
                   {BRAND_BENEFITS.map((benefit) => (
                     <li
                       key={benefit}
-                      className="flex items-start gap-2 text-sm text-slate-600"
+                      className="flex items-start gap-2 text-sm text-zinc-600"
                     >
                       <span className="text-blue-600">✓</span> {benefit}
                     </li>
@@ -273,26 +299,26 @@ export default async function LandingPage() {
               </div>
             </div>
 
-            <div>
-              <div className="rounded-t-2xl bg-[#0F172A] p-6">
-                <h3 className="text-xl font-bold text-white">
+            <div className="overflow-hidden rounded-2xl border border-zinc-100 shadow-sm">
+              <div className="bg-zinc-900 p-6">
+                <h3 className="text-xl font-semibold text-white">
                   🎯 Dla Influencerów
                 </h3>
               </div>
-              <div className="rounded-b-2xl border border-blue-100 bg-white p-6 sm:p-8 lg:p-10">
+              <div className="bg-white p-6 sm:p-8 lg:p-10">
                 <ul className="space-y-3">
                   {INFLUENCER_BENEFITS.map((benefit) => (
                     <li
                       key={benefit}
-                      className="flex items-start gap-2 text-sm text-slate-600"
+                      className="flex items-start gap-2 text-sm text-zinc-600"
                     >
-                      <span className="text-blue-600">✓</span> {benefit}
+                      <span className="text-zinc-900">✓</span> {benefit}
                     </li>
                   ))}
                 </ul>
                 <Button
                   asChild
-                  className="mt-8 h-12 w-full bg-[#0F172A] text-base hover:bg-[#1E293B]"
+                  className="mt-8 h-12 w-full text-base"
                 >
                   <Link href="/register">Zarejestruj się →</Link>
                 </Button>
@@ -305,14 +331,14 @@ export default async function LandingPage() {
       {/* Korzyści */}
       <section
         id="korzysci"
-        className="scroll-mt-24 bg-[#EFF6FF] px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24"
+        className="scroll-mt-24 bg-zinc-50 px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24"
       >
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-black text-[#0F172A] sm:text-4xl">
+            <h2 className="text-3xl font-semibold text-zinc-900 sm:text-4xl">
               Dlaczego Deneeu?
             </h2>
-            <p className="mt-3 text-base text-slate-500 sm:text-lg">
+            <p className="mt-3 text-base text-zinc-500 sm:text-lg">
               Wszystko czego potrzebujesz w jednym miejscu
             </p>
           </div>
@@ -321,15 +347,17 @@ export default async function LandingPage() {
             {FEATURES.map((feature) => (
               <div
                 key={feature.title}
-                className="rounded-xl border border-blue-100 bg-white p-6 shadow-sm"
+                className="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md"
               >
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl">
+                <span
+                  className={`inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-2xl ${feature.gradient}`}
+                >
                   {feature.icon}
                 </span>
-                <h3 className="mb-2 mt-4 font-bold text-[#0F172A]">
+                <h3 className="mb-2 mt-4 font-semibold text-zinc-900">
                   {feature.title}
                 </h3>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-zinc-500">
                   {feature.description}
                 </p>
               </div>
@@ -339,22 +367,22 @@ export default async function LandingPage() {
       </section>
 
       {/* CTA końcowe */}
-      <section className="mx-4 my-12 max-w-5xl rounded-3xl bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-10 text-center sm:px-8 lg:mx-auto lg:my-20 lg:py-16">
-        <h2 className="text-3xl font-black text-white sm:text-4xl">
+      <section className="mx-4 my-12 max-w-5xl rounded-3xl bg-gradient-to-br from-zinc-900 to-zinc-800 px-6 py-10 text-center shadow-lg sm:px-8 lg:mx-auto lg:my-20 lg:py-16">
+        <h2 className="text-3xl font-semibold text-white sm:text-4xl">
           Gotowy aby zacząć?
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-base text-blue-200 sm:text-lg">
+        <p className="mx-auto mt-4 max-w-xl text-base text-zinc-400 sm:text-lg">
           Dołącz do platformy i zacznij zarabiać na afiliacji już dziś.
           Rejestracja jest darmowa.
         </p>
         <Button
           asChild
           size="lg"
-          className="mt-8 h-12 w-full rounded-xl bg-white px-8 text-base font-bold text-blue-600 hover:bg-blue-50 sm:h-auto sm:w-auto sm:py-4 sm:text-lg"
+          className="mt-8 h-12 w-full rounded-xl bg-white px-8 text-base font-semibold text-zinc-900 shadow-sm transition-all duration-200 hover:bg-zinc-100 hover:shadow-md sm:h-auto sm:w-auto sm:py-4 sm:text-lg"
         >
           <Link href="/register">Utwórz konto za darmo →</Link>
         </Button>
-        <p className="mt-4 text-sm text-blue-300">
+        <p className="mt-4 text-sm text-zinc-500">
           Bez karty kredytowej · Darmowa rejestracja
         </p>
       </section>

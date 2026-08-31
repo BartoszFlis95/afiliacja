@@ -59,8 +59,11 @@ export function DashboardHeader({ email, role }: DashboardHeaderProps) {
   const normalizedRole = role as Role;
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-blue-100 bg-white px-4 shadow-sm">
-      <SidebarTrigger className="text-slate-500 hover:text-[#0F172A] md:hidden" />
+    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-zinc-100 bg-white px-4 shadow-sm">
+      <SidebarTrigger
+        size="icon-lg"
+        className="-ml-1 text-zinc-500 hover:text-zinc-900 md:hidden"
+      />
       <Separator orientation="vertical" className="mr-1 h-5 md:hidden" />
 
       <Breadcrumb>
@@ -72,11 +75,11 @@ export function DashboardHeader({ email, role }: DashboardHeaderProps) {
               <React.Fragment key={href}>
                 <BreadcrumbItem>
                   {isLast ? (
-                    <BreadcrumbPage className="text-lg font-bold text-[#0F172A]">
+                    <BreadcrumbPage className="text-base font-semibold text-zinc-900">
                       {labelFor(segment)}
                     </BreadcrumbPage>
                   ) : (
-                    <BreadcrumbLink asChild className="text-slate-500 hover:text-[#0F172A]">
+                    <BreadcrumbLink asChild className="text-zinc-500 hover:text-zinc-900">
                       <Link href={href}>{labelFor(segment)}</Link>
                     </BreadcrumbLink>
                   )}
@@ -89,11 +92,14 @@ export function DashboardHeader({ email, role }: DashboardHeaderProps) {
       </Breadcrumb>
 
       <div className="ml-auto flex items-center gap-3">
-        <Badge variant="default" className="hidden sm:inline-flex">
+        <Badge
+          variant="outline"
+          className="hidden border-zinc-200 bg-zinc-50 text-zinc-600 sm:inline-flex"
+        >
           {roleLabels[normalizedRole] ?? role}
         </Badge>
-        <Avatar className="h-8 w-8">
-          <AvatarFallback className="bg-blue-600 text-xs font-semibold text-white">
+        <Avatar className="h-8 w-8 ring-2 ring-zinc-100">
+          <AvatarFallback className="bg-zinc-900 text-xs font-semibold text-white">
             {initials(email)}
           </AvatarFallback>
         </Avatar>

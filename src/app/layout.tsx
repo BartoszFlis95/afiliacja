@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Lato } from "next/font/google";
+import { Playfair_Display, Lato, Inter } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
+// Playfair/Lato pozostają załadowane (nieużywane domyślnie) do czasu
+// przeprojektowania landing page w kolejnym kroku redesignu — Inter jest
+// teraz domyślnym fontem UI (premium, jak Stripe/Linear/Vercel).
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair",
@@ -15,6 +18,12 @@ const lato = Lato({
   subsets: ["latin"],
   variable: "--font-lato",
   weight: ["300", "400", "700", "900"],
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -72,7 +81,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pl" className="scroll-smooth">
-      <body className={`${lato.variable} ${playfair.variable}`}>
+      <body className={`${lato.variable} ${playfair.variable} ${inter.variable}`}>
         <SessionProvider>
           <TooltipProvider>
             {children}

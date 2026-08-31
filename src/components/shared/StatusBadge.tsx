@@ -3,20 +3,22 @@ import { cn } from "@/lib/utils";
 
 // Obejmuje CommissionStatus, PayoutStatus, ConversionStatus i InvoiceStatus —
 // te cztery enumy z Prisma współdzielą część wartości (PENDING, REJECTED, PAID),
-// więc jedna mapa pokrywa statusy używane w całej aplikacji.
-const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-  PENDING:    { label: "Oczekuje",     className: "bg-amber-100 text-amber-800" },
-  APPROVED:   { label: "Zatwierdzona", className: "bg-blue-100 text-blue-800" },
-  CONFIRMED:  { label: "Potwierdzona", className: "bg-blue-100 text-blue-800" },
-  PROCESSING: { label: "W realizacji", className: "bg-violet-100 text-violet-800" },
-  PAID:       { label: "Wypłacona",    className: "bg-green-100 text-green-800" },
-  COMPLETED:  { label: "Zrealizowana", className: "bg-green-100 text-green-800" },
-  REJECTED:   { label: "Odrzucona",    className: "bg-red-100 text-red-800" },
-  CANCELLED:  { label: "Anulowana",    className: "bg-red-100 text-red-800" },
-  DRAFT:      { label: "Szkic",        className: "bg-slate-100 text-slate-600" },
-  ISSUED:     { label: "Wystawiona",   className: "bg-blue-100 text-blue-800" },
-  ACTIVE:     { label: "Aktywny",      className: "bg-green-100 text-green-800" },
-  INACTIVE:   { label: "Nieaktywny",   className: "bg-red-100 text-red-800" },
+// więc jedna mapa pokrywa statusy używane w całej aplikacji. Kolory statusów
+// zostają semantyczne (amber/niebieski/zielony/czerwony) mimo przejścia reszty
+// UI na zinc — to uniwersalna konwencja UX, nie element brandingu.
+const STATUS_CONFIG: Record<string, { label: string; className: string; dot: string }> = {
+  PENDING:    { label: "Oczekuje",     className: "bg-amber-50 text-amber-700",   dot: "bg-amber-500" },
+  APPROVED:   { label: "Zatwierdzona", className: "bg-blue-50 text-blue-700",     dot: "bg-blue-500" },
+  CONFIRMED:  { label: "Potwierdzona", className: "bg-blue-50 text-blue-700",     dot: "bg-blue-500" },
+  PROCESSING: { label: "W realizacji", className: "bg-violet-50 text-violet-700", dot: "bg-violet-500" },
+  PAID:       { label: "Wypłacona",    className: "bg-emerald-50 text-emerald-700", dot: "bg-emerald-500" },
+  COMPLETED:  { label: "Zrealizowana", className: "bg-emerald-50 text-emerald-700", dot: "bg-emerald-500" },
+  REJECTED:   { label: "Odrzucona",    className: "bg-red-50 text-red-700",       dot: "bg-red-500" },
+  CANCELLED:  { label: "Anulowana",    className: "bg-red-50 text-red-700",       dot: "bg-red-500" },
+  DRAFT:      { label: "Szkic",        className: "bg-zinc-100 text-zinc-600",    dot: "bg-zinc-400" },
+  ISSUED:     { label: "Wystawiona",   className: "bg-blue-50 text-blue-700",     dot: "bg-blue-500" },
+  ACTIVE:     { label: "Aktywny",      className: "bg-emerald-50 text-emerald-700", dot: "bg-emerald-500" },
+  INACTIVE:   { label: "Nieaktywny",   className: "bg-red-50 text-red-700",       dot: "bg-red-500" },
 };
 
 export function StatusBadge({
@@ -30,10 +32,14 @@ export function StatusBadge({
 }) {
   const config = STATUS_CONFIG[status] ?? {
     label: status,
-    className: "bg-slate-100 text-slate-700",
+    className: "bg-zinc-100 text-zinc-600",
+    dot: "bg-zinc-400",
   };
 
   return (
-    <Badge className={cn(config.className, className)}>{label ?? config.label}</Badge>
+    <Badge className={cn("gap-1.5 px-2 py-0.5 text-[11px]", config.className, className)}>
+      <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", config.dot)} />
+      {label ?? config.label}
+    </Badge>
   );
 }

@@ -2,7 +2,17 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { AlertTriangle, Clock, MousePointerClick, Package, TrendingUp, Users, Wallet } from "lucide-react";
+import {
+  AlertTriangle,
+  BarChart3,
+  Clock,
+  MousePointerClick,
+  Package,
+  PlusCircle,
+  TrendingUp,
+  Users,
+  Wallet,
+} from "lucide-react";
 
 import { formatCurrency } from "@/lib/utils";
 import { StatsCard } from "@/components/shared/StatsCard";
@@ -112,6 +122,10 @@ export default async function BrandDashboardPage() {
   ]);
 
   const totalRevenue = Number(revenueAgg._sum.amount ?? 0);
+  const maxInfluencerEarnings = Math.max(
+    1,
+    ...topInfluencers.map((l) => Number(l.totalEarnings))
+  );
 
   const dailyRevenueMap = new Map<string, number>();
   for (let i = 0; i < 30; i++) {
@@ -152,46 +166,77 @@ export default async function BrandDashboardPage() {
         </div>
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[#0F172A]">
-            Witaj, {brandProfile.companyName}!
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Oto podsumowanie Twojej działalności afiliacyjnej.
-          </p>
+      {/* Hero */}
+      <div className="relative overflow-hidden rounded-2xl border border-zinc-100 bg-gradient-to-br from-zinc-50 via-white to-blue-50/50 p-6 sm:p-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-xl font-semibold text-zinc-900 sm:text-2xl lg:text-3xl">
+              Witaj, {brandProfile.companyName}!
+            </h1>
+            <p className="mt-1 text-sm text-zinc-500">
+              Oto podsumowanie Twojej działalności afiliacyjnej.
+            </p>
+          </div>
+          <Button asChild className="shadow-sm transition-all duration-200 hover:shadow-md">
+            <Link href="/brand/products/new">Dodaj produkt</Link>
+          </Button>
         </div>
-        <Button asChild>
-          <Link href="/brand/products/new">Dodaj produkt</Link>
-        </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <StatsCard title="Aktywne produkty" value={activeProducts} icon={Package} />
-        <StatsCard title="Aktywni influencerzy" value={activeInfluencers} icon={Users} />
+      {/* Quick actions */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {[
+          { href: "/brand/products/new", icon: PlusCircle, label: "Dodaj produkt" },
+          { href: "/brand/stats", icon: BarChart3, label: "Zobacz raporty" },
+          { href: "/brand/influencers", icon: Users, label: "Influencerzy" },
+        ].map(({ href, icon: Icon, label }) => (
+          <Link
+            key={href}
+            href={href}
+            className="flex items-center gap-3 rounded-xl border border-zinc-100 bg-white px-4 py-3.5 text-sm font-medium text-zinc-700 shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:border-zinc-200 hover:shadow-md"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-600">
+              <Icon className="h-4 w-4" />
+            </span>
+            {label}
+          </Link>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatsCard title="Aktywne produkty" value={activeProducts} icon={Package} iconColor="blue" />
+        <StatsCard title="Aktywni influencerzy" value={activeInfluencers} icon={Users} iconColor="violet" />
         <StatsCard
           title="Kliknięcia"
           value={clicksThisMonth.toLocaleString("pl-PL")}
           icon={MousePointerClick}
           description="ten miesiąc"
+          iconColor="zinc"
         />
         <StatsCard
           title="Konwersje"
           value={conversionsThisMonth.toLocaleString("pl-PL")}
           icon={TrendingUp}
           description="ten miesiąc"
+          iconColor="emerald"
         />
-        <StatsCard title="Przychód z afiliacji" value={formatCurrency(totalRevenue)} icon={Wallet} />
+        <StatsCard
+          title="Przychód z afiliacji"
+          value={formatCurrency(totalRevenue)}
+          icon={Wallet}
+          iconColor="emerald"
+        />
         <StatsCard
           title="Prowizje do zatwierdzenia"
           value={pendingCommissions}
           icon={Clock}
           description={pendingCommissions > 0 ? "wymaga akcji" : "brak zaległości"}
+          iconColor="amber"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card>
+        <Card className="rounded-2xl border-zinc-100 shadow-sm">
           <CardHeader>
             <CardTitle>Przychód — ostatnie 30 dni</CardTitle>
           </CardHeader>
@@ -205,7 +250,7 @@ export default async function BrandDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-2xl border-zinc-100 shadow-sm">
           <CardHeader>
             <CardTitle>Top produkty wg przychodu</CardTitle>
           </CardHeader>
@@ -216,7 +261,7 @@ export default async function BrandDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card>
+        <Card className="rounded-2xl border-zinc-100 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle>Top influencerzy</CardTitle>
             <Button variant="ghost" size="sm" asChild>
@@ -241,10 +286,25 @@ export default async function BrandDashboardPage() {
                 <TableBody>
                   {topInfluencers.map((link) => {
                     const cr = link.totalClicks > 0 ? (link.totalConversions / link.totalClicks) * 100 : 0;
+                    const earningsShare = (Number(link.totalEarnings) / maxInfluencerEarnings) * 100;
+                    const initials = link.influencerProfile.displayName.slice(0, 2).toUpperCase();
                     return (
                       <TableRow key={link.id}>
                         <TableCell className="pl-6 font-medium">
-                          {link.influencerProfile.displayName}
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-xs font-semibold text-white">
+                              {initials}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate">{link.influencerProfile.displayName}</p>
+                              <div className="mt-1.5 h-1 w-24 overflow-hidden rounded-full bg-zinc-100">
+                                <div
+                                  className="h-full rounded-full bg-zinc-900"
+                                  style={{ width: `${earningsShare}%` }}
+                                />
+                              </div>
+                            </div>
+                          </div>
                         </TableCell>
                         <TableCell className="text-right text-muted-foreground">
                           {link.totalClicks.toLocaleString("pl-PL")}
@@ -264,7 +324,7 @@ export default async function BrandDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-2xl border-zinc-100 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle>Ostatnie konwersje</CardTitle>
             <Button variant="ghost" size="sm" asChild>

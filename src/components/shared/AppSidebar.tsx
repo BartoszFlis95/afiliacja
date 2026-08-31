@@ -94,13 +94,14 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
   };
 
   return (
-    <Sidebar className="border-r border-[#1E293B]">
+    <Sidebar className="border-r border-zinc-800">
       {/* Logo — kontener na białym/jasnoniebieskim tle, bo logo.png ma
           nieprzezroczyste szare tło i "invert" zniekształciłby jego
-          niebieskie gradienty na granatowym sidebarze. */}
-      <SidebarHeader className="border-b border-[#1E293B] px-4 py-3">
+          niebieskie gradienty na sidebarze. Subtelny glow pod spodem
+          odwołuje się do niebieskiego akcentu marki bez zmiany tła sidebaru. */}
+      <SidebarHeader className="border-b border-zinc-800 px-4 py-3">
         <Link href="/" className="flex items-center justify-center">
-          <div className="inline-block rounded-xl bg-blue-50 p-1 shadow-inner">
+          <div className="relative inline-block rounded-xl bg-gradient-to-br from-white to-zinc-100 p-1.5 shadow-[0_0_24px_rgba(59,130,246,0.18)]">
             <Image
               src="/logo.png"
               alt="Deneeu"
@@ -117,7 +118,7 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
       {/* Nav */}
       <SidebarContent className="px-2 py-4">
         <SidebarGroup>
-          <SidebarGroupLabel className="mb-2 px-3 text-xs uppercase tracking-widest text-slate-600">
+          <SidebarGroupLabel className="mb-2 px-3 text-xs font-medium uppercase tracking-widest text-zinc-500">
             {ROLE_LABEL[normalizedRole]}
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -130,10 +131,10 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
                       asChild
                       isActive={isActive}
                       className={cn(
-                        "rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                        "rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                         isActive
-                          ? "bg-blue-600 text-white"
-                          : "text-slate-400 hover:bg-[#1E293B] hover:text-white"
+                          ? "bg-gradient-to-r from-white/10 to-white/5 text-white shadow-sm ring-1 ring-white/10"
+                          : "text-zinc-400 hover:bg-white/5 hover:text-white"
                       )}
                     >
                       <Link href={href} onClick={closeMobileSidebar}>
@@ -150,20 +151,20 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter className="border-t border-[#1E293B] p-3">
+      <SidebarFooter className="border-t border-zinc-800 p-3">
         <div className="flex items-center gap-3 px-2 py-2 mb-1">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600">
-            <span className="text-xs font-semibold text-white">{initials}</span>
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-700 text-white ring-2 ring-white/10">
+            <span className="text-xs font-semibold">{initials}</span>
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-medium text-slate-200">{email}</p>
-            <p className="text-xs text-slate-500">{ROLE_LABEL[normalizedRole]}</p>
+            <p className="truncate text-xs font-medium text-zinc-200">{email}</p>
+            <p className="text-xs text-zinc-500">{ROLE_LABEL[normalizedRole]}</p>
           </div>
         </div>
         <form action={logoutAction}>
           <button
             type="submit"
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-400 transition-colors hover:bg-[#1E293B] hover:text-white"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-all duration-200 hover:bg-white/5 hover:text-white"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             <span>Wyloguj się</span>

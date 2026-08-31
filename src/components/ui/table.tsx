@@ -23,7 +23,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("bg-[#F8FAFF] [&_tr]:border-b [&_tr]:hover:bg-[#F8FAFF]", className)}
+      className={cn("bg-zinc-50 [&_tr]:border-b [&_tr]:hover:bg-zinc-50", className)}
       {...props}
     />
   )
@@ -33,7 +33,10 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
   return (
     <tbody
       data-slot="table-body"
-      className={cn("[&_tr:last-child]:border-0", className)}
+      className={cn(
+        "[&_tr:last-child]:border-0 [&_tr:nth-child(even)]:bg-zinc-50/30",
+        className
+      )}
       {...props}
     />
   )
@@ -57,7 +60,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "border-t border-slate-50 transition-colors first:border-t-0 hover:bg-[#F8FAFF] has-aria-expanded:bg-[#F8FAFF] data-[state=selected]:bg-[#F8FAFF]",
+        "border-t border-zinc-100 transition-colors first:border-t-0 hover:bg-zinc-50/50 has-aria-expanded:bg-zinc-50/50 data-[state=selected]:bg-zinc-50",
         className
       )}
       {...props}
@@ -70,7 +73,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "h-12 border-b border-blue-50 px-6 py-4 text-left align-middle text-xs font-medium tracking-wider whitespace-nowrap text-slate-500 uppercase [&:has([role=checkbox])]:pr-0",
+        "h-11 border-b border-zinc-100 px-6 py-3 text-left align-middle text-xs font-medium tracking-wider whitespace-nowrap text-zinc-500 uppercase [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}
@@ -83,7 +86,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
     <td
       data-slot="table-cell"
       className={cn(
-        "px-6 py-4 align-middle text-sm whitespace-nowrap text-slate-700 [&:has([role=checkbox])]:pr-0",
+        "px-6 py-3 align-middle text-sm whitespace-nowrap text-zinc-700 [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}

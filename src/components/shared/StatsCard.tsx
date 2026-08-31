@@ -10,29 +10,50 @@ type Trend = {
   positive: boolean;
 };
 
+type IconColor = "zinc" | "blue" | "emerald" | "amber" | "red" | "violet";
+
+// Klasy jawnie wypisane (nie budowane przez template string) — Tailwind JIT
+// skanuje kod źródłowy w poszukiwaniu literalnych nazw klas i wyciąłby
+// dynamicznie sklejone `bg-${color}-50` z finalnego builda.
+const ICON_COLOR_CLASSES: Record<IconColor, string> = {
+  zinc:    "bg-zinc-100 text-zinc-600",
+  blue:    "bg-blue-50 text-blue-600",
+  emerald: "bg-emerald-50 text-emerald-600",
+  amber:   "bg-amber-50 text-amber-600",
+  red:     "bg-red-50 text-red-600",
+  violet:  "bg-violet-50 text-violet-600",
+};
+
 export function StatsCard({
   title,
   value,
   description,
   icon: Icon,
+  iconColor = "zinc",
   trend,
 }: {
   title: string;
   value: string | number;
   description?: string;
   icon: LucideIcon;
+  iconColor?: IconColor;
   trend?: Trend;
 }) {
   return (
-    <Card className="border-blue-100 bg-white p-5 shadow-sm">
+    <Card className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md">
       <CardContent className="p-0">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wide text-slate-500">{title}</p>
-            <p className="text-2xl font-bold text-[#0F172A]">{value}</p>
+            <p className="text-xs uppercase tracking-wide text-zinc-500">{title}</p>
+            <p className="text-3xl font-semibold text-zinc-900">{value}</p>
           </div>
-          <span className="flex items-center justify-center rounded-xl bg-blue-50 p-2.5">
-            <Icon className="h-5 w-5 text-blue-600" />
+          <span
+            className={cn(
+              "flex items-center justify-center rounded-xl p-2.5",
+              ICON_COLOR_CLASSES[iconColor]
+            )}
+          >
+            <Icon className="h-5 w-5" />
           </span>
         </div>
 
@@ -54,7 +75,7 @@ export function StatsCard({
               </span>
             )}
             {description && (
-              <p className="text-xs text-slate-400">{description}</p>
+              <p className="text-xs text-zinc-400">{description}</p>
             )}
           </div>
         )}
@@ -65,7 +86,7 @@ export function StatsCard({
 
 export function StatsCardSkeleton() {
   return (
-    <Card className="border-blue-100 bg-white p-5 shadow-sm">
+    <Card className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm">
       <CardContent className="p-0">
         <div className="flex items-start justify-between">
           <div className="space-y-2">

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import type { LucideIcon } from "lucide-react";
 import {
   Users,
   UserPlus,
@@ -10,15 +11,15 @@ import {
   Wallet,
   Clock,
   AlertTriangle,
+  FileText,
 } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getPlatformStatsAction, getSuspiciousCommissionsAction } from "@/actions/admin.actions";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, cn } from "@/lib/utils";
 import { StatsCard } from "@/components/shared/StatsCard";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { StatusBadge } from "@/components/shared/StatusBadge";
 import { SimpleLineChart } from "@/components/charts/SimpleLineChart";
 import {
   Card,
@@ -26,15 +27,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
 
@@ -132,33 +124,112 @@ export default async function AdminDashboardPage() {
     revenue,
   }));
 
+  // Recent activity feed — scala 3 osobne źródła (konwersje/rejestracje/faktury)
+  // w jedną chronologiczną oś czasu zamiast trzech osobnych tabel.
+  type ActivityEntry = {
+    id: string;
+    timestamp: Date;
+    icon: LucideIcon;
+    iconColor: string;
+    title: string;
+    subtitle: string;
+    amount?: string;
+    href?: string;
+  };
+
+  const activity: ActivityEntry[] = [
+    ...recentConversions.map((c) => ({
+      id: `conv-${c.id}`,
+      timestamp: c.createdAt,
+      icon: MousePointerClick,
+      iconColor: "bg-blue-50 text-blue-600",
+      title: c.affiliateLink?.product?.name ?? "Konwersja",
+      subtitle: "Nowa konwersja",
+      amount: formatCurrency(Number(c.amount)),
+    })),
+    ...recentUsers.map((u) => ({
+      id: `user-${u.id}`,
+      timestamp: u.createdAt,
+      icon: UserPlus,
+      iconColor: "bg-emerald-50 text-emerald-600",
+      title: u.email,
+      subtitle: `Nowa rejestracja · ${u.role}`,
+    })),
+    ...recentInvoices.map((inv) => ({
+      id: `inv-${inv.id}`,
+      timestamp: inv.createdAt,
+      icon: FileText,
+      iconColor: "bg-violet-50 text-violet-600",
+      title: inv.invoiceNumber,
+      subtitle: `Faktura · ${inv.brand.companyName}`,
+      amount: formatCurrency(Number(inv.grossAmount)),
+      href: `/admin/invoices/${inv.id}`,
+    })),
+  ]
+    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+    .slice(0, 12);
+
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-2xl font-bold text-[#0F172A]">Panel administratora</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <h1 className="text-xl font-semibold text-zinc-900 sm:text-2xl lg:text-3xl">
+          Panel administratora
+        </h1>
+        <p className="mt-1 text-sm text-zinc-500">
           Przegląd kondycji platformy Deneeu.
         </p>
       </header>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard title="Użytkownicy łącznie" value={stats.totalUsers.toLocaleString("pl-PL")} icon={Users} />
-        <StatsCard title="Nowi (7 dni)" value={newUsers7Days.toLocaleString("pl-PL")} icon={UserPlus} />
-        <StatsCard title="Marki" value={stats.totalBrands.toLocaleString("pl-PL")} icon={Building2} />
-        <StatsCard title="Influencerzy" value={stats.totalInfluencers.toLocaleString("pl-PL")} icon={Megaphone} />
-        <StatsCard title="Aktywne produkty" value={activeProducts.toLocaleString("pl-PL")} icon={Package} />
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatsCard
+          title="Użytkownicy łącznie"
+          value={stats.totalUsers.toLocaleString("pl-PL")}
+          icon={Users}
+          iconColor="zinc"
+        />
+        <StatsCard
+          title="Nowi (7 dni)"
+          value={newUsers7Days.toLocaleString("pl-PL")}
+          icon={UserPlus}
+          iconColor="emerald"
+        />
+        <StatsCard
+          title="Marki"
+          value={stats.totalBrands.toLocaleString("pl-PL")}
+          icon={Building2}
+          iconColor="blue"
+        />
+        <StatsCard
+          title="Influencerzy"
+          value={stats.totalInfluencers.toLocaleString("pl-PL")}
+          icon={Megaphone}
+          iconColor="violet"
+        />
+        <StatsCard
+          title="Aktywne produkty"
+          value={activeProducts.toLocaleString("pl-PL")}
+          icon={Package}
+          iconColor="blue"
+        />
         <StatsCard
           title="Kliknięcia"
           value={clicksThisMonth.toLocaleString("pl-PL")}
           icon={MousePointerClick}
           description="ten miesiąc"
+          iconColor="zinc"
         />
-        <StatsCard title="Przychód platformy" value={formatCurrency(stats.platformCommission)} icon={Wallet} />
+        <StatsCard
+          title="Przychód platformy"
+          value={formatCurrency(stats.platformCommission)}
+          icon={Wallet}
+          iconColor="emerald"
+        />
         <StatsCard
           title="Prowizje do zatwierdzenia"
           value={pendingCommissions}
           icon={Clock}
           description={pendingCommissions > 0 ? "wymaga akcji" : "brak zaległości"}
+          iconColor="amber"
         />
         <Link href="/admin/commissions?tab=suspicious" className="block">
           <StatsCard
@@ -166,12 +237,13 @@ export default async function AdminDashboardPage() {
             value={suspiciousCommissions.length}
             icon={AlertTriangle}
             description={suspiciousCommissions.length > 0 ? "wymaga weryfikacji" : "brak zgłoszeń"}
+            iconColor="red"
           />
         </Link>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card>
+        <Card className="rounded-2xl border-zinc-100 shadow-sm">
           <CardHeader>
             <CardTitle>Rejestracje — ostatnie 30 dni</CardTitle>
           </CardHeader>
@@ -184,7 +256,7 @@ export default async function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-2xl border-zinc-100 shadow-sm">
           <CardHeader>
             <CardTitle>Przychód platformy — ostatnie 30 dni</CardTitle>
           </CardHeader>
@@ -199,50 +271,8 @@ export default async function AdminDashboardPage() {
         </Card>
       </div>
 
-      <Card className="overflow-hidden">
-        <CardHeader className="pb-4">
-          <CardTitle>Ostatnie 10 konwersji</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          {recentConversions.length === 0 ? (
-            <div className="p-6">
-              <EmptyState icon={MousePointerClick} title="Brak konwersji" />
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="border-t hover:bg-transparent">
-                  <TableHead className="pl-6">Produkt</TableHead>
-                  <TableHead className="text-right">Kwota</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="pr-6">Data</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentConversions.map((conversion) => (
-                  <TableRow key={conversion.id}>
-                    <TableCell className="pl-6 font-medium">
-                      {conversion.affiliateLink?.product?.name ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-right font-medium text-emerald-600">
-                      {formatCurrency(Number(conversion.amount))}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={conversion.status} />
-                    </TableCell>
-                    <TableCell className="pr-6 text-muted-foreground">
-                      {formatDate(conversion.createdAt)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Card>
+        <Card className="rounded-2xl border-zinc-100 shadow-sm">
           <CardHeader className="pb-3">
             <p className="text-sm font-medium text-muted-foreground">Faktury (ten miesiąc)</p>
           </CardHeader>
@@ -250,7 +280,7 @@ export default async function AdminDashboardPage() {
             <p className="text-3xl font-semibold text-foreground">{invoicesThisMonth._count.id}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="rounded-2xl border-zinc-100 shadow-sm">
           <CardHeader className="pb-3">
             <p className="text-sm font-medium text-muted-foreground">
               Łączna wartość faktur (ten miesiąc)
@@ -264,88 +294,63 @@ export default async function AdminDashboardPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <Card className="overflow-hidden">
-          <CardHeader className="pb-4">
-            <CardTitle>Ostatnie rejestracje</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            {recentUsers.length === 0 ? (
-              <div className="p-6">
-                <EmptyState icon={Users} title="Brak rejestracji" />
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-t hover:bg-transparent">
-                    <TableHead className="pl-6">Email</TableHead>
-                    <TableHead>Rola</TableHead>
-                    <TableHead className="pr-6">Data</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="pl-6 font-medium">{user.email}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{user.role}</Badge>
-                      </TableCell>
-                      <TableCell className="pr-6 text-muted-foreground">
-                        {formatDate(user.createdAt)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between pb-4">
-            <CardTitle>Ostatnie faktury</CardTitle>
-            <Link href="/admin/invoices" className="text-sm text-muted-foreground hover:text-foreground">
-              Zobacz wszystkie →
-            </Link>
-          </CardHeader>
-          <CardContent className="p-0">
-            {recentInvoices.length === 0 ? (
-              <div className="p-6">
-                <EmptyState icon={Wallet} title="Brak faktur" />
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-t hover:bg-transparent">
-                    <TableHead className="pl-6">Nr faktury</TableHead>
-                    <TableHead>Marka</TableHead>
-                    <TableHead className="text-right">Brutto</TableHead>
-                    <TableHead className="pr-6">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentInvoices.map((inv) => (
-                    <TableRow key={inv.id}>
-                      <TableCell className="pl-6 font-mono text-sm font-medium">
-                        <Link href={`/admin/invoices/${inv.id}`} className="hover:underline">
-                          {inv.invoiceNumber}
-                        </Link>
-                      </TableCell>
-                      <TableCell>{inv.brand.companyName}</TableCell>
-                      <TableCell className="text-right font-medium">
-                        {formatCurrency(Number(inv.grossAmount))}
-                      </TableCell>
-                      <TableCell className="pr-6">
-                        <StatusBadge status={inv.status} />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      {/* Recent activity — jedna oś czasu zamiast trzech osobnych tabel */}
+      <Card className="rounded-2xl border-zinc-100 shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle>Ostatnia aktywność</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {activity.length === 0 ? (
+            <EmptyState icon={Clock} title="Brak ostatniej aktywności" />
+          ) : (
+            <ul className="space-y-0">
+              {activity.map((item, index) => {
+                const Icon = item.icon;
+                const row = (
+                  <div className="flex items-start gap-3 py-3">
+                    <div className="relative flex flex-col items-center self-stretch">
+                      <span
+                        className={cn(
+                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
+                          item.iconColor
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </span>
+                      {index < activity.length - 1 && (
+                        <span className="mt-1 w-px flex-1 bg-zinc-100" />
+                      )}
+                    </div>
+                    <div className="flex min-w-0 flex-1 items-center justify-between gap-3 pb-1">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-zinc-900">{item.title}</p>
+                        <p className="text-xs text-zinc-500">{item.subtitle}</p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        {item.amount && (
+                          <p className="text-sm font-medium text-emerald-600">{item.amount}</p>
+                        )}
+                        <p className="text-xs text-zinc-400">{formatDate(item.timestamp)}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+                return (
+                  <li key={item.id}>
+                    {item.href ? (
+                      <Link href={item.href} className="-mx-2 block rounded-lg px-2 hover:bg-zinc-50">
+                        {row}
+                      </Link>
+                    ) : (
+                      row
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

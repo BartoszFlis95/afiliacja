@@ -1,6 +1,14 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { MousePointerClick, TrendingUp, Wallet, PiggyBank, AlertTriangle } from "lucide-react";
+import {
+  MousePointerClick,
+  TrendingUp,
+  Wallet,
+  PiggyBank,
+  AlertTriangle,
+  ImageIcon,
+} from "lucide-react";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -8,9 +16,11 @@ import { formatCurrency } from "@/lib/utils";
 import { StatsCard } from "@/components/shared/StatsCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { CopyLinkButton } from "@/components/influencer/CopyLinkButton";
 import { ClicksChart } from "@/components/charts/ClicksChart";
 import { SimpleBarChart } from "@/components/charts/SimpleBarChart";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -75,6 +85,7 @@ export default async function InfluencerDashboardPage() {
     commissionsLast12Months,
     topLinks,
     recentCommissions,
+    availableProducts,
   ] = await Promise.all([
     prisma.affiliateLink.aggregate({
       where: { influencerProfileId: profile.id },
@@ -118,6 +129,12 @@ export default async function InfluencerDashboardPage() {
       include: { product: { select: { name: true } }, brand: { select: { companyName: true } } },
       orderBy: { createdAt: "desc" },
       take: 5,
+    }),
+    prisma.product.findMany({
+      where: { status: "ACTIVE" },
+      orderBy: { createdAt: "desc" },
+      take: 4,
+      select: { id: true, name: true, imageUrl: true, influencerCommissionRate: true },
     }),
   ]);
 
@@ -184,42 +201,63 @@ export default async function InfluencerDashboardPage() {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#0F172A]">Panel influencera</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Twoje wyniki w skrócie.</p>
+          <h1 className="text-xl font-semibold text-zinc-900 sm:text-2xl lg:text-3xl">
+            Panel influencera
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500">Twoje wyniki w skrócie.</p>
         </div>
-        <Button asChild>
+        <Button asChild className="shadow-sm transition-all duration-200 hover:shadow-md">
           <Link href="/influencer/products">Przeglądaj produkty</Link>
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Earnings highlight */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-zinc-900 to-zinc-800 p-6 text-white sm:p-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-zinc-400">
+              <Wallet className="h-3.5 w-3.5" /> Zarobki łącznie
+            </p>
+            <p className="mt-2 text-3xl font-semibold sm:text-4xl">{formatCurrency(totalEarnings)}</p>
+          </div>
+          <div className="flex items-center justify-between gap-4 rounded-xl bg-white/5 px-4 py-3 ring-1 ring-white/10 sm:justify-start">
+            <div>
+              <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-zinc-400">
+                <PiggyBank className="h-3.5 w-3.5" /> Dostępne do wypłaty
+              </p>
+              <p className="mt-1 text-lg font-semibold">{formatCurrency(availableBalance)}</p>
+            </div>
+            <Button
+              asChild
+              size="sm"
+              className="bg-white text-zinc-900 shadow-sm transition-all duration-200 hover:bg-zinc-100 hover:shadow-md"
+            >
+              <Link href="/influencer/commissions">Wypłać</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
         <StatsCard
           title="Łączne kliknięcia"
           value={totalClicks.toLocaleString("pl-PL")}
           icon={MousePointerClick}
           trend={pctTrend(clicksThisMonth, clicksLastMonth)}
           description="vs poprzedni miesiąc"
+          iconColor="blue"
         />
         <StatsCard
           title="Konwersje"
           value={totalConversions.toLocaleString("pl-PL")}
           icon={TrendingUp}
           description={`CR ${conversionRate.toFixed(1)}%`}
-        />
-        <StatsCard
-          title="Zarobki łącznie"
-          value={formatCurrency(totalEarnings)}
-          icon={Wallet}
-        />
-        <StatsCard
-          title="Dostępne do wypłaty"
-          value={formatCurrency(availableBalance)}
-          icon={PiggyBank}
+          iconColor="emerald"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card>
+        <Card className="rounded-2xl border-zinc-100 shadow-sm">
           <CardHeader>
             <CardTitle>Kliknięcia — ostatnie 30 dni</CardTitle>
           </CardHeader>
@@ -228,7 +266,7 @@ export default async function InfluencerDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-2xl border-zinc-100 shadow-sm">
           <CardHeader>
             <CardTitle>Zarobki — ostatnie 12 miesięcy</CardTitle>
           </CardHeader>
@@ -239,14 +277,14 @@ export default async function InfluencerDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card>
+        <Card className="rounded-2xl border-zinc-100 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle>Top 5 linków</CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/influencer/links">Zobacz wszystkie</Link>
             </Button>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className={topLinks.length === 0 ? "p-0" : "space-y-3 px-6 pb-6"}>
             {topLinks.length === 0 ? (
               <div className="px-6 pb-6">
                 <EmptyState
@@ -256,39 +294,31 @@ export default async function InfluencerDashboardPage() {
                 />
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-t hover:bg-transparent">
-                    <TableHead className="pl-6">Produkt</TableHead>
-                    <TableHead className="text-right">Kliknięcia</TableHead>
-                    <TableHead className="text-right">Konwersje</TableHead>
-                    <TableHead className="pr-6 text-right">Zarobki</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {topLinks.map((link) => (
-                    <TableRow key={link.id}>
-                      <TableCell className="pl-6 font-medium">
-                        {link.product?.name ?? "—"}
-                      </TableCell>
-                      <TableCell className="text-right text-muted-foreground">
-                        {link.totalClicks.toLocaleString("pl-PL")}
-                      </TableCell>
-                      <TableCell className="text-right text-muted-foreground">
-                        {link.totalConversions.toLocaleString("pl-PL")}
-                      </TableCell>
-                      <TableCell className="pr-6 text-right font-medium text-emerald-600">
+              topLinks.map((link) => (
+                <div
+                  key={link.id}
+                  className="flex flex-col gap-3 rounded-xl border border-zinc-100 p-4 transition-all duration-200 hover:border-zinc-200 hover:shadow-sm sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-zinc-900">
+                      {link.product?.name ?? "—"}
+                    </p>
+                    <p className="mt-0.5 text-xs text-zinc-500">
+                      {link.totalClicks.toLocaleString("pl-PL")} kliknięć ·{" "}
+                      {link.totalConversions.toLocaleString("pl-PL")} konwersji ·{" "}
+                      <span className="font-medium text-emerald-600">
                         {formatCurrency(Number(link.totalEarnings))}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                      </span>
+                    </p>
+                  </div>
+                  <CopyLinkButton code={link.code} />
+                </div>
+              ))
             )}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-2xl border-zinc-100 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle>Ostatnie konwersje</CardTitle>
             <Button variant="ghost" size="sm" asChild>
@@ -337,6 +367,52 @@ export default async function InfluencerDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Dostępne produkty — mini-grid */}
+      {availableProducts.length > 0 && (
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-base font-semibold text-zinc-900">Dostępne produkty</h2>
+            <Link
+              href="/influencer/products"
+              className="text-sm text-zinc-500 transition-colors hover:text-zinc-900"
+            >
+              Zobacz wszystkie →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {availableProducts.map((product) => (
+              <Link
+                key={product.id}
+                href="/influencer/products"
+                className="group overflow-hidden rounded-xl border border-zinc-100 bg-white shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md"
+              >
+                <div className="relative h-24 w-full bg-zinc-50">
+                  {product.imageUrl ? (
+                    <Image
+                      src={product.imageUrl}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <ImageIcon className="h-6 w-6 text-zinc-300" />
+                    </div>
+                  )}
+                </div>
+                <div className="p-3">
+                  <p className="line-clamp-1 text-xs font-medium text-zinc-900">{product.name}</p>
+                  <Badge variant="outline" className="mt-1.5 border-zinc-200 text-[10px] text-zinc-600">
+                    {Number(product.influencerCommissionRate).toFixed(1).replace(/\.0$/, "")}% prowizji
+                  </Badge>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

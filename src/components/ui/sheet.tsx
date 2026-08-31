@@ -45,6 +45,11 @@ function SheetOverlay({
   )
 }
 
+// Próg (px) poziomego przesunięcia palcem, po którym swipe zamyka panel —
+// odczytywany tylko na touchend (deltaX), więc nigdy nie blokuje
+// natywnego przewijania zawartości panelu (brak preventDefault na touchmove).
+const SWIPE_CLOSE_THRESHOLD = 60
+
 function SheetContent({
   className,
   children,
@@ -55,12 +60,32 @@ function SheetContent({
   side?: "top" | "right" | "bottom" | "left"
   showCloseButton?: boolean
 }) {
+  const closeRef = React.useRef<HTMLButtonElement>(null)
+  const touchStartX = React.useRef<number | null>(null)
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0]?.clientX ?? null
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    const startX = touchStartX.current
+    touchStartX.current = null
+    if (startX === null || (side !== "left" && side !== "right")) return
+
+    const deltaX = (e.changedTouches[0]?.clientX ?? startX) - startX
+    const closesLeft = side === "left" && deltaX < -SWIPE_CLOSE_THRESHOLD
+    const closesRight = side === "right" && deltaX > SWIPE_CLOSE_THRESHOLD
+    if (closesLeft || closesRight) closeRef.current?.click()
+  }
+
   return (
     <SheetPortal>
       <SheetOverlay />
       <SheetPrimitive.Content
         data-slot="sheet-content"
         data-side={side}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         className={cn(
           "fixed z-50 flex flex-col bg-popover bg-clip-padding text-sm text-popover-foreground shadow-md transition duration-200 ease-in-out data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-[side=bottom]:data-open:slide-in-from-bottom-10 data-[side=left]:data-open:slide-in-from-left-10 data-[side=right]:data-open:slide-in-from-right-10 data-[side=top]:data-open:slide-in-from-top-10 data-closed:animate-out data-closed:fade-out-0 data-[side=bottom]:data-closed:slide-out-to-bottom-10 data-[side=left]:data-closed:slide-out-to-left-10 data-[side=right]:data-closed:slide-out-to-right-10 data-[side=top]:data-closed:slide-out-to-top-10",
           className
@@ -68,6 +93,8 @@ function SheetContent({
         {...props}
       >
         {children}
+        {/* Cel dla swipe-to-close — zawsze w DOM, niezależnie od showCloseButton. */}
+        <SheetPrimitive.Close ref={closeRef} className="hidden" tabIndex={-1} aria-hidden />
         {showCloseButton && (
           <SheetPrimitive.Close data-slot="sheet-close" asChild>
             <Button

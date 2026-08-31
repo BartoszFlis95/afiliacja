@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/shared/AppSidebar";
 import { DashboardHeader } from "@/components/shared/DashboardHeader";
+import { MobileBottomNav } from "@/components/shared/MobileBottomNav";
 
 export default async function DashboardLayout({
   children,
@@ -25,11 +26,12 @@ export default async function DashboardLayout({
       <AppSidebar role={role} email={email} />
       <SidebarInset>
         <DashboardHeader role={role} email={email} />
-        <main className="flex-1 bg-background p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-3.5rem)]">
+        <main className="flex-1 bg-background p-4 pb-24 sm:p-6 md:pb-6 lg:p-8 min-h-[calc(100vh-3.5rem)]">
           <div className="mx-auto w-full max-w-7xl">
             {children}
           </div>
         </main>
+        <MobileBottomNav role={role} />
       </SidebarInset>
     </SidebarProvider>
   );
