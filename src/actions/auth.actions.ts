@@ -368,7 +368,7 @@ export async function resetPasswordAction(
     };
   }
 
-  const passwordHash = await bcrypt.hash(password, 10);
+  const passwordHash = await bcrypt.hash(password, 12);
 
   await prisma.$transaction([
     prisma.user.update({ where: { id: user.id }, data: { passwordHash } }),

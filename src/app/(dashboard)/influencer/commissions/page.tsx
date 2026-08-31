@@ -4,6 +4,7 @@ import { Check, Wallet, X } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { MINIMUM_PAYOUT } from "@/lib/constants";
 import { getInfluencerCommissionsAction } from "@/actions/commission.actions";
 import { getBankDetailsAction } from "@/actions/influencer.actions";
 import { PayoutModal } from "@/components/influencer/PayoutModal";
@@ -194,7 +195,6 @@ export default async function InfluencerCommissionsPage() {
     .filter((c) => c.status === "APPROVED" && !c.payout)
     .reduce((sum, c) => sum + Number(c.commissionAmount), 0);
 
-  const MINIMUM_PAYOUT = 50;
   const canWithdraw = availableBalance >= MINIMUM_PAYOUT;
 
   const byStatus = (status: string) =>

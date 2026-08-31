@@ -124,7 +124,7 @@ const CHECKLIST = [
   "Wyślij dokładnie to samo żądanie ponownie i potwierdź, że otrzymujesz błąd 409.",
   "Sprawdź w panelu marki i influencera, czy konwersja pojawiła się ze statusem PENDING.",
   "Wyślij żądanie bez pola ref (lub amount / orderId) i potwierdź odpowiedź 400.",
-  "Opcjonalnie: włącz podpis x-signature (HMAC-SHA256) i sprawdź, że nieprawidłowy podpis zwraca 401.",
+  "Dołącz nagłówek x-signature (HMAC-SHA256) — jest wymagany — i sprawdź, że jego brak lub nieprawidłowy podpis zwraca 401.",
 ];
 
 export default function DocsPage() {
@@ -260,11 +260,12 @@ export default function DocsPage() {
                 code={`POST /api/conversion HTTP/1.1
 Host: www.deneeu.pl
 Content-Type: application/json
-x-api-key: TWOJ_API_KEY`}
+x-api-key: TWOJ_API_KEY
+x-signature: OBLICZONY_HMAC_SHA256`}
               />
               <p>
-                Opcjonalnie możesz dodatkowo podpisać treść żądania, aby
-                zabezpieczyć się przed jego modyfikacją w tranzycie. Oblicz{" "}
+                Każde żądanie musi być dodatkowo podpisane, aby zabezpieczyć
+                je przed modyfikacją w tranzycie. Oblicz{" "}
                 <code className="font-mono">HMAC-SHA256</code> z surowej
                 treści żądania (JSON), używając swojego{" "}
                 <code className="font-mono">webhookSecret</code>, i prześlij
@@ -272,9 +273,9 @@ x-api-key: TWOJ_API_KEY`}
                 <code className="rounded bg-blue-50 px-1.5 py-0.5 font-mono text-sm text-blue-700">
                   x-signature
                 </code>
-                . Podpis jest weryfikowany tylko wtedy, gdy nagłówek zostanie
-                wysłany — jego brak nie blokuje żądania, ale zalecamy jego
-                używanie w środowisku produkcyjnym.
+                . Nagłówek jest{" "}
+                <strong>wymagany</strong> — żądanie bez niego lub z
+                nieprawidłowym podpisem zostanie odrzucone z kodem 401.
               </p>
             </div>
           </section>

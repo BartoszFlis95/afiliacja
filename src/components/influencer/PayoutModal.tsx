@@ -18,11 +18,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { requestPayoutAction } from "@/actions/commission.actions";
-
-// Stała platformowa — musi być zgodna z MINIMUM_PAYOUT w
-// src/actions/commission.actions.ts (serwer i tak to egzekwuje niezależnie od
-// UI, to tylko odzwierciedlenie tej samej wartości w interfejsie).
-const MINIMUM_PAYOUT = 50;
+import { MINIMUM_PAYOUT } from "@/lib/constants";
 
 const formatPLN = (value: number) =>
   new Intl.NumberFormat("pl-PL", { style: "currency", currency: "PLN" }).format(value);

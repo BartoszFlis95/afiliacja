@@ -10,6 +10,7 @@ import { formatEmailAmount } from "@/emails/utils";
 import CommissionApprovedEmail from "@/emails/CommissionApprovedEmail";
 import PayoutApprovedEmail from "@/emails/PayoutApprovedEmail";
 import PayoutCompletedEmail from "@/emails/PayoutCompletedEmail";
+import { MINIMUM_PAYOUT } from "@/lib/constants";
 import {
   CommissionStatus,
   ConversionStatus,
@@ -20,11 +21,6 @@ import {
 type ActionResult<T = undefined> =
   | { success: true; data?: T }
   | { success: false; error: string };
-
-// Stała platformowa — brak górnego limitu wypłaty, ale poniżej tej kwoty
-// wniosek jest odrzucany (dawniej konfigurowalne per-influencer pole
-// InfluencerProfile.minimumPayout, usunięte na rzecz jednej stałej wartości).
-const MINIMUM_PAYOUT = 50;
 
 /**
  * Resolves the session and asserts the caller has the required role.

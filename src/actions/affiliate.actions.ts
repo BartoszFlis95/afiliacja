@@ -19,21 +19,6 @@ async function requireInfluencerProfile() {
   return influencerProfile;
 }
 
-async function requireBrandProfile() {
-  const session = await auth();
-  const role = (session?.user as { role?: string } | undefined)?.role;
-  if (!session?.user || role !== Role.BRAND) {
-    throw new Error("Brak dostępu");
-  }
-  const brandProfile = await prisma.brandProfile.findUnique({
-    where: { userId: session.user.id },
-  });
-  if (!brandProfile) {
-    throw new Error("Nie znaleziono profilu marki");
-  }
-  return brandProfile;
-}
-
 export async function getInfluencerLinksAction() {
   try {
     const influencerProfile = await requireInfluencerProfile();
@@ -158,70 +143,6 @@ export async function trackClickAction(
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Błąd śledzenia kliknięcia",
-    };
-  }
-}
-
-export async function getBrandStatsAction() {
-  try {
-    const brandProfile = await requireBrandProfile();
-
-    const products = await prisma.product.findMany({
-      where: { brandProfileId: brandProfile.id },
-      select: { id: true },
-    });
-
-    const productIds = products.map((p) => p.id);
-
-    const [totalProducts, aggregated, topInfluencers] = await Promise.all([
-      prisma.product.count({ where: { brandProfileId: brandProfile.id } }),
-      prisma.affiliateLink.aggregate({
-        where: { productId: { in: productIds } },
-        _sum: {
-          totalClicks: true,
-          totalConversions: true,
-        },
-      }),
-      prisma.affiliateLink.findMany({
-        where: { productId: { in: productIds } },
-        include: {
-          influencerProfile: {
-            select: { displayName: true, avatarUrl: true },
-          },
-        },
-        orderBy: { totalEarnings: "desc" },
-        take: 5,
-      }),
-    ]);
-
-    const totalRevenue = await prisma.conversion.aggregate({
-      where: {
-        affiliateLink: { productId: { in: productIds } },
-        status: { in: ["CONFIRMED", "PAID"] },
-      },
-      _sum: { amount: true },
-    });
-
-    return {
-      success: true as const,
-      data: {
-        totalProducts,
-        totalClicks: aggregated._sum.totalClicks ?? 0,
-        totalConversions: aggregated._sum.totalConversions ?? 0,
-        totalRevenue: Number(totalRevenue._sum.amount ?? 0),
-        topInfluencers: topInfluencers.map((l) => ({
-          displayName: l.influencerProfile.displayName,
-          avatarUrl: l.influencerProfile.avatarUrl,
-          totalClicks: l.totalClicks,
-          totalConversions: l.totalConversions,
-          totalEarnings: Number(l.totalEarnings),
-        })),
-      },
-    };
-  } catch (error) {
-    return {
-      success: false as const,
-      error: error instanceof Error ? error.message : "Błąd pobierania statystyk marki",
     };
   }
 }

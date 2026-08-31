@@ -485,7 +485,7 @@ export async function changePasswordAction(data: {
     return { success: false, error: "Aktualne hasło jest nieprawidłowe" };
   }
 
-  const newHash = await bcrypt.hash(data.newPassword, 10);
+  const newHash = await bcrypt.hash(data.newPassword, 12);
   await prisma.user.update({
     where: { id: session.user.id },
     data: { passwordHash: newHash },
