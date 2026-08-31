@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { logFraud } from "@/lib/fraud-logger";
+import { FraudType } from "@prisma/client";
 
 const IP_RATE_LIMIT = 10;
 const IP_RATE_WINDOW_MS = 60 * 60 * 1000; // 1 godzina
@@ -42,7 +43,14 @@ export async function GET(
   // Zapisujemy Click jako fraud (audyt), nie liczymy do totalClicks, 403.
   const session = await auth();
   if (session?.user?.id && session.user.id === link.influencerProfile.userId) {
-    logFraud("self-click", { userId: session.user.id, linkCode: code });
+    await logFraud({
+      type: FraudType.SELF_CLICK,
+      reason: "Influencer kliknął własny link afiliacyjny",
+      affiliateLinkId: link.id,
+      ip,
+      userAgent,
+      metadata: { userId: session.user.id, linkCode: code },
+    });
 
     await prisma.click.create({
       data: {
@@ -73,7 +81,14 @@ export async function GET(
     });
 
     if (recentClicks >= IP_RATE_LIMIT) {
-      logFraud("ip-rate-limit", { ip, linkCode: code, count: recentClicks });
+      await logFraud({
+        type: FraudType.IP_RATE_LIMIT,
+        reason: `Przekroczono limit ${IP_RATE_LIMIT} kliknięć/godzinę z tego IP`,
+        affiliateLinkId: link.id,
+        ip,
+        userAgent,
+        metadata: { linkCode: code, count: recentClicks },
+      });
 
       await prisma.click.create({
         data: {

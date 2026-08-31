@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
 import { Building2, Megaphone } from "lucide-react";
 
 import { registerAction } from "@/actions/auth.actions";
@@ -38,7 +39,11 @@ const ROLE_OPTIONS: {
 ];
 
 export function RegisterForm() {
-  const [role, setRole] = useState<Role>("BRAND");
+  const searchParams = useSearchParams();
+  const inviteFromUrl = searchParams.get("invite") ?? "";
+  const [role, setRole] = useState<Role>(
+    inviteFromUrl ? "BRAND" : ((searchParams.get("role") as Role) === "INFLUENCER" ? "INFLUENCER" : "BRAND")
+  );
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -55,6 +60,7 @@ export function RegisterForm() {
       password:        String(formData.get("password") ?? ""),
       confirmPassword: String(formData.get("confirmPassword") ?? ""),
       role,
+      inviteCode:      role === "BRAND" ? String(formData.get("inviteCode") ?? "") : undefined,
     };
 
     const parsed = RegisterSchema.safeParse(values);
@@ -133,6 +139,30 @@ export function RegisterForm() {
             <p className="text-xs text-red-600">{errors.role}</p>
           )}
         </div>
+
+        {/* Kod zaproszenia — wymagany tylko dla kont typu Marka */}
+        {role === "BRAND" && (
+          <div className="space-y-1.5">
+            <Label htmlFor="inviteCode" className="text-sm font-medium text-slate-700">
+              Kod zaproszenia
+            </Label>
+            <Input
+              id="inviteCode"
+              name="inviteCode"
+              type="text"
+              placeholder="INV-XXXXXXXX"
+              autoComplete="off"
+              defaultValue={inviteFromUrl}
+              disabled={isPending}
+            />
+            <p className="text-xs text-slate-500">
+              Rejestracja marek odbywa się na zaproszenie. Kod otrzymasz od zespołu Deneeu.
+            </p>
+            {errors.inviteCode && (
+              <p className="text-xs text-red-600">{errors.inviteCode}</p>
+            )}
+          </div>
+        )}
 
         {/* Email */}
         <div className="space-y-1.5">

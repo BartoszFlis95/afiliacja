@@ -119,6 +119,7 @@ export async function registerAction(formData: FormData) {
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
     role: formData.get("role"),
+    inviteCode: formData.get("inviteCode") ?? undefined,
   };
 
   const parsed = RegisterSchema.safeParse(raw);
@@ -127,7 +128,7 @@ export async function registerAction(formData: FormData) {
   }
 
   const email = parsed.data.email.toLowerCase();
-  const { password, role } = parsed.data;
+  const { password, role, inviteCode } = parsed.data;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -136,15 +137,65 @@ export async function registerAction(formData: FormData) {
 
   const passwordHash = await bcrypt.hash(password, 12);
 
-  await prisma.user.create({
-    data: {
-      email,
-      passwordHash,
-      role: role as Role,
-      // emailVerified zostaje null do czasu kliknięcia linku z maila —
-      // authorize() w lib/auth.ts odrzuci logowanie do tego momentu.
-    },
-  });
+  if (role === Role.BRAND) {
+    // Rejestracja marek wymaga aktywnego kodu zaproszenia — admin generuje
+    // kody i wysyła linki markom (patrz admin.actions.ts). Influencerzy
+    // rejestrują się bez kodu (rejestracja beta dla nich celowo otwarta).
+    const code = inviteCode!.trim();
+
+    try {
+      await prisma.$transaction(async (tx) => {
+        const invite = await tx.inviteCode.findUnique({ where: { code } });
+        if (
+          !invite ||
+          !invite.isActive ||
+          invite.usedCount >= invite.maxUses ||
+          (invite.expiresAt && invite.expiresAt < new Date())
+        ) {
+          throw new Error("INVALID_INVITE_CODE");
+        }
+
+        // Atomowy update chroniący przed race condition — dwie rejestracje
+        // równolegle na tym samym kodzie nie mogą obie przejść, jeśli
+        // maxUses zostałoby przez to przekroczone.
+        const result = await tx.inviteCode.updateMany({
+          where: { id: invite.id, usedCount: { lt: invite.maxUses } },
+          data: { usedCount: { increment: 1 } },
+        });
+        if (result.count === 0) {
+          throw new Error("INVALID_INVITE_CODE");
+        }
+
+        await tx.user.create({
+          data: {
+            email,
+            passwordHash,
+            role: role as Role,
+            // emailVerified zostaje null do czasu kliknięcia linku z maila —
+            // authorize() w lib/auth.ts odrzuci logowanie do tego momentu.
+          },
+        });
+      });
+    } catch (error) {
+      if (error instanceof Error && error.message === "INVALID_INVITE_CODE") {
+        return {
+          success: false,
+          error: "Nieprawidłowy, wygasły lub już wykorzystany kod zaproszenia.",
+        };
+      }
+      throw error;
+    }
+  } else {
+    await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        role: role as Role,
+        // emailVerified zostaje null do czasu kliknięcia linku z maila —
+        // authorize() w lib/auth.ts odrzuci logowanie do tego momentu.
+      },
+    });
+  }
 
   await sendVerificationEmail(email);
 

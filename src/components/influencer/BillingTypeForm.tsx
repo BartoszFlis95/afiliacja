@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Building2, User } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
+import { updateBillingTypeAction } from "@/actions/influencer.actions";
 
-type BillingType = "individual" | "company";
+type BillingType = "INDIVIDUAL" | "COMPANY";
 
 interface BillingData {
-  billingType?: BillingType;
+  billingType?: BillingType | null;
 }
 
 interface Props {
@@ -23,13 +24,13 @@ const BILLING_OPTIONS: {
   icon: React.ElementType;
 }[] = [
   {
-    value: "individual",
+    value: "INDIVIDUAL",
     label: "Osoba prywatna",
     sub: "Umowa o dzieło / zlecenie",
     icon: User,
   },
   {
-    value: "company",
+    value: "COMPANY",
     label: "Firma",
     sub: "Faktura VAT, rozliczenie B2B",
     icon: Building2,
@@ -38,21 +39,34 @@ const BILLING_OPTIONS: {
 
 export function BillingTypeForm({ initialData }: Props) {
   const [selected, setSelected] = useState<BillingType | undefined>(
-    initialData?.billingType
+    initialData?.billingType ?? undefined
   );
+  const [isPending, startTransition] = useTransition();
+
+  function handleSelect(value: BillingType) {
+    if (value === selected || isPending) return;
+    const previous = selected;
+    setSelected(value);
+
+    startTransition(async () => {
+      const result = await updateBillingTypeAction(value);
+      if (!result.success) {
+        setSelected(previous);
+        toast({
+          title: "Nie udało się zapisać typu rozliczenia",
+          description: result.error,
+          variant: "destructive",
+        });
+        return;
+      }
+      toast({ title: "Typ rozliczenia zapisany." });
+    });
+  }
 
   return (
     <Card>
       <CardHeader className="pb-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="text-base sm:text-lg">Typ rozliczenia</CardTitle>
-          <Badge
-            variant="warning"
-            className="text-xs whitespace-nowrap w-fit"
-          >
-            Wkrótce dostępne
-          </Badge>
-        </div>
+        <CardTitle className="text-base sm:text-lg">Typ rozliczenia</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
@@ -65,11 +79,11 @@ export function BillingTypeForm({ initialData }: Props) {
             <button
               key={value}
               type="button"
-              disabled
-              onClick={() => setSelected(value)}
+              disabled={isPending}
+              onClick={() => handleSelect(value)}
               className={cn(
                 "flex items-center gap-3 rounded-lg border-2 p-4 text-left transition-colors",
-                "opacity-50 cursor-not-allowed",
+                isPending && "opacity-60 cursor-wait",
                 selected === value
                   ? "border-slate-900 bg-slate-50"
                   : "border-slate-200 bg-white hover:border-slate-300"
@@ -85,11 +99,6 @@ export function BillingTypeForm({ initialData }: Props) {
             </button>
           ))}
         </div>
-
-        <p className="text-xs text-muted-foreground border border-dashed border-slate-200 rounded-lg px-3 py-2">
-          Konfiguracja rozliczeń będzie dostępna w kolejnej wersji platformy.
-          Skontaktuj się z administratorem w razie pilnych potrzeb.
-        </p>
       </CardContent>
     </Card>
   );

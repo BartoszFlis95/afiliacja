@@ -130,7 +130,7 @@ export default async function InfluencerSettingsPage({
         </TabsContent>
 
         <TabsContent value="billing">
-          <BillingTypeForm />
+          <BillingTypeForm initialData={{ billingType: profile.billingType }} />
         </TabsContent>
 
         <TabsContent value="stripe">

@@ -17,6 +17,8 @@ import {
   FileText,
   DollarSign,
   BookOpen,
+  ShieldAlert,
+  Ticket,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/actions/auth.actions";
@@ -61,6 +63,8 @@ const NAV_ITEMS: Record<Role, { title: string; href: string; icon: React.Element
     { title: "Wypłaty",     href: "/admin/payouts",   icon: CreditCard },
     { title: "Faktury",     href: "/admin/invoices",  icon: FileText },
     { title: "Finanse",     href: "/admin/finance",   icon: DollarSign },
+    { title: "Fraud",       href: "/admin/fraud",     icon: ShieldAlert },
+    { title: "Kody zaproszeń", href: "/admin/invite-codes", icon: Ticket },
   ],
 };
 

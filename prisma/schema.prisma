@@ -48,6 +48,18 @@ enum InvoiceStatus {
   CANCELLED
 }
 
+enum FraudType {
+  SELF_CLICK
+  IP_RATE_LIMIT
+  SUSPICIOUS_CONVERSION
+  COOLING_PERIOD
+}
+
+enum BillingType {
+  INDIVIDUAL
+  COMPANY
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -97,6 +109,7 @@ model User {
   sessions          Session[]
   brandProfile      BrandProfile?
   influencerProfile InfluencerProfile?
+  createdInviteCodes InviteCode[]
 }
 
 model BrandProfile {
@@ -146,6 +159,8 @@ model InfluencerProfile {
   stripeAccountStatus  String?
   stripeOnboardingDone Boolean  @default(false)
 
+  billingType    BillingType?
+
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -191,6 +206,7 @@ model AffiliateLink {
   clicks            Click[]
   conversions       Conversion[]
   commissions       Commission[]
+  fraudLogs         FraudLog[]
 
   @@unique([influencerProfileId, productId])
 }
@@ -239,6 +255,8 @@ model Commission {
   orderValue        Decimal
   commissionPercent Float
   commissionAmount  Decimal
+  platformFeePercent Float           @default(0)
+  platformFeeAmount  Decimal        @default(0)
   status            CommissionStatus @default(PENDING)
   ipAddress         String?
   isSuspicious      Boolean          @default(false)
@@ -251,6 +269,7 @@ model Commission {
   product       Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
   affiliateLink AffiliateLink     @relation(fields: [affiliateLinkId], references: [id], onDelete: Cascade)
   payout        Payout?
+  fraudLogs     FraudLog[]
 }
 
 model Payout {
@@ -270,6 +289,39 @@ model Payout {
 
   influencer InfluencerProfile @relation(fields: [influencerId], references: [id], onDelete: Cascade)
   commission Commission        @relation(fields: [commissionId], references: [id], onDelete: Cascade)
+}
+
+model FraudLog {
+  id              String    @id @default(cuid())
+  type            FraudType
+  affiliateLinkId String?
+  commissionId    String?
+  ip              String?
+  userAgent       String?
+  reason          String
+  metadata        Json?
+  createdAt       DateTime  @default(now())
+
+  affiliateLink AffiliateLink? @relation(fields: [affiliateLinkId], references: [id], onDelete: SetNull)
+  commission    Commission?    @relation(fields: [commissionId], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([createdAt])
+}
+
+model InviteCode {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  isActive    Boolean   @default(true)
+  maxUses     Int       @default(1)
+  usedCount   Int       @default(0)
+  expiresAt   DateTime?
+  createdById String
+  createdAt   DateTime  @default(now())
+
+  createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([isActive])
 }
 
 model Invoice {

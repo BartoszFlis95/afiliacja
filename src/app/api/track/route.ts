@@ -9,7 +9,7 @@ import { sendEmail } from "@/lib/resend";
 import { formatEmailAmount } from "@/emails/utils";
 import NewCommissionEmail from "@/emails/NewCommissionEmail";
 import CommissionPendingBrandEmail from "@/emails/CommissionPendingBrandEmail";
-import { CommissionStatus } from "@prisma/client";
+import { CommissionStatus, FraudType } from "@prisma/client";
 
 type TrackBody = {
   code?: unknown;
@@ -124,7 +124,12 @@ export async function POST(request: NextRequest) {
   });
 
   if (!recentClick) {
-    logFraud("cooling-period", { linkCode: code, orderId });
+    await logFraud({
+      type: FraudType.COOLING_PERIOD,
+      reason: "Brak kliknięcia z tego linku w ostatnich 30 dniach",
+      affiliateLinkId: affiliateLink.id,
+      metadata: { linkCode: code, orderId },
+    });
     return NextResponse.json(
       { success: false, error: "Brak kliknięcia w ostatnich 30 dniach" },
       { status: 422 }
@@ -176,10 +181,6 @@ export async function POST(request: NextRequest) {
   const isSuspicious = suspiciousReasons.length > 0;
   const suspiciousReason = isSuspicious ? suspiciousReasons.join("; ") : null;
 
-  if (isSuspicious) {
-    logFraud("suspicious-conversion", { orderId, orderValue, reason: suspiciousReason });
-  }
-
   let commission;
   try {
     commission = await prisma.$transaction(async (tx) => {
@@ -227,6 +228,17 @@ export async function POST(request: NextRequest) {
       { success: false, error: "Wewnętrzny błąd serwera." },
       { status: 500 }
     );
+  }
+
+  if (isSuspicious) {
+    await logFraud({
+      type: FraudType.SUSPICIOUS_CONVERSION,
+      reason: suspiciousReason!,
+      affiliateLinkId: affiliateLink.id,
+      commissionId: commission.id,
+      ip: clickIp,
+      metadata: { orderId, orderValue },
+    });
   }
 
   // Nie blokuj odpowiedzi webhooka na wysyłce maili — fire-and-forget, przez after().

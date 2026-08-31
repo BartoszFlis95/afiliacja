@@ -427,6 +427,32 @@ export async function updateBankDetailsAction(
   return { success: true };
 }
 
+// ---------------------------------------------------------------------------
+// BILLING TYPE
+// ---------------------------------------------------------------------------
+
+export async function updateBillingTypeAction(
+  billingType: "INDIVIDUAL" | "COMPANY"
+): Promise<ActionResult> {
+  const session = await requireInfluencer();
+  if (!session?.user?.id) {
+    return { success: false, error: "Brak autoryzacji" };
+  }
+
+  if (billingType !== "INDIVIDUAL" && billingType !== "COMPANY") {
+    return { success: false, error: "Nieprawidłowy typ rozliczenia" };
+  }
+
+  await prisma.influencerProfile.update({
+    where: { userId: session.user.id },
+    data: { billingType },
+  });
+
+  revalidatePath("/influencer/settings");
+
+  return { success: true };
+}
+
 export async function changePasswordAction(data: {
   currentPassword: string;
   newPassword: string;

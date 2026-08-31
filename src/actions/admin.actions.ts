@@ -88,6 +88,41 @@ export async function getSuspiciousCommissionsAction() {
   }));
 }
 
+/**
+ * Pełna historia audytowa fraud detection (self-click, IP rate limit,
+ * cooling period, suspicious conversion) — patrz src/lib/fraud-logger.ts.
+ */
+export async function getFraudLogsAction() {
+  await assertAdmin();
+
+  const logs = await prisma.fraudLog.findMany({
+    include: {
+      affiliateLink: {
+        select: {
+          code: true,
+          product: { select: { name: true } },
+          influencerProfile: { select: { displayName: true } },
+        },
+      },
+      commission: {
+        select: {
+          id: true,
+          orderValue: true,
+          brand: { select: { companyName: true } },
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return logs.map((log) => ({
+    ...log,
+    commission: log.commission
+      ? { ...log.commission, orderValue: Number(log.commission.orderValue) }
+      : null,
+  }));
+}
+
 export async function getPlatformStatsAction() {
   await assertAdmin();
 
@@ -234,4 +269,65 @@ export async function getFinanceSummaryAction() {
     topInfluencersByPayout,
     topBrandsByRevenue,
   };
+}
+
+// ---------------------------------------------------------------------------
+// INVITE CODES (rejestracja marek wymaga kodu wygenerowanego przez admina —
+// influencerzy rejestrują się bez kodu, patrz src/actions/auth.actions.ts)
+// ---------------------------------------------------------------------------
+
+export async function getInviteCodesAction() {
+  await assertAdmin();
+
+  const codes = await prisma.inviteCode.findMany({
+    include: { createdBy: { select: { email: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return codes;
+}
+
+export async function generateInviteCodeAction(options?: {
+  maxUses?: number;
+  expiresAt?: Date | null;
+}) {
+  const session = await assertAdmin();
+  const adminId = (session?.user as { id?: string } | undefined)?.id;
+  if (!adminId) throw new Error("Unauthorized");
+
+  const code = `INV-${crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase()}`;
+
+  const created = await prisma.inviteCode.create({
+    data: {
+      code,
+      maxUses: options?.maxUses && options.maxUses > 0 ? options.maxUses : 1,
+      expiresAt: options?.expiresAt ?? null,
+      createdById: adminId,
+    },
+  });
+
+  revalidatePath("/admin/invite-codes");
+
+  return created;
+}
+
+export async function toggleInviteCodeActiveAction(inviteCodeId: string) {
+  await assertAdmin();
+
+  if (!inviteCodeId) throw new Error("inviteCodeId is required");
+
+  const existing = await prisma.inviteCode.findUnique({
+    where: { id: inviteCodeId },
+    select: { isActive: true },
+  });
+  if (!existing) throw new Error("Invite code not found");
+
+  const updated = await prisma.inviteCode.update({
+    where: { id: inviteCodeId },
+    data: { isActive: !existing.isActive },
+  });
+
+  revalidatePath("/admin/invite-codes");
+
+  return updated;
 }
