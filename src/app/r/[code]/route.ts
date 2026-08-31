@@ -6,7 +6,7 @@ import { auth } from "@/lib/auth";
 import { logFraud } from "@/lib/fraud-logger";
 import { FraudType } from "@prisma/client";
 
-const IP_RATE_LIMIT = 10;
+const IP_RATE_LIMIT = 50;
 const IP_RATE_WINDOW_MS = 60 * 60 * 1000; // 1 godzina
 
 export async function GET(
@@ -39,10 +39,24 @@ export async function GET(
   const userAgent = request.headers.get("user-agent") ?? null;
   const referer = request.headers.get("referer") ?? null;
 
+  // Klik oznaczony jako fraud nadal prowadzi na stronę produktu (bez atrybucji:
+  // brak ref/utm w URL, brak cookies deneeu_ref/deneeu_link_code) — odwiedzający
+  // (włącznie z influencerem testującym własny link) nigdy nie widzi surowego
+  // błędu API zamiast strony docelowej. Audyt fraud (FraudLog + Click.isFraud)
+  // działa tak samo jak wcześniej, tylko response przestaje być JSON 403.
+  const unattributedRedirect = () =>
+    NextResponse.redirect(new URL(link.product.productUrl!, request.url), {
+      status: 302,
+    });
+
   // FRAUD 1 — self-click: influencer klikający własny link.
-  // Zapisujemy Click jako fraud (audyt), nie liczymy do totalClicks, 403.
+  // Blokada dotyczy WYŁĄCZNIE zalogowanego właściciela tego konkretnego linku —
+  // niezalogowany odwiedzający lub inny użytkownik nigdy nie trafia w tę gałąź.
   const session = await auth();
   if (session?.user?.id && session.user.id === link.influencerProfile.userId) {
+    console.warn(
+      `[/r/${code}] SELF_CLICK zablokowany: influencer ${session.user.id} kliknął własny link (ip=${ip ?? "?"})`
+    );
     await logFraud({
       type: FraudType.SELF_CLICK,
       reason: "Influencer kliknął własny link afiliacyjny",
@@ -63,10 +77,10 @@ export async function GET(
       },
     });
 
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return unattributedRedirect();
   }
 
-  // FRAUD 2 — limit kliknięć per IP: max 10 kliknięć/godzinę/link.
+  // FRAUD 2 — limit kliknięć per IP: max IP_RATE_LIMIT kliknięć/godzinę/link.
   // Do limitu liczą się tylko klik-i NIE oznaczone jako fraud — inaczej
   // zapisywanie zablokowanych prób (ta zmiana) sztucznie podbijałoby licznik.
   if (ip) {
@@ -81,6 +95,9 @@ export async function GET(
     });
 
     if (recentClicks >= IP_RATE_LIMIT) {
+      console.warn(
+        `[/r/${code}] IP_RATE_LIMIT zablokowany: ip=${ip} przekroczył ${IP_RATE_LIMIT} kliknięć/h (count=${recentClicks})`
+      );
       await logFraud({
         type: FraudType.IP_RATE_LIMIT,
         reason: `Przekroczono limit ${IP_RATE_LIMIT} kliknięć/godzinę z tego IP`,
@@ -101,7 +118,7 @@ export async function GET(
         },
       });
 
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return unattributedRedirect();
     }
   }
 
