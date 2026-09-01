@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { Building2, User } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { updateBillingTypeAction } from "@/actions/influencer.actions";
 
 type BillingType = "INDIVIDUAL" | "COMPANY";
@@ -52,14 +52,12 @@ export function BillingTypeForm({ initialData }: Props) {
       const result = await updateBillingTypeAction(value);
       if (!result.success) {
         setSelected(previous);
-        toast({
-          title: "Nie udało się zapisać typu rozliczenia",
+        toast.error("Nie udało się zapisać typu rozliczenia", {
           description: result.error,
-          variant: "destructive",
         });
         return;
       }
-      toast({ title: "Typ rozliczenia zapisany." });
+      toast.success("Typ rozliczenia zapisany.");
     });
   }
 

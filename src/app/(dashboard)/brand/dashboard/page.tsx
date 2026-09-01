@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 import { formatCurrency, cn } from "@/lib/utils";
-import { StatsCard } from "@/components/shared/StatsCard";
+import { AnimatedStatsGrid, type StatCardData } from "@/components/shared/AnimatedStatsGrid";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { SimpleLineChart } from "@/components/charts/SimpleLineChart";
 import { SimpleBarChart } from "@/components/charts/SimpleBarChart";
@@ -159,6 +159,38 @@ export default async function BrandDashboardPage() {
     .sort((a, b) => b.value - a.value)
     .slice(0, 8);
 
+  const statsCards: StatCardData[] = [
+    { title: "Produkty", value: activeProducts, icon: <Package />, color: "blue" },
+    {
+      title: "Kliknięcia",
+      value: clicksThisMonth.toLocaleString("pl-PL"),
+      icon: <MousePointerClick />,
+      description: "ten miesiąc",
+      color: "purple",
+    },
+    {
+      title: "Konwersje",
+      value: conversionsThisMonth.toLocaleString("pl-PL"),
+      icon: <TrendingUp />,
+      description: "ten miesiąc",
+      color: "green",
+    },
+    {
+      title: "Przychód",
+      value: formatCurrency(totalRevenue),
+      icon: <DollarSign />,
+      color: "orange",
+    },
+    { title: "Aktywni influencerzy", value: activeInfluencers, icon: <Users />, color: "purple" },
+    {
+      title: "Prowizje do zatwierdzenia",
+      value: pendingCommissions,
+      icon: <Clock />,
+      description: pendingCommissions > 0 ? "wymaga akcji" : "brak zaległości",
+      color: "orange",
+    },
+  ];
+
   return (
     <div className="space-y-6 sm:space-y-8">
       {!brandProfile.apiKey && (
@@ -209,37 +241,7 @@ export default async function BrandDashboardPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard title="Produkty" value={activeProducts} icon={<Package />} color="blue" />
-        <StatsCard
-          title="Kliknięcia"
-          value={clicksThisMonth.toLocaleString("pl-PL")}
-          icon={<MousePointerClick />}
-          description="ten miesiąc"
-          color="purple"
-        />
-        <StatsCard
-          title="Konwersje"
-          value={conversionsThisMonth.toLocaleString("pl-PL")}
-          icon={<TrendingUp />}
-          description="ten miesiąc"
-          color="green"
-        />
-        <StatsCard
-          title="Przychód"
-          value={formatCurrency(totalRevenue)}
-          icon={<DollarSign />}
-          color="orange"
-        />
-        <StatsCard title="Aktywni influencerzy" value={activeInfluencers} icon={<Users />} color="purple" />
-        <StatsCard
-          title="Prowizje do zatwierdzenia"
-          value={pendingCommissions}
-          icon={<Clock />}
-          description={pendingCommissions > 0 ? "wymaga akcji" : "brak zaległości"}
-          color="orange"
-        />
-      </div>
+      <AnimatedStatsGrid cards={statsCards} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="rounded-2xl border-zinc-100 shadow-sm">

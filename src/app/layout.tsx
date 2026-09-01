@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Lato, Inter } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
@@ -85,7 +85,7 @@ export default function RootLayout({
         <SessionProvider>
           <TooltipProvider>
             {children}
-            <Toaster />
+            <Toaster richColors position="top-right" />
           </TooltipProvider>
         </SessionProvider>
       </body>

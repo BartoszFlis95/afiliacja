@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { updateBankDetailsAction, type BankDetailsData } from "@/actions/influencer.actions";
 import { BankDetailsSchema } from "@/lib/validations/bank.schema";
 import { Button } from "@/components/ui/button";
@@ -84,10 +84,10 @@ export function BankDetailsForm({ initial }: Props) {
     startTransition(async () => {
       const result = await updateBankDetailsAction(payload);
       if (result.success) {
-        toast({ title: "Dane bankowe zapisane." });
+        toast.success("Dane bankowe zapisane.");
         router.refresh();
       } else {
-        toast({ title: "Błąd", description: result.error, variant: "destructive" });
+        toast.error("Błąd", { description: result.error });
       }
     });
   }

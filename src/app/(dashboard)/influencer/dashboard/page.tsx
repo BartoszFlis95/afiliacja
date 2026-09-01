@@ -12,7 +12,7 @@ import {
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
-import { StatsCard } from "@/components/shared/StatsCard";
+import { AnimatedStatsGrid, type StatCardData } from "@/components/shared/AnimatedStatsGrid";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { CopyLinkButton } from "@/components/influencer/CopyLinkButton";
@@ -185,6 +185,23 @@ export default async function InfluencerDashboardPage() {
     };
   });
 
+  const statsCards: StatCardData[] = [
+    {
+      title: "Łączne kliknięcia",
+      value: totalClicks.toLocaleString("pl-PL"),
+      icon: <MousePointerClick />,
+      trend: influencerClicksTrend,
+      color: "blue",
+    },
+    {
+      title: "Konwersje",
+      value: totalConversions.toLocaleString("pl-PL"),
+      icon: <TrendingUp />,
+      description: `CR ${conversionRate.toFixed(1)}%`,
+      color: "green",
+    },
+  ];
+
   return (
     <div className="space-y-6 sm:space-y-8">
       {!hasBankDetails && (
@@ -239,22 +256,7 @@ export default async function InfluencerDashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <StatsCard
-          title="Łączne kliknięcia"
-          value={totalClicks.toLocaleString("pl-PL")}
-          icon={<MousePointerClick />}
-          trend={influencerClicksTrend}
-          color="blue"
-        />
-        <StatsCard
-          title="Konwersje"
-          value={totalConversions.toLocaleString("pl-PL")}
-          icon={<TrendingUp />}
-          description={`CR ${conversionRate.toFixed(1)}%`}
-          color="green"
-        />
-      </div>
+      <AnimatedStatsGrid cards={statsCards} className="grid grid-cols-1 gap-4 sm:grid-cols-2" />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="rounded-2xl border-zinc-100 shadow-sm">

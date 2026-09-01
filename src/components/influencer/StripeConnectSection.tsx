@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   createStripeOnboardingLinkAction,
   getStripeAccountStatusAction,
@@ -37,9 +37,7 @@ export function StripeConnectSection({ initialStatus, autoRefresh = false }: Pro
       if (result.success && result.data) {
         window.location.href = result.data.url;
       } else {
-        toast({
-          variant: "destructive",
-          title: "Błąd",
+        toast.error("Błąd", {
           description: result.error ?? "Nie udało się połączyć ze Stripe.",
         });
       }
@@ -53,9 +51,7 @@ export function StripeConnectSection({ initialStatus, autoRefresh = false }: Pro
         setStatus(result.data);
         router.refresh();
       } else {
-        toast({
-          variant: "destructive",
-          title: "Błąd",
+        toast.error("Błąd", {
           description: result.error ?? "Nie udało się odświeżyć statusu.",
         });
       }
@@ -68,9 +64,7 @@ export function StripeConnectSection({ initialStatus, autoRefresh = false }: Pro
       if (result.success && result.data) {
         window.open(result.data.url, "_blank");
       } else {
-        toast({
-          variant: "destructive",
-          title: "Błąd",
+        toast.error("Błąd", {
           description: result.error ?? "Nie udało się otworzyć panelu Stripe.",
         });
       }

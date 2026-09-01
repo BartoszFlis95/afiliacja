@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { executeStripeTransferAction } from "@/actions/stripe.actions";
 import { Button } from "@/components/ui/button";
 import { Loader2, Zap } from "lucide-react";
@@ -30,15 +30,12 @@ export function StripeTransferButton({
     startTransition(async () => {
       const result = await executeStripeTransferAction(payoutId);
       if (result.success) {
-        toast({
-          title: "Transfer wysłany",
+        toast.success("Transfer wysłany", {
           description: `${formatPLN(amount)} przelane do ${influencerName} przez Stripe.`,
         });
         router.refresh();
       } else {
-        toast({
-          variant: "destructive",
-          title: "Transfer nie powiódł się",
+        toast.error("Transfer nie powiódł się", {
           description: result.error ?? "Spróbuj ponownie.",
         });
       }

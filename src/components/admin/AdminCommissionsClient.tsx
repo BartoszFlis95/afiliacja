@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Wallet } from "lucide-react";
 
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   adminApproveCommissionAction,
   adminRejectCommissionAction,
@@ -82,7 +82,7 @@ export function AdminCommissionsClient({
     startTransition(async () => {
       const result = await action(id);
       if (!result.success) {
-        toast({ variant: "destructive", title: "Błąd", description: result.error });
+        toast.error("Błąd", { description: result.error });
       } else {
         router.refresh();
       }

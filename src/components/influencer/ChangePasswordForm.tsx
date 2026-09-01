@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { changePasswordAction } from "@/actions/influencer.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,7 @@ export function ChangePasswordForm() {
       });
 
       if (result.success) {
-        toast({ title: "Hasło zostało zmienione." });
+        toast.success("Hasło zostało zmienione.");
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");

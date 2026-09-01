@@ -11,7 +11,7 @@ import {
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
 import {
   Table,
@@ -41,12 +41,10 @@ export function AdminInviteCodesClient({ codes }: { codes: InviteCodeRow[] }) {
           { ...created, createdBy: { email: "—" } },
           ...prev,
         ]);
-        toast({ title: `Wygenerowano kod ${created.code}` });
+        toast.success(`Wygenerowano kod ${created.code}`);
       } catch (error) {
-        toast({
-          title: "Nie udało się wygenerować kodu",
+        toast.error("Nie udało się wygenerować kodu", {
           description: error instanceof Error ? error.message : undefined,
-          variant: "destructive",
         });
       }
     });
@@ -60,10 +58,8 @@ export function AdminInviteCodesClient({ codes }: { codes: InviteCodeRow[] }) {
           prev.map((r) => (r.id === id ? { ...r, isActive: updated.isActive } : r))
         );
       } catch (error) {
-        toast({
-          title: "Nie udało się zmienić statusu kodu",
+        toast.error("Nie udało się zmienić statusu kodu", {
           description: error instanceof Error ? error.message : undefined,
-          variant: "destructive",
         });
       }
     });

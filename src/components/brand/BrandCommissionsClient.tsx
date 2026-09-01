@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Wallet } from "lucide-react";
 
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   approveCommissionAction,
   rejectCommissionAction,
@@ -90,13 +90,11 @@ export function BrandCommissionsClient({
       const results = await Promise.all(ids.map((id) => approveCommissionAction(id)));
       const failed = results.filter((r) => !r.success).length;
       if (failed > 0) {
-        toast({
-          variant: "destructive",
-          title: "Część zatwierdzeń nie powiodła się",
+        toast.error("Część zatwierdzeń nie powiodła się", {
           description: `${failed} z ${ids.length} nie zostało zatwierdzonych.`,
         });
       } else {
-        toast({ title: "Zatwierdzono", description: `${ids.length} prowizji zatwierdzonych.` });
+        toast.success("Zatwierdzono", { description: `${ids.length} prowizji zatwierdzonych.` });
       }
       setSelected(new Set());
       router.refresh();
@@ -110,7 +108,7 @@ export function BrandCommissionsClient({
     startTransition(async () => {
       const result = await action(id);
       if (!result.success) {
-        toast({ variant: "destructive", title: "Błąd", description: result.error });
+        toast.error("Błąd", { description: result.error });
       } else {
         router.refresh();
       }

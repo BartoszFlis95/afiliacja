@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { generateInvoiceAction, previewInvoiceAction } from "@/actions/invoice.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -111,12 +111,12 @@ export function GenerateInvoiceModal({ brands }: Props) {
       });
 
       if (result.success) {
-        toast({ title: `Faktura ${result.data!.invoiceNumber} wystawiona.` });
+        toast.success(`Faktura ${result.data!.invoiceNumber} wystawiona.`);
         setOpen(false);
         resetForm();
         router.refresh();
       } else {
-        toast({ title: "Błąd", description: result.error, variant: "destructive" });
+        toast.error("Błąd", { description: result.error });
       }
     });
   }

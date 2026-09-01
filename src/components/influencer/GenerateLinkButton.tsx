@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { generateAffiliateLinkAction } from "@/actions/influencer.actions";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export function GenerateLinkButton({ productId }: { productId: string }) {
   const router = useRouter();
@@ -16,9 +16,7 @@ export function GenerateLinkButton({ productId }: { productId: string }) {
       if (result.success) {
         router.refresh();
       } else {
-        toast({
-          variant: "destructive",
-          title: "Błąd generowania linku",
+        toast.error("Błąd generowania linku", {
           description: result.error ?? "Spróbuj ponownie.",
         });
       }

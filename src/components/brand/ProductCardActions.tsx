@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { toggleProductStatusAction, deleteProductAction } from "@/actions/product.actions";
 import { Button } from "@/components/ui/button";
 
@@ -24,7 +24,7 @@ export function ProductCardActions({
       if (result.success) {
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Błąd", description: result.error });
+        toast.error("Błąd", { description: result.error });
       }
     });
   }
@@ -38,7 +38,7 @@ export function ProductCardActions({
       if (result.success) {
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Błąd", description: result.error });
+        toast.error("Błąd", { description: result.error });
       }
     });
   }
