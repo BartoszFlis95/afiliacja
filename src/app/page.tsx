@@ -136,6 +136,8 @@ export default async function LandingPage() {
     <div className="min-h-screen overflow-x-hidden bg-card">
       <Navbar />
 
+      <main id="main" tabIndex={-1}>
+
       {/* Hero */}
       <section className="scroll-mt-24 bg-gradient-to-br from-muted/40 via-background to-primary/10 px-4 pt-24 pb-12 sm:px-6 sm:pt-28 sm:pb-16 lg:px-8 lg:pt-32 lg:pb-20">
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 sm:gap-12 lg:grid-cols-2 lg:gap-16">
@@ -396,6 +398,7 @@ export default async function LandingPage() {
           </p>
         </div>
       </section>
+      </main>
 
       <Footer />
     </div>

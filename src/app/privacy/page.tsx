@@ -65,7 +65,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen overflow-x-hidden bg-primary/10">
       <Navbar />
 
-      <main className="pt-24 sm:pt-28 lg:pt-32">
+      <main id="main" tabIndex={-1} className="pt-24 sm:pt-28 lg:pt-32">
         <div className="mx-auto max-w-4xl px-4 py-16">
           <div className="rounded-2xl border border-primary/20 bg-card p-6 shadow-sm sm:p-10">
             <h1 className="text-3xl font-black text-foreground sm:text-4xl">

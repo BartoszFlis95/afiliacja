@@ -132,7 +132,7 @@ export default function DocsPage() {
     <div className="min-h-screen overflow-x-hidden bg-card">
       <Navbar />
 
-      <main className="pt-24 sm:pt-28 lg:pt-32">
+      <main id="main" tabIndex={-1} className="pt-24 sm:pt-28 lg:pt-32">
         {/* Header */}
         <section className="bg-gradient-to-br from-primary/5 via-background to-primary/15 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">

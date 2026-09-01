@@ -4,6 +4,7 @@ import { SessionProvider } from "next-auth/react";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeScript } from "@/components/shared/ThemeScript";
+import { SkipLink } from "@/components/shared/SkipLink";
 import "./globals.css";
 
 // Playfair i Lato były tu ładowane „na później", ale żaden komponent ani
@@ -76,6 +77,7 @@ export default function RootLayout({
         <ThemeScript />
       </head>
       <body className={inter.variable}>
+        <SkipLink />
         <SessionProvider>
           <TooltipProvider>
             {children}

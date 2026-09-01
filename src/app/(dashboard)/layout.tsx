@@ -30,7 +30,7 @@ export default async function DashboardLayout({
       <CommandPalette role={role} />
       <SidebarInset className="min-w-0">
         <DashboardHeader role={role} email={email} />
-        <main className="min-w-0 flex-1 bg-background p-4 md:p-6 lg:p-8">
+        <main id="main" tabIndex={-1} className="min-w-0 flex-1 bg-background p-4 md:p-6 lg:p-8">
           <div className="w-full min-w-0">
             {children}
           </div>

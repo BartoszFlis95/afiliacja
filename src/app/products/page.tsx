@@ -56,7 +56,7 @@ export default async function PublicProductsPage({
         </div>
       </nav>
 
-      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <main id="main" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <header className="relative mb-8 overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-muted/40 via-background to-primary/10 p-8 sm:p-10">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
             Produkty

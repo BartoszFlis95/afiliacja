@@ -57,7 +57,11 @@ export default function AuthLayout({
       </div>
 
       {/* Right panel — form */}
-      <div className="flex flex-col items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 p-8">
+      <main
+        id="main"
+        tabIndex={-1}
+        className="flex flex-col items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 p-8"
+      >
         <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-8 shadow-xl">
           <Link href="/" className="mb-8 flex justify-center lg:hidden">
             <div className="relative">
@@ -76,7 +80,7 @@ export default function AuthLayout({
           </Link>
           {children}
         </div>
-      </div>
+      </main>
     </div>
   );
 }
