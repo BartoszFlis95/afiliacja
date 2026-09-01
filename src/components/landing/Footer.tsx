@@ -35,10 +35,10 @@ export function Footer() {
               <Image
                 src="/logo.png"
                 alt="Deneeu"
-                width={48}
-                height={48}
-                unoptimized
-                className="aspect-square h-12 w-12 rounded-lg object-contain"
+                width={2720}
+                height={1536}
+                sizes="200px"
+                className="h-10 w-auto rounded-lg object-contain"
               />
             </Link>
             <p className="mt-4 max-w-xs text-sm text-slate-400">

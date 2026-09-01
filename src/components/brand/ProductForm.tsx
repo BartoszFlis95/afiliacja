@@ -9,7 +9,7 @@ import { createProductAction, updateProductAction } from "@/actions/product.acti
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FormField } from "@/components/ui/form-field";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -95,128 +95,125 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
         <CardTitle>{mode === "edit" ? "Edytuj produkt" : "Nowy produkt"}</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="name">Nazwa *</Label>
-            <Input
-              id="name"
-              {...register("name")}
-              onChange={handleNameChange}
-              placeholder="Nazwa produktu"
-            />
-            {errors.name && (
-              <p className="text-sm text-destructive">{errors.name.message}</p>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+          <FormField label="Nazwa" required error={errors.name?.message}>
+            {(field) => (
+              <Input
+                {...field}
+                {...register("name")}
+                onChange={handleNameChange}
+                placeholder="Nazwa produktu"
+              />
             )}
-          </div>
+          </FormField>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Opis</Label>
-            <Textarea
-              id="description"
-              {...register("description")}
-              placeholder="Opis produktu (opcjonalny)"
-              rows={4}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="category">Kategoria *</Label>
-            <Input
-              id="category"
-              {...register("category")}
-              placeholder="np. Elektronika, Moda, Sport"
-            />
-            {errors.category && (
-              <p className="text-sm text-destructive">{errors.category.message}</p>
+          <FormField label="Opis" error={errors.description?.message}>
+            {(field) => (
+              <Textarea
+                {...field}
+                {...register("description")}
+                placeholder="Opis produktu (opcjonalny)"
+                rows={4}
+              />
             )}
+          </FormField>
+
+          <FormField label="Kategoria" required error={errors.category?.message}>
+            {(field) => (
+              <Input
+                {...field}
+                {...register("category")}
+                placeholder="np. Elektronika, Moda, Sport"
+              />
+            )}
+          </FormField>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormField label="Cena (PLN)" error={errors.price?.message}>
+              {(field) => (
+                <Input
+                  {...field}
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  {...register("price", { valueAsNumber: true })}
+                  placeholder="0.00"
+                />
+              )}
+            </FormField>
+
+            <FormField
+              label="Prowizja całkowita (%)"
+              required
+              hint="Łączna kwota płacona platformie deneeu.pl"
+              error={errors.commissionRate?.message}
+            >
+              {(field) => (
+                <Input
+                  {...field}
+                  type="number"
+                  step="0.1"
+                  min="0.1"
+                  max="100"
+                  {...register("commissionRate", { valueAsNumber: true })}
+                  placeholder="10"
+                />
+              )}
+            </FormField>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="price">Cena (PLN)</Label>
-              <Input
-                id="price"
-                type="number"
-                step="0.01"
-                min="0"
-                {...register("price", { valueAsNumber: true })}
-                placeholder="0.00"
-              />
-              {errors.price && (
-                <p className="text-sm text-destructive">{errors.price.message}</p>
+            <FormField
+              label="Dla influencera (%)"
+              required
+              hint="Musi być mniejsza lub równa prowizji całkowitej"
+              error={errors.influencerCommissionRate?.message}
+            >
+              {(field) => (
+                <Input
+                  {...field}
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                  {...register("influencerCommissionRate", { valueAsNumber: true })}
+                  placeholder="5"
+                />
               )}
-            </div>
+            </FormField>
 
+            {/* Pole wyliczane — nie da się go edytować, więc jest tekstem
+                z `aria-live`, a nie zablokowanym inputem: czytnik ekranu ogłasza
+                nową wartość, gdy zmieni się któraś z dwóch prowizji powyżej. */}
             <div className="space-y-2">
-              <Label htmlFor="commissionRate">Prowizja całkowita (%) *</Label>
-              <Input
-                id="commissionRate"
-                type="number"
-                step="0.1"
-                min="0.1"
-                max="100"
-                {...register("commissionRate", { valueAsNumber: true })}
-                placeholder="10"
-              />
-              <p className="text-xs text-muted-foreground">
-                Łączna kwota płacona platformie deneeu.pl
-              </p>
-              {errors.commissionRate && (
-                <p className="text-sm text-destructive">
-                  {errors.commissionRate.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="influencerCommissionRate">Dla influencera (%) *</Label>
-              <Input
-                id="influencerCommissionRate"
-                type="number"
-                step="0.1"
-                min="0"
-                max="100"
-                {...register("influencerCommissionRate", { valueAsNumber: true })}
-                placeholder="5"
-              />
-              <p className="text-xs text-muted-foreground">
-                Musi być mniejsza lub równa prowizji całkowitej
-              </p>
-              {errors.influencerCommissionRate && (
-                <p className="text-sm text-destructive">
-                  {errors.influencerCommissionRate.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Prowizja platformy (%)</Label>
-              <div className="flex h-10 items-center rounded-md border border-input bg-muted px-3 text-sm font-semibold text-foreground">
+              <p className="text-sm font-medium text-foreground">Prowizja platformy (%)</p>
+              <output
+                aria-live="polite"
+                className="flex h-10 items-center rounded-lg border border-input bg-muted px-3 text-sm font-semibold tabular-nums text-foreground"
+              >
                 {platformRate.toFixed(1).replace(/\.0$/, "")}%
-              </div>
+              </output>
               <p className="text-xs text-muted-foreground">
                 Automatycznie: całkowita − influencer
               </p>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="productUrl">Link do produktu w sklepie *</Label>
-            <Input
-              id="productUrl"
-              type="url"
-              {...register("productUrl")}
-              placeholder="https://twojsklep.pl/produkt/nazwa"
-            />
-            <p className="text-xs text-muted-foreground">
-              Klienci trafiają bezpośrednio na ten adres po kliknięciu linku afiliacyjnego.
-            </p>
-            {errors.productUrl && (
-              <p className="text-sm text-destructive">{errors.productUrl.message}</p>
+          <FormField
+            label="Link do produktu w sklepie"
+            required
+            hint="Klienci trafiają bezpośrednio na ten adres po kliknięciu linku afiliacyjnego."
+            error={errors.productUrl?.message}
+          >
+            {(field) => (
+              <Input
+                {...field}
+                type="url"
+                {...register("productUrl")}
+                placeholder="https://twojsklep.pl/produkt/nazwa"
+              />
             )}
-          </div>
+          </FormField>
 
           <div className="space-y-2">
             <ImageUpload
@@ -227,51 +224,52 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
             <input type="hidden" {...register("imageUrl")} />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="slug">Slug *</Label>
-            <Input
-              id="slug"
-              {...register("slug")}
-              placeholder="slug-produktu"
-            />
-            <p className="text-xs text-muted-foreground">
-              Używany w URL: /products/<strong>{watch("slug") || "slug"}</strong>
-            </p>
-            {errors.slug && (
-              <p className="text-sm text-destructive">{errors.slug.message}</p>
+          <FormField
+            label="Slug"
+            required
+            hint={
+              <>
+                Używany w URL: /products/<strong>{watch("slug") || "slug"}</strong>
+              </>
+            }
+            error={errors.slug?.message}
+          >
+            {(field) => (
+              <Input {...field} {...register("slug")} placeholder="slug-produktu" />
             )}
-          </div>
+          </FormField>
 
-          <div className="space-y-2">
-            <Label htmlFor="status">Status *</Label>
-            <Select
-              defaultValue={initialData?.status ?? "DRAFT"}
-              onValueChange={(val) =>
-                setValue("status", val as "DRAFT" | "ACTIVE" | "INACTIVE")
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Wybierz status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="DRAFT">Szkic</SelectItem>
-                <SelectItem value="ACTIVE">Aktywny</SelectItem>
-                <SelectItem value="INACTIVE">Nieaktywny</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.status && (
-              <p className="text-sm text-destructive">{errors.status.message}</p>
+          <FormField label="Status" required error={errors.status?.message}>
+            {(field) => (
+              <Select
+                defaultValue={initialData?.status ?? "DRAFT"}
+                onValueChange={(val) =>
+                  setValue("status", val as "DRAFT" | "ACTIVE" | "INACTIVE")
+                }
+              >
+                <SelectTrigger {...field}>
+                  <SelectValue placeholder="Wybierz status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="DRAFT">Szkic</SelectItem>
+                  <SelectItem value="ACTIVE">Aktywny</SelectItem>
+                  <SelectItem value="INACTIVE">Nieaktywny</SelectItem>
+                </SelectContent>
+              </Select>
             )}
-          </div>
+          </FormField>
 
           {error && (
-            <p className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-md">
+            <p
+              role="alert"
+              className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            >
               {error}
             </p>
           )}
 
           <div className="flex gap-3">
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" loading={isPending}>
               {isPending
                 ? mode === "edit"
                   ? "Zapisywanie..."

@@ -55,7 +55,7 @@ export function ToggleProductButton({
     <Button
       variant={isActive ? "destructive" : "default"}
       size="sm"
-      disabled={isPending}
+      loading={isPending}
       onClick={handleClick}
     >
       {isPending ? "..." : isActive ? "Dezaktywuj" : "Aktywuj"}

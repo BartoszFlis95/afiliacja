@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
   darkMode: ["class"],
@@ -20,7 +21,6 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        serif: ["var(--font-playfair)", "serif"],
       },
       boxShadow: {
         premium: "var(--shadow-premium)",
@@ -87,7 +87,30 @@ const config: Config = {
       },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [
+    tailwindcssAnimate,
+    // Tailwind v4 ships `aria-invalid:` out of the box; v3.4's built-in aria
+    // variants stop at aria-checked/disabled/expanded/hidden/pressed/readonly/
+    // required/selected. Every `aria-invalid:*` class in ui/ compiled to
+    // nothing until this was registered — form fields had no error styling.
+    plugin(({ addVariant, addUtilities }) => {
+      addVariant("aria-invalid", '&[aria-invalid="true"]');
+      addVariant("group-aria-invalid", ':merge(.group)[aria-invalid="true"] &');
+      addVariant("peer-aria-invalid", ':merge(.peer)[aria-invalid="true"] ~ &');
+
+      addUtilities({
+        // v4-only utility, used by Textarea for auto-growing height.
+        ".field-sizing-content": { "field-sizing": "content" },
+        ".field-sizing-fixed": { "field-sizing": "fixed" },
+        // Used by SidebarContent; never existed as a Tailwind utility.
+        ".no-scrollbar": {
+          "-ms-overflow-style": "none",
+          "scrollbar-width": "none",
+          "&::-webkit-scrollbar": { display: "none" },
+        },
+      });
+    }),
+  ],
 };
 
 export default config;

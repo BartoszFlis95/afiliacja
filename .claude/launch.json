@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "// ": "Bez runtimeExecutable — ta konfiguracja PODPINA SIĘ do serwera już działającego na :3000 (npm run dev uruchomionego ręcznie), zamiast startować drugi. Port 3000 zostaje, bo linki weryfikacyjne e-mail i callbacki OAuth generują się z origin żądania.",
+      "name": "afiliacja-dev",
+      "url": "http://localhost:3000",
+      "port": 3000
+    }
+  ]
+}

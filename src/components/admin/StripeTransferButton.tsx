@@ -54,7 +54,7 @@ export function StripeTransferButton({
   }
 
   return (
-    <Button size="sm" onClick={handleTransfer} disabled={isPending}>
+    <Button size="sm" onClick={handleTransfer} loading={isPending}>
       {isPending ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       ) : (

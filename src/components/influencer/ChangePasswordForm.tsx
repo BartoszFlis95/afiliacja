@@ -100,7 +100,7 @@ export function ChangePasswordForm() {
 
           <Button
             type="submit"
-            disabled={isPending}
+            loading={isPending}
             className="w-full md:w-auto bg-slate-900 text-white hover:bg-slate-700"
           >
             {isPending ? "Zmienianie…" : "Zmień hasło"}

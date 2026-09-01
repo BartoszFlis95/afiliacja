@@ -175,7 +175,7 @@ export function BrandCommissionsClient({
                 {tab === "PENDING" && selected.size > 0 ? (
                   <Button
                     size="sm"
-                    disabled={isPending}
+                    loading={isPending}
                     onClick={() => handleBulkApprove(Array.from(selected))}
                   >
                     Zatwierdź zaznaczone ({selected.size})
@@ -250,7 +250,7 @@ export function BrandCommissionsClient({
                               <div className="flex justify-end gap-2">
                                 <Button
                                   size="sm"
-                                  disabled={isPending}
+                                  loading={isPending}
                                   onClick={() => handleAction(approveCommissionAction, c.id)}
                                 >
                                   Zatwierdź
@@ -258,7 +258,7 @@ export function BrandCommissionsClient({
                                 <Button
                                   size="sm"
                                   variant="destructive"
-                                  disabled={isPending}
+                                  loading={isPending}
                                   onClick={() => handleAction(rejectCommissionAction, c.id)}
                                 >
                                   Odrzuć

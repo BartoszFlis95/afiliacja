@@ -24,7 +24,7 @@ export function GenerateLinkButton({ productId }: { productId: string }) {
   }
 
   return (
-    <Button size="sm" className="w-full" disabled={isPending} onClick={handleClick}>
+    <Button size="sm" className="w-full" loading={isPending} onClick={handleClick}>
       {isPending ? "Generowanie..." : "Generuj link"}
     </Button>
   );

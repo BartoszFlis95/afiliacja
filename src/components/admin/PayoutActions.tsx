@@ -41,7 +41,7 @@ export function PayoutActions({
       {status === "PENDING" && (
         <Button
           size="sm"
-          disabled={isPending}
+          loading={isPending}
           onClick={() => run(adminApprovePayoutAction)}
         >
           Zatwierdź wypłatę
@@ -50,7 +50,7 @@ export function PayoutActions({
       {status === "PROCESSING" && (
         <Button
           size="sm"
-          disabled={isPending}
+          loading={isPending}
           onClick={() => run(adminMarkPayoutPaidAction)}
         >
           Oznacz jako wypłacone

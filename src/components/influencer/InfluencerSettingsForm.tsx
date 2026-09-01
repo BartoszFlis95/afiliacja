@@ -137,12 +137,16 @@ export function SettingsForm({ profile }: { profile: InfluencerProfileValues }) 
             </div>
           </div>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && (
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
+          )}
           {saved && <p className="text-sm text-green-600">Zapisano zmiany.</p>}
 
           <Button
             type="submit"
-            disabled={isPending}
+            loading={isPending}
             className="w-full md:w-auto"
           >
             {isPending ? "Zapisywanie..." : "Zapisz zmiany"}

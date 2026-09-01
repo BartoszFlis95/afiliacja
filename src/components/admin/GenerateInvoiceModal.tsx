@@ -227,7 +227,7 @@ export function GenerateInvoiceModal({ brands }: Props) {
               <Button variant="outline" onClick={() => setOpen(false)}>Anuluj</Button>
               <Button
                 onClick={handlePreview}
-                disabled={isPending}
+                loading={isPending}
                 className="bg-slate-900 text-white hover:bg-slate-700"
               >
                 {isPending ? "Obliczanie…" : "Podgląd faktury →"}
@@ -286,7 +286,7 @@ export function GenerateInvoiceModal({ brands }: Props) {
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={isPending}
+                loading={isPending}
                 className="bg-slate-900 text-white hover:bg-slate-700"
               >
                 {isPending ? "Wystawianie…" : "Wystaw fakturę"}

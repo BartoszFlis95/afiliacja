@@ -101,7 +101,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
         )}
 
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-sm font-medium text-slate-700">
+          <Label htmlFor="password">
             Nowe hasło
           </Label>
           <Input
@@ -117,7 +117,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">
+          <Label htmlFor="confirmPassword">
             Powtórz nowe hasło
           </Label>
           <Input
@@ -132,7 +132,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           )}
         </div>
 
-        <Button type="submit" disabled={isPending} className="w-full mt-2">
+        <Button type="submit" loading={isPending} className="w-full mt-2">
           {isPending ? "Zapisywanie…" : "Zmień hasło"}
         </Button>
       </form>

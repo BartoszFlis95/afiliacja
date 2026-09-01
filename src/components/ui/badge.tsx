@@ -5,13 +5,13 @@ import { Slot } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 [&>svg]:pointer-events-none [&>svg]:size-3",
+  "inline-flex items-center justify-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background [&>svg]:pointer-events-none [&>svg]:size-3",
   {
     variants: {
       variant: {
         default:     "bg-primary/10 text-primary",
         secondary:   "bg-secondary text-secondary-foreground",
-        destructive: "bg-red-100 text-red-700",
+        destructive: "bg-destructive/10 text-destructive",
         outline:     "border border-input bg-transparent text-foreground",
         success:     "bg-emerald-100 text-emerald-700",
         warning:     "bg-amber-100 text-amber-700",

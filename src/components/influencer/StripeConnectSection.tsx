@@ -107,7 +107,7 @@ export function StripeConnectSection({ initialStatus, autoRefresh = false }: Pro
           </ul>
           <Button
             onClick={handleConnect}
-            disabled={isPending}
+            loading={isPending}
             className="bg-slate-900 hover:bg-slate-700"
           >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -132,7 +132,7 @@ export function StripeConnectSection({ initialStatus, autoRefresh = false }: Pro
             Twoje konto Stripe jest weryfikowane. Może to potrwać 1-2 dni robocze.
           </p>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={handleRefreshStatus} disabled={isPending}>
+            <Button variant="outline" onClick={handleRefreshStatus} loading={isPending}>
               {isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
@@ -140,7 +140,7 @@ export function StripeConnectSection({ initialStatus, autoRefresh = false }: Pro
               )}
               Sprawdź status
             </Button>
-            <Button variant="outline" onClick={handleConnect} disabled={isPending}>
+            <Button variant="outline" onClick={handleConnect} loading={isPending}>
               <ExternalLink className="mr-2 h-4 w-4" /> Dokończ weryfikację
             </Button>
           </div>
@@ -164,7 +164,7 @@ export function StripeConnectSection({ initialStatus, autoRefresh = false }: Pro
           </p>
           <Button
             onClick={handleConnect}
-            disabled={isPending}
+            loading={isPending}
             className="bg-slate-900 hover:bg-slate-700"
           >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -188,7 +188,7 @@ export function StripeConnectSection({ initialStatus, autoRefresh = false }: Pro
           Twoje konto Stripe jest aktywne. Wypłaty będą realizowane automatycznie po
           zatwierdzeniu przez admina.
         </p>
-        <Button variant="outline" onClick={handleOpenDashboard} disabled={isPending}>
+        <Button variant="outline" onClick={handleOpenDashboard} loading={isPending}>
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           <ExternalLink className="mr-2 h-4 w-4" /> Otwórz Stripe Dashboard
         </Button>

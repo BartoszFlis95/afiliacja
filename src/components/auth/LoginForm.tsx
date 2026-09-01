@@ -104,7 +104,7 @@ export function LoginForm({ passwordResetDone = false }: { passwordResetDone?: b
         )}
 
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-sm font-medium text-slate-700">
+          <Label htmlFor="email">
             Email
           </Label>
           <Input
@@ -119,7 +119,7 @@ export function LoginForm({ passwordResetDone = false }: { passwordResetDone?: b
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-sm font-medium text-slate-700">
+          <Label htmlFor="password">
             Hasło
           </Label>
           <Input
@@ -141,7 +141,7 @@ export function LoginForm({ passwordResetDone = false }: { passwordResetDone?: b
           </p>
         </div>
 
-        <Button type="submit" disabled={isPending} className="w-full mt-2">
+        <Button type="submit" loading={isPending} className="w-full mt-2">
           {isPending ? "Logowanie…" : "Zaloguj się"}
         </Button>
       </form>

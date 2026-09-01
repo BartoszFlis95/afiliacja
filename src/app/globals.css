@@ -59,9 +59,8 @@
     --sidebar-width: 280px;
     --sidebar-width-mobile: 280px;
 
-    /* Premium feel — subtle shadow/border tokens used across cards & panels */
+    /* Subtelny cień używany przez karty i panele. */
     --shadow-premium: 0 4px 24px rgba(0, 0, 0, 0.06);
-    --border-premium: 1px solid rgba(0, 0, 0, 0.06);
   }
 }
 
@@ -78,57 +77,44 @@
     font-family: var(--font-inter), sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
-    line-height: 1.3;
+    line-height: 1.25;
+    letter-spacing: -0.011em;
   }
+
+  /* Pierścień focusu odsunięty od `--background`, a nie od zahardkodowanej
+     bieli. Na granatowym sidebarze i ciemnej sekcji CTA biały offset robił
+     jasną obwódkę wokół elementu zamiast wtopić się w tło. */
   *:focus-visible {
-    @apply outline-none ring-2 ring-blue-500 ring-offset-2 ring-offset-white;
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
+
+  /* Ciemne powierzchnie (sidebar, CTA) oznaczają się `data-surface="dark"`
+     i przestawiają offset oraz kolor pierścienia na własne tło. */
+  [data-surface="dark"] *:focus-visible,
+  [data-surface="dark"]:focus-visible {
+    @apply ring-sidebar-ring ring-offset-sidebar;
+  }
+
   ::selection {
-    @apply bg-blue-500 text-white;
+    @apply bg-primary text-primary-foreground;
+  }
+
+  /* Szanuj systemowe ograniczenie animacji — na tej stronie sporo jest
+     wejść z framer-motion i animate-in. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
 @layer utilities {
   .shadow-premium {
     box-shadow: var(--shadow-premium);
-  }
-  .border-premium {
-    border: var(--border-premium);
-  }
-}
-
-/* Premium primitives — użyte dosłownie tam, gdzie potrzebny jest ten
-   dokładny cień/border/hover, niezależnie od Tailwind utility classes. */
-@layer components {
-  .card-premium {
-    background: white;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    border-radius: 16px;
-    box-shadow:
-      0 1px 3px rgba(0, 0, 0, 0.04),
-      0 4px 12px rgba(0, 0, 0, 0.04);
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
-  }
-
-  .card-premium:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    transform: translateY(-1px);
-  }
-
-  .btn-premium {
-    background: #3b82f6;
-    color: white;
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.15s ease;
-    box-shadow: 0 1px 2px rgba(59, 130, 246, 0.3);
-  }
-
-  .btn-premium:hover {
-    background: #2563eb;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-    transform: translateY(-1px);
   }
 }

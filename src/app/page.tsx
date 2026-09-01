@@ -139,26 +139,21 @@ export default async function LandingPage() {
       {/* Hero */}
       <section className="scroll-mt-24 bg-gradient-to-br from-slate-50 via-white to-blue-50/60 px-4 pt-24 pb-12 sm:px-6 sm:pt-28 sm:pb-16 lg:px-8 lg:pt-32 lg:pb-20">
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 sm:gap-12 lg:grid-cols-2 lg:gap-16">
-          {/* Logo dominujące — na mobile wyśrodkowane nad tekstem (grid
-              zwija się do jednej kolumny), na lg: lewa kolumna obok tekstu. */}
+          {/* Na mobile logo schodzi POD tekst (order-2). Wcześniej stało nad
+              nagłówkiem w rozmiarze 90vw i samo zajmowało cały pierwszy ekran —
+              propozycja wartości i CTA lądowały poniżej zgięcia. Od lg: wraca
+              na swoje miejsce w lewej kolumnie. */}
           <Image
             src="/logo.png"
             alt="Deneeu"
-            width={540}
-            height={540}
-            className="
-              object-contain
-              drop-shadow-2xl
-              w-[270px] h-[270px]
-              sm:w-[405px] sm:h-[405px]
-              lg:w-[540px] lg:h-[540px]
-              mx-auto
-            "
+            width={2720}
+            height={1536}
+            sizes="(min-width: 1024px) 640px, (min-width: 640px) 420px, 80vw"
+            className="order-2 mx-auto h-auto w-full max-w-[280px] rounded-2xl object-contain drop-shadow-2xl sm:max-w-[420px] lg:order-1 lg:max-w-[640px]"
             priority
-            unoptimized
           />
 
-          <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+          <div className="order-1 flex flex-col items-center text-center lg:order-2 lg:items-start lg:text-left">
             <span className="inline-flex rounded-full bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700">
               🚀 Platforma CPS dla marek i influencerów
             </span>
@@ -167,7 +162,7 @@ export default async function LandingPage() {
               Łączymy marki z influencerami przez marketing afiliacyjny
             </h1>
 
-            <p className="mt-4 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-xl font-semibold text-transparent sm:text-2xl lg:text-3xl">
+            <p className="mt-4 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-xl font-semibold text-transparent sm:text-2xl lg:text-3xl">
               Automatyzuj prowizje, śledzenie konwersji i wypłaty
             </p>
 

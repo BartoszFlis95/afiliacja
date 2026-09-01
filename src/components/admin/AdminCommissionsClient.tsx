@@ -240,7 +240,7 @@ export function AdminCommissionsClient({
                       <div className="flex justify-end gap-2">
                         <Button
                           size="sm"
-                          disabled={isPending}
+                          loading={isPending}
                           onClick={() => handleAction(adminApproveCommissionAction, c.id)}
                         >
                           {c.isSuspicious ? "Zatwierdź mimo to" : "Zatwierdź"}
@@ -248,7 +248,7 @@ export function AdminCommissionsClient({
                         <Button
                           size="sm"
                           variant="destructive"
-                          disabled={isPending}
+                          loading={isPending}
                           onClick={() => handleAction(adminRejectCommissionAction, c.id)}
                         >
                           Odrzuć

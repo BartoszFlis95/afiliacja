@@ -18,10 +18,10 @@ export default function AuthLayout({
           <Image
             src="/logo.png"
             alt="Deneeu"
-            width={40}
-            height={40}
-            unoptimized
-            className="aspect-square h-10 w-10 rounded-lg object-contain"
+            width={2720}
+            height={1536}
+            sizes="150px"
+            className="h-8 w-auto rounded-lg object-contain"
             priority
           />
         </Link>
@@ -63,14 +63,14 @@ export default function AuthLayout({
               <Image
                 src="/logo.png"
                 alt="Deneeu"
-                width={120}
-                height={120}
-                unoptimized
-                className="aspect-square h-24 w-24 rounded-2xl object-contain sm:h-[120px] sm:w-[120px]"
+                width={2720}
+                height={1536}
+                sizes="(min-width: 640px) 320px, 260px"
+                className="h-14 w-auto rounded-xl object-contain sm:h-[72px]"
                 priority
               />
               {/* Delikatny cień "pod spodem" logo, nie zwykły box-shadow */}
-              <div className="absolute inset-x-6 -bottom-2 h-3 rounded-full bg-blue-900/20 blur-md" />
+              <div className="absolute inset-x-8 -bottom-2 h-3 rounded-full bg-primary/20 blur-md" />
             </div>
           </Link>
           {children}

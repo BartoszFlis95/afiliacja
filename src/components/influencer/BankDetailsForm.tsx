@@ -7,7 +7,7 @@ import { updateBankDetailsAction, type BankDetailsData } from "@/actions/influen
 import { BankDetailsSchema } from "@/lib/validations/bank.schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FormField } from "@/components/ui/form-field";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -118,12 +118,15 @@ export function BankDetailsForm({ initial }: Props) {
               <button
                 key={m}
                 type="button"
+                role="radio"
+                aria-checked={mode === m}
                 onClick={() => setMode(m)}
                 className={cn(
-                  "flex-1 rounded-md py-1.5 text-xs sm:text-sm font-medium transition-colors",
+                  "flex-1 rounded-md py-1.5 text-xs font-medium transition-colors sm:text-sm",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   mode === m
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {m === "bank" ? "Przelew bankowy" : "PayPal"}
@@ -133,115 +136,129 @@ export function BankDetailsForm({ initial }: Props) {
 
           {mode === "bank" ? (
             <div className="space-y-4">
-              <div className="space-y-1.5">
-                <Label>Właściciel konta</Label>
-                <Input
-                  value={bankAccountName}
-                  onChange={(e) => setBankAccountName(e.target.value)}
-                  placeholder="Jan Kowalski"
-                  disabled={isPending}
-                />
-                {errors.bankAccountName && (
-                  <p className="text-xs text-destructive">{errors.bankAccountName}</p>
+              <FormField label="Właściciel konta" error={errors.bankAccountName}>
+                {(field) => (
+                  <Input
+                    {...field}
+                    value={bankAccountName}
+                    onChange={(e) => setBankAccountName(e.target.value)}
+                    placeholder="Jan Kowalski"
+                    disabled={isPending}
+                  />
                 )}
-              </div>
+              </FormField>
 
-              <div className="space-y-1.5">
-                <Label>IBAN</Label>
-                <Input
-                  value={bankAccountIban}
-                  onChange={(e) => handleIbanChange(e.target.value)}
-                  placeholder="PL00 0000 0000 0000 0000 0000 00"
-                  disabled={isPending}
-                  className="font-mono text-sm w-full tracking-wider md:tracking-widest"
-                />
-                {errors.bankAccountIban && (
-                  <p className="text-xs text-destructive">{errors.bankAccountIban}</p>
+              <FormField label="IBAN" error={errors.bankAccountIban}>
+                {(field) => (
+                  <Input
+                    {...field}
+                    value={bankAccountIban}
+                    onChange={(e) => handleIbanChange(e.target.value)}
+                    placeholder="PL00 0000 0000 0000 0000 0000 00"
+                    disabled={isPending}
+                    inputMode="text"
+                    autoComplete="off"
+                    className="w-full font-mono text-sm tracking-wider md:tracking-widest"
+                  />
                 )}
-              </div>
+              </FormField>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label>Nazwa banku</Label>
-                  <Input
-                    value={bankAccountBank}
-                    onChange={(e) => setBankAccountBank(e.target.value)}
-                    placeholder="PKO Bank Polski"
-                    disabled={isPending}
-                  />
-                  {errors.bankAccountBank && (
-                    <p className="text-xs text-destructive">{errors.bankAccountBank}</p>
+                <FormField label="Nazwa banku" error={errors.bankAccountBank}>
+                  {(field) => (
+                    <Input
+                      {...field}
+                      value={bankAccountBank}
+                      onChange={(e) => setBankAccountBank(e.target.value)}
+                      placeholder="PKO Bank Polski"
+                      disabled={isPending}
+                    />
                   )}
-                </div>
-                <div className="space-y-1.5">
-                  <Label>SWIFT / BIC (opcjonalnie)</Label>
-                  <Input
-                    value={bankSwift}
-                    onChange={(e) => setBankSwift(e.target.value.toUpperCase())}
-                    placeholder="PKOPPLPW"
-                    disabled={isPending}
-                  />
-                </div>
+                </FormField>
+
+                <FormField label="SWIFT / BIC" hint="Opcjonalne">
+                  {(field) => (
+                    <Input
+                      {...field}
+                      value={bankSwift}
+                      onChange={(e) => setBankSwift(e.target.value.toUpperCase())}
+                      placeholder="PKOPPLPW"
+                      disabled={isPending}
+                      autoComplete="off"
+                    />
+                  )}
+                </FormField>
               </div>
             </div>
           ) : (
-            <div className="space-y-1.5">
-              <Label>Email PayPal</Label>
-              <Input
-                type="email"
-                value={paypalEmail}
-                onChange={(e) => setPaypalEmail(e.target.value)}
-                placeholder="twoj@paypal.com"
-                disabled={isPending}
-              />
-              {errors.paypalEmail && (
-                <p className="text-xs text-destructive">{errors.paypalEmail}</p>
+            <FormField label="Email PayPal" error={errors.paypalEmail}>
+              {(field) => (
+                <Input
+                  {...field}
+                  type="email"
+                  inputMode="email"
+                  value={paypalEmail}
+                  onChange={(e) => setPaypalEmail(e.target.value)}
+                  placeholder="twoj@paypal.com"
+                  disabled={isPending}
+                />
               )}
-            </div>
+            </FormField>
           )}
 
           {/* Minimalna kwota wypłaty — stała platformowa, patrz MINIMUM_PAYOUT
               w src/actions/commission.actions.ts */}
-          <div className="rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm text-blue-700">
+          <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm text-foreground">
             ℹ️ Minimalna kwota wypłaty na platformie Deneeu wynosi 50 zł. Nie ma
             górnego limitu wypłaty.
           </div>
 
-          {/* Optional personal details */}
+          {/* Dane kontaktowe — opcjonalne */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div className="space-y-1.5">
-              <Label>Telefon</Label>
-              <Input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+48 600 000 000"
-                disabled={isPending}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Miasto</Label>
-              <Input
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                placeholder="Warszawa"
-                disabled={isPending}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Kraj</Label>
-              <Input
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                placeholder="Polska"
-                disabled={isPending}
-              />
-            </div>
+            <FormField label="Telefon">
+              {(field) => (
+                <Input
+                  {...field}
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+48 600 000 000"
+                  disabled={isPending}
+                />
+              )}
+            </FormField>
+            <FormField label="Miasto">
+              {(field) => (
+                <Input
+                  {...field}
+                  autoComplete="address-level2"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Warszawa"
+                  disabled={isPending}
+                />
+              )}
+            </FormField>
+            <FormField label="Kraj">
+              {(field) => (
+                <Input
+                  {...field}
+                  autoComplete="country-name"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  placeholder="Polska"
+                  disabled={isPending}
+                />
+              )}
+            </FormField>
           </div>
 
           <Button
             type="submit"
-            disabled={isPending}
-            className="w-full md:w-auto bg-slate-900 text-white hover:bg-slate-700"
+            loading={isPending}
+            className="w-full md:w-auto"
           >
             {isPending ? "Zapisywanie…" : "Zapisz dane bankowe"}
           </Button>

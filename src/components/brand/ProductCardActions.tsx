@@ -48,13 +48,13 @@ export function ProductCardActions({
       <Button asChild variant="outline" size="sm">
         <Link href={`/brand/products/${productId}`}>Edytuj</Link>
       </Button>
-      <Button variant="outline" size="sm" disabled={isPending} onClick={handleToggle}>
+      <Button variant="outline" size="sm" loading={isPending} onClick={handleToggle}>
         {isActive ? "Dezaktywuj" : "Aktywuj"}
       </Button>
       <Button
         variant="outline"
         size="sm"
-        disabled={isPending}
+        loading={isPending}
         onClick={handleDelete}
         className="text-red-600 hover:bg-red-50"
       >

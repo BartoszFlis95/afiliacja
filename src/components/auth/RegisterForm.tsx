@@ -108,7 +108,7 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
 
         {/* Typ konta */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium text-slate-700">Typ konta</Label>
+          <Label>Typ konta</Label>
           <div className="grid grid-cols-2 gap-3">
             {ROLE_OPTIONS.map((option) => {
               const Icon = option.icon;
@@ -146,7 +146,7 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
         {/* Kod zaproszenia — wymagany tylko dla kont typu Marka */}
         {role === "BRAND" && (
           <div className="space-y-1.5">
-            <Label htmlFor="inviteCode" className="text-sm font-medium text-slate-700">
+            <Label htmlFor="inviteCode">
               Kod zaproszenia
             </Label>
             <Input
@@ -169,7 +169,7 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
 
         {/* Email */}
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-sm font-medium text-slate-700">
+          <Label htmlFor="email">
             Email
           </Label>
           <Input
@@ -187,7 +187,7 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
 
         {/* Hasło */}
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-sm font-medium text-slate-700">
+          <Label htmlFor="password">
             Hasło
           </Label>
           <Input
@@ -204,7 +204,7 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
 
         {/* Powtórz hasło */}
         <div className="space-y-1.5">
-          <Label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">
+          <Label htmlFor="confirmPassword">
             Powtórz hasło
           </Label>
           <Input
@@ -228,7 +228,7 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
           </p>
         )}
 
-        <Button type="submit" className="w-full" disabled={isPending}>
+        <Button type="submit" className="w-full" loading={isPending}>
           {isPending ? "Tworzenie konta..." : "Zarejestruj się"}
         </Button>
       </form>

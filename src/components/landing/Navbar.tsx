@@ -29,15 +29,18 @@ export function Navbar() {
     <header className="fixed top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-6 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center">
-          {/* h-10/w-10 na mobile, rośnie do docelowych 56x56 od sm: — inaczej
-              logo nachodziłoby na przycisk menu w wąskim pasku h-16. */}
+          {/* logo.png to poziomy lockup 2720x1536 (znak + wordmark na wypalonym
+              ciemnym tle), a nie kwadratowy znak. Wymuszanie `aspect-square`
+              wpisywało pasek 16:9 w kwadrat i zostawiało czarne pola po bokach.
+              Renderujemy w naturalnych proporcjach; `rounded-*` przycina
+              krawędzie wypalonego tła. */}
           <Image
             src="/logo.png"
             alt="Deneeu"
-            width={56}
-            height={56}
-            unoptimized
-            className="aspect-square h-10 w-10 rounded-xl object-contain shadow-sm sm:h-14 sm:w-14"
+            width={2720}
+            height={1536}
+            sizes="(min-width: 640px) 200px, 150px"
+            className="h-8 w-auto rounded-lg object-contain shadow-sm sm:h-10"
             priority
           />
         </Link>
@@ -85,10 +88,10 @@ export function Navbar() {
                   <Image
                     src="/logo.png"
                     alt="Deneeu"
-                    width={40}
-                    height={40}
-                    unoptimized
-                    className="aspect-square h-10 w-10 rounded-xl object-contain shadow-sm"
+                    width={2720}
+                    height={1536}
+                    sizes="150px"
+                    className="h-8 w-auto rounded-lg object-contain shadow-sm"
                   />
                 </SheetTitle>
               </SheetHeader>

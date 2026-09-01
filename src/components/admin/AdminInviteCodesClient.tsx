@@ -79,7 +79,7 @@ export function AdminInviteCodesClient({ codes }: { codes: InviteCodeRow[] }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-slate-500">{rows.length.toLocaleString("pl-PL")} kodów</p>
-        <Button size="sm" onClick={handleGenerate} disabled={isPending}>
+        <Button size="sm" onClick={handleGenerate} loading={isPending}>
           Wygeneruj kod
         </Button>
       </div>
@@ -137,7 +137,7 @@ export function AdminInviteCodesClient({ codes }: { codes: InviteCodeRow[] }) {
                         <Button
                           variant="outline"
                           size="sm"
-                          disabled={isPending}
+                          loading={isPending}
                           onClick={() => handleToggle(row.id)}
                         >
                           {row.isActive ? "Wyłącz" : "Włącz"}

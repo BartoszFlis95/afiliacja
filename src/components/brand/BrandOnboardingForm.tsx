@@ -8,7 +8,7 @@ import { z } from "zod";
 import { createBrandProfileAction } from "@/actions/brand.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FormField } from "@/components/ui/form-field";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -55,57 +55,60 @@ export function BrandOnboardingForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="companyName">Nazwa firmy *</Label>
-            <Input
-              id="companyName"
-              {...register("companyName")}
-              placeholder="Nazwa Twojej firmy"
-            />
-            {errors.companyName && (
-              <p className="text-sm text-destructive">{errors.companyName.message}</p>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+          <FormField label="Nazwa firmy" required error={errors.companyName?.message}>
+            {(field) => (
+              <Input
+                {...field}
+                {...register("companyName")}
+                placeholder="Nazwa Twojej firmy"
+              />
             )}
-          </div>
+          </FormField>
 
-          <div className="space-y-2">
-            <Label htmlFor="industry">Branża</Label>
-            <Input
-              id="industry"
-              {...register("industry")}
-              placeholder="np. Moda, Elektronika, Sport"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="website">Strona internetowa</Label>
-            <Input
-              id="website"
-              {...register("website")}
-              placeholder="https://twojafirma.pl"
-            />
-            {errors.website && (
-              <p className="text-sm text-destructive">{errors.website.message}</p>
+          <FormField label="Branża" error={errors.industry?.message}>
+            {(field) => (
+              <Input
+                {...field}
+                {...register("industry")}
+                placeholder="np. Moda, Elektronika, Sport"
+              />
             )}
-          </div>
+          </FormField>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Opis firmy</Label>
-            <Textarea
-              id="description"
-              {...register("description")}
-              placeholder="Krótki opis Twojej marki..."
-              rows={3}
-            />
-          </div>
+          <FormField label="Strona internetowa" error={errors.website?.message}>
+            {(field) => (
+              <Input
+                {...field}
+                type="url"
+                inputMode="url"
+                {...register("website")}
+                placeholder="https://twojafirma.pl"
+              />
+            )}
+          </FormField>
+
+          <FormField label="Opis firmy" error={errors.description?.message}>
+            {(field) => (
+              <Textarea
+                {...field}
+                {...register("description")}
+                placeholder="Krótki opis Twojej marki..."
+                rows={3}
+              />
+            )}
+          </FormField>
 
           {error && (
-            <p className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-md">
+            <p
+              role="alert"
+              className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            >
               {error}
             </p>
           )}
 
-          <Button type="submit" className="w-full" disabled={isPending}>
+          <Button type="submit" className="w-full" loading={isPending}>
             {isPending ? "Tworzenie profilu..." : "Utwórz profil i przejdź dalej"}
           </Button>
         </form>
