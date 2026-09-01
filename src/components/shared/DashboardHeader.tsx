@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell } from "lucide-react";
+import { Bell, Search } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { openCommandPalette } from "@/components/shared/CommandPalette";
 
 type Role = "BRAND" | "INFLUENCER" | "ADMIN";
 
@@ -70,12 +71,12 @@ export function DashboardHeader({ email, role }: DashboardHeaderProps) {
   const normalizedRole = role as Role;
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-zinc-100 bg-white px-4 shadow-sm">
+    <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b border-slate-200 bg-white px-4 shadow-sm">
       <SidebarTrigger
         size="icon-lg"
-        className="-ml-1 text-zinc-500 hover:text-zinc-900"
+        className="-ml-1 rounded-lg p-1.5 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
       />
-      <Separator orientation="vertical" className="mr-1 h-5" />
+      <Separator orientation="vertical" className="mr-1 h-5 bg-slate-200" />
 
       <Breadcrumb>
         <BreadcrumbList>
@@ -86,18 +87,18 @@ export function DashboardHeader({ email, role }: DashboardHeaderProps) {
               <React.Fragment key={href}>
                 <BreadcrumbItem>
                   {isLast ? (
-                    <BreadcrumbPage className="text-base font-semibold text-zinc-900">
+                    <BreadcrumbPage className="text-base font-semibold text-slate-900">
                       {labelFor(segment)}
                     </BreadcrumbPage>
                   ) : (
-                    <BreadcrumbLink asChild className="text-zinc-400 hover:text-zinc-900">
+                    <BreadcrumbLink asChild className="text-slate-400 hover:text-slate-600">
                       <Link href={href}>{labelFor(segment)}</Link>
                     </BreadcrumbLink>
                   )}
                 </BreadcrumbItem>
                 {!isLast && (
                   <BreadcrumbSeparator>
-                    <span className="text-zinc-300">/</span>
+                    <span className="text-slate-300">/</span>
                   </BreadcrumbSeparator>
                 )}
               </React.Fragment>
@@ -106,30 +107,40 @@ export function DashboardHeader({ email, role }: DashboardHeaderProps) {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="ml-auto flex items-center gap-4">
+      <div className="ml-auto flex items-center gap-2">
+        <button
+          type="button"
+          onClick={openCommandPalette}
+          className="hidden items-center gap-2 rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-400 transition-colors hover:border-slate-300 md:flex"
+        >
+          <Search className="h-3 w-3" />
+          Szukaj...
+          <kbd className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px]">⌘K</kbd>
+        </button>
+
         <Badge
           variant="outline"
-          className="hidden border-zinc-200 bg-zinc-50 text-zinc-600 sm:inline-flex"
+          className="hidden border-slate-200 bg-slate-50 text-slate-600 sm:inline-flex"
         >
           {roleLabels[normalizedRole] ?? role}
         </Badge>
 
         <Link
           href={NOTIFICATIONS_HREF[normalizedRole] ?? "#"}
-          className="relative flex h-9 w-9 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
+          className="relative flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
           aria-label="Powiadomienia"
         >
           <Bell className="h-[18px] w-[18px]" />
           <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-red-500 ring-2 ring-white" />
         </Link>
 
-        <div className="flex items-center gap-2.5">
-          <Avatar className="h-[34px] w-[34px] ring-2 ring-zinc-100">
-            <AvatarFallback className="bg-zinc-900 text-xs font-semibold text-white">
+        <div className="flex items-center gap-2.5 border-l border-slate-200 pl-2">
+          <Avatar className="h-[34px] w-[34px] ring-2 ring-blue-100">
+            <AvatarFallback className="bg-blue-500 text-xs font-bold text-white">
               {initials(email)}
             </AvatarFallback>
           </Avatar>
-          <span className="hidden max-w-[9rem] truncate text-sm font-medium text-zinc-700 md:inline">
+          <span className="hidden max-w-[9rem] truncate text-sm font-medium text-slate-700 md:inline">
             {email.split("@")[0]}
           </span>
         </div>

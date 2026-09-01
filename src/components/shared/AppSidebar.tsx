@@ -137,9 +137,9 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
           nieprzezroczyste szare tło i "invert" zniekształciłby jego
           niebieskie gradienty na sidebarze. Subtelny glow pod spodem
           odwołuje się do niebieskiego akcentu marki bez zmiany tła sidebaru. */}
-      <SidebarHeader className="border-b border-zinc-800 px-4 py-4">
+      <SidebarHeader className="border-b border-slate-800 px-4 py-4">
         <Link href="/" className="flex items-center justify-center">
-          <div className="relative inline-block rounded-xl bg-gradient-to-br from-white to-zinc-100 p-2 shadow-[0_0_28px_rgba(59,130,246,0.2)]">
+          <div className="relative inline-block rounded-xl bg-gradient-to-br from-white to-slate-100 p-2 shadow-[0_0_28px_rgba(59,130,246,0.2)]">
             <Image
               src="/logo.png"
               alt="Deneeu"
@@ -157,8 +157,8 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
       <SidebarContent className="px-2 py-4">
         {groups.map((group, groupIndex) => (
           <SidebarGroup key={group.label}>
-            {groupIndex > 0 && <SidebarSeparator className="mb-3 bg-zinc-800" />}
-            <SidebarGroupLabel className="mb-2 px-3 text-xs font-medium uppercase tracking-widest text-zinc-500">
+            {groupIndex > 0 && <SidebarSeparator className="mb-3 bg-slate-800" />}
+            <SidebarGroupLabel className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
               {group.label}
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -171,10 +171,10 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
                         asChild
                         isActive={isActive}
                         className={cn(
-                          "flex h-10 items-center gap-2.5 rounded-[10px] border-l-2 border-transparent px-3 text-sm font-medium transition-all duration-150 ease-out",
+                          "flex h-11 items-center gap-2.5 rounded-xl border-l-2 border-transparent px-3 text-sm font-medium transition-all duration-150 ease-out",
                           isActive
-                            ? "border-l-white bg-zinc-800 text-white"
-                            : "text-zinc-400 hover:bg-zinc-800/60 hover:text-white"
+                            ? "border-l-blue-400 bg-blue-500 text-white shadow-md shadow-blue-500/20"
+                            : "text-slate-400 hover:bg-slate-800 hover:text-white"
                         )}
                       >
                         <Link href={href} onClick={closeSidebar}>
@@ -192,20 +192,20 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter className="border-t border-zinc-800 p-3">
-        <div className="mb-1 flex items-center gap-3 rounded-[10px] px-2 py-2 transition-colors duration-150 hover:bg-zinc-800/60">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-700 text-white ring-2 ring-zinc-600">
-            <span className="text-xs font-semibold">{initials}</span>
+      <SidebarFooter className="border-t border-slate-800 p-3">
+        <div className="mb-1 flex items-center gap-3 rounded-xl px-2 py-2 transition-colors duration-150 hover:bg-slate-800">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-500 text-white ring-2 ring-blue-400/30">
+            <span className="text-xs font-bold">{initials}</span>
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-medium text-zinc-200">{email}</p>
-            <p className="text-xs text-zinc-500">{ROLE_LABEL[normalizedRole]}</p>
+            <p className="truncate text-xs font-medium text-white">{email}</p>
+            <p className="text-xs text-slate-500">{ROLE_LABEL[normalizedRole]}</p>
           </div>
         </div>
         <form action={logoutAction}>
           <button
             type="submit"
-            className="flex h-10 w-full items-center gap-2.5 rounded-[10px] px-3 text-sm font-medium text-zinc-400 transition-all duration-150 ease-out hover:bg-zinc-800/60 hover:text-white"
+            className="flex h-10 w-full items-center gap-2.5 rounded-xl px-3 text-sm font-medium text-slate-400 transition-all duration-150 ease-out hover:bg-slate-800 hover:text-white"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             <span>Wyloguj się</span>

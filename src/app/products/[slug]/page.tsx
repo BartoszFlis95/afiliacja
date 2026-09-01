@@ -54,9 +54,9 @@ export default async function PublicProductDetailPage({
 
   return (
     <div className="min-h-screen bg-white">
-      <nav className="border-b border-zinc-100">
+      <nav className="border-b border-slate-100">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="text-xl font-bold tracking-tight text-zinc-900">
+          <Link href="/" className="text-xl font-bold tracking-tight text-slate-900">
             Deneeu
           </Link>
           <Button asChild variant="ghost" size="sm">
@@ -67,20 +67,20 @@ export default async function PublicProductDetailPage({
 
       <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
-        <nav className="mb-6 flex items-center gap-1.5 text-sm text-zinc-500">
-          <Link href="/" className="transition-colors hover:text-zinc-900">
+        <nav className="mb-6 flex items-center gap-1.5 text-sm text-slate-500">
+          <Link href="/" className="transition-colors hover:text-slate-900">
             Strona główna
           </Link>
           <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-          <Link href="/products" className="transition-colors hover:text-zinc-900">
+          <Link href="/products" className="transition-colors hover:text-slate-900">
             Produkty
           </Link>
           <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-          <span className="truncate font-medium text-zinc-900">{product.name}</span>
+          <span className="truncate font-medium text-slate-900">{product.name}</span>
         </nav>
 
         {/* Zdjęcie produktu */}
-        <div className="relative w-full h-64 sm:h-80 rounded-2xl overflow-hidden bg-zinc-100 mb-8">
+        <div className="relative w-full h-64 sm:h-80 rounded-2xl overflow-hidden bg-slate-100 mb-8">
           {product.imageUrl ? (
             <Image
               src={product.imageUrl}
@@ -93,7 +93,7 @@ export default async function PublicProductDetailPage({
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <ImageIcon className="w-16 h-16 text-zinc-300" />
+              <ImageIcon className="w-16 h-16 text-slate-300" />
             </div>
           )}
         </div>
@@ -107,29 +107,29 @@ export default async function PublicProductDetailPage({
           </Badge>
         </div>
 
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl lg:text-5xl">
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
           {product.name}
         </h1>
-        <p className="mt-2 text-zinc-500">
+        <p className="mt-2 text-slate-500">
           {product.brandProfile?.companyName ?? "—"}
         </p>
 
-        <p className="mt-6 text-3xl font-semibold text-zinc-900">
+        <p className="mt-6 text-3xl font-semibold text-slate-900">
           {product.price ? formatCurrency(Number(product.price)) : "—"}
         </p>
 
         {product.description && (
           <div className="mt-6 space-y-2">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-400">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
               Opis
             </h2>
-            <p className="whitespace-pre-line leading-relaxed text-zinc-600">
+            <p className="whitespace-pre-line leading-relaxed text-slate-600">
               {product.description}
             </p>
           </div>
         )}
 
-        <div className="mt-8 max-w-xs space-y-3 rounded-2xl border border-zinc-100 bg-zinc-50 p-5">
+        <div className="mt-8 max-w-xs space-y-3 rounded-2xl border border-slate-100 bg-slate-50 p-5">
           {isInfluencer ? (
             existingCode ? (
               <>

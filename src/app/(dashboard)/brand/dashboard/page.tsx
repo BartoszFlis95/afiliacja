@@ -206,19 +206,30 @@ export default async function BrandDashboardPage() {
       )}
 
       {/* Hero */}
-      <div className="rounded-2xl bg-gradient-to-r from-zinc-900 to-zinc-700 p-6 text-white sm:p-8">
-        <h1 className="text-xl font-semibold sm:text-2xl lg:text-3xl">
-          Witaj, {brandProfile.companyName}!
-        </h1>
-        <p className="mt-1 text-sm text-zinc-400">
-          Oto podsumowanie Twojej działalności afiliacyjnej.
-        </p>
-        <Button
-          asChild
-          className="mt-4 bg-white text-zinc-900 shadow-sm transition-all duration-200 hover:bg-zinc-100 hover:shadow-md"
-        >
-          <Link href="/brand/products/new">Dodaj produkt</Link>
-        </Button>
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-slate-900 p-6 text-white md:p-8">
+        <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/5" />
+        <div className="absolute right-8 top-8 h-20 w-20 rounded-full bg-white/5" />
+
+        <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="mb-1 text-sm font-medium text-blue-200">Panel marki</p>
+            <h1 className="mb-2 text-2xl font-bold md:text-3xl">
+              Witaj, {brandProfile.companyName}! 👋
+            </h1>
+            <p className="text-sm text-blue-200">
+              Oto podsumowanie Twojej działalności afiliacyjnej.
+            </p>
+          </div>
+          <Button
+            asChild
+            className="w-full bg-white font-semibold text-blue-600 shadow-lg hover:bg-blue-50 md:w-auto"
+          >
+            <Link href="/brand/products/new">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Dodaj produkt
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Quick actions */}
@@ -231,9 +242,9 @@ export default async function BrandDashboardPage() {
           <Link
             key={href}
             href={href}
-            className="flex items-center gap-3 rounded-xl border border-zinc-100 bg-white px-4 py-3.5 text-sm font-medium text-zinc-700 shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:border-zinc-200 hover:shadow-md"
+            className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white px-4 py-3.5 text-sm font-medium text-slate-700 shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:border-slate-200 hover:shadow-md"
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-600">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
               <Icon className="h-4 w-4" />
             </span>
             {label}
@@ -244,7 +255,7 @@ export default async function BrandDashboardPage() {
       <AnimatedStatsGrid cards={statsCards} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="rounded-2xl border-zinc-100 shadow-sm">
+        <Card className="rounded-2xl border-slate-100 shadow-sm">
           <CardHeader>
             <CardTitle>Przychód — ostatnie 30 dni</CardTitle>
           </CardHeader>
@@ -258,7 +269,7 @@ export default async function BrandDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border-zinc-100 shadow-sm">
+        <Card className="rounded-2xl border-slate-100 shadow-sm">
           <CardHeader>
             <CardTitle>Top produkty wg przychodu</CardTitle>
           </CardHeader>
@@ -269,7 +280,7 @@ export default async function BrandDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="rounded-2xl border-zinc-100 shadow-sm">
+        <Card className="rounded-2xl border-slate-100 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle>Top influencerzy</CardTitle>
             <Button variant="ghost" size="sm" asChild>
@@ -284,7 +295,7 @@ export default async function BrandDashboardPage() {
             ) : (
               <Table>
                 <TableHeader>
-                  <TableRow className="border-t hover:bg-transparent">
+                  <TableRow className="border-t border-slate-100 hover:bg-transparent">
                     <TableHead className="pl-6">Influencer</TableHead>
                     <TableHead className="text-right">Kliknięcia</TableHead>
                     <TableHead className="text-right">CR%</TableHead>
@@ -298,7 +309,7 @@ export default async function BrandDashboardPage() {
                     const initials = link.influencerProfile.displayName.slice(0, 2).toUpperCase();
                     const avatarColor = AVATAR_COLORS[index % AVATAR_COLORS.length];
                     return (
-                      <TableRow key={link.id} className="hover:bg-zinc-50">
+                      <TableRow key={link.id} className="hover:bg-blue-50/30">
                         <TableCell className="py-4 pl-6 font-medium">
                           <div className="flex items-center gap-3">
                             <div
@@ -311,9 +322,9 @@ export default async function BrandDashboardPage() {
                             </div>
                             <div className="min-w-0">
                               <p className="truncate">{link.influencerProfile.displayName}</p>
-                              <div className="mt-1.5 h-1 w-24 overflow-hidden rounded-full bg-zinc-100">
+                              <div className="mt-1.5 h-1 w-24 overflow-hidden rounded-full bg-slate-100">
                                 <div
-                                  className="h-full rounded-full bg-zinc-900"
+                                  className="h-full rounded-full bg-blue-500"
                                   style={{ width: `${earningsShare}%` }}
                                 />
                               </div>
@@ -338,7 +349,7 @@ export default async function BrandDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border-zinc-100 shadow-sm">
+        <Card className="rounded-2xl border-slate-100 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle>Ostatnie konwersje</CardTitle>
             <Button variant="ghost" size="sm" asChild>

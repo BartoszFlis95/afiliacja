@@ -24,7 +24,7 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider
       defaultOpen={false}
-      style={{ "--sidebar-width": "260px" } as React.CSSProperties}
+      style={{ "--sidebar-width": "280px" } as React.CSSProperties}
     >
       <AppSidebar role={role} email={email} />
       <CommandPalette role={role} />
