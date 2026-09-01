@@ -367,24 +367,36 @@ export default async function LandingPage() {
       </section>
 
       {/* CTA końcowe */}
-      <section className="mx-4 my-12 max-w-5xl rounded-3xl bg-gradient-to-br from-blue-600 to-blue-800 px-6 py-10 text-center shadow-lg sm:px-8 lg:mx-auto lg:my-20 lg:py-16">
-        <h2 className="text-3xl font-semibold text-white sm:text-4xl">
-          Gotowy aby zacząć?
-        </h2>
-        <p className="mx-auto mt-4 max-w-xl text-base text-blue-100 sm:text-lg">
-          Dołącz do platformy i zacznij zarabiać na afiliacji już dziś.
-          Rejestracja jest darmowa.
-        </p>
-        <Button
-          asChild
-          size="lg"
-          className="mt-8 h-12 w-full rounded-xl bg-white px-8 text-base font-semibold text-blue-600 shadow-sm transition-all duration-200 hover:bg-blue-50 hover:shadow-md sm:h-auto sm:w-auto sm:py-4 sm:text-lg"
-        >
-          <Link href="/register">Utwórz konto za darmo →</Link>
-        </Button>
-        <p className="mt-4 text-sm text-blue-200">
-          Bez karty kredytowej · Darmowa rejestracja
-        </p>
+      <section className="relative mx-4 my-12 max-w-5xl overflow-hidden rounded-3xl px-6 py-10 text-center shadow-lg sm:px-8 lg:mx-auto lg:my-20 lg:py-16">
+        <Image
+          src="/hero-bg.png"
+          alt=""
+          fill
+          sizes="(min-width: 1024px) 1024px, 100vw"
+          className="object-cover"
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/90 to-blue-800/90" />
+
+        <div className="relative">
+          <h2 className="text-3xl font-semibold text-white sm:text-4xl">
+            Gotowy aby zacząć?
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-base text-blue-100 sm:text-lg">
+            Dołącz do platformy i zacznij zarabiać na afiliacji już dziś.
+            Rejestracja jest darmowa.
+          </p>
+          <Button
+            asChild
+            size="lg"
+            className="mt-8 h-12 w-full rounded-xl bg-white px-8 text-base font-semibold text-blue-600 shadow-sm transition-all duration-200 hover:bg-blue-50 hover:shadow-md sm:h-auto sm:w-auto sm:py-4 sm:text-lg"
+          >
+            <Link href="/register">Utwórz konto za darmo →</Link>
+          </Button>
+          <p className="mt-4 text-sm text-blue-200">
+            Bez karty kredytowej · Darmowa rejestracja
+          </p>
+        </div>
       </section>
 
       <Footer />
