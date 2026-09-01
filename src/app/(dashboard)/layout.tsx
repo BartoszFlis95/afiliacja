@@ -5,7 +5,6 @@ import { auth } from "@/lib/auth";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/shared/AppSidebar";
 import { DashboardHeader } from "@/components/shared/DashboardHeader";
-import { MobileBottomNav } from "@/components/shared/MobileBottomNav";
 
 export default async function DashboardLayout({
   children,
@@ -22,16 +21,18 @@ export default async function DashboardLayout({
   const email = session.user.email ?? "";
 
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider
+      defaultOpen={false}
+      style={{ "--sidebar-width": "260px" } as React.CSSProperties}
+    >
       <AppSidebar role={role} email={email} />
       <SidebarInset className="min-w-0">
         <DashboardHeader role={role} email={email} />
-        <main className="min-w-0 flex-1 bg-background p-4 pb-24 sm:p-6 md:pb-6 lg:p-8 min-h-[calc(100vh-3.5rem)]">
+        <main className="min-w-0 flex-1 bg-background p-4 md:p-6 lg:p-8">
           <div className="w-full min-w-0">
             {children}
           </div>
         </main>
-        <MobileBottomNav role={role} />
       </SidebarInset>
     </SidebarProvider>
   );

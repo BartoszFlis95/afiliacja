@@ -120,19 +120,19 @@ interface AppSidebarProps {
 
 export function AppSidebar({ role, email }: AppSidebarProps) {
   const pathname = usePathname();
-  const { isMobile, setOpenMobile } = useSidebar();
+  const { setOpenMobile } = useSidebar();
   const normalizedRole = (role as Role) in NAV_GROUPS ? (role as Role) : "INFLUENCER";
   const groups = NAV_GROUPS[normalizedRole];
   const initials = email.slice(0, 2).toUpperCase();
 
-  // Na mobile sidebar to nakładka (Sheet) — po przejściu na inną stronę
+  // Sidebar to zawsze nakładka (offcanvas) — po przejściu na inną stronę
   // trzeba ją zamknąć, inaczej zasłania nową stronę do ręcznego zamknięcia.
-  const closeMobileSidebar = () => {
-    if (isMobile) setOpenMobile(false);
+  const closeSidebar = () => {
+    setOpenMobile(false);
   };
 
   return (
-    <Sidebar className="border-r border-zinc-800">
+    <Sidebar collapsible="offcanvas" className="border-r-0">
       {/* Logo — kontener na białym/jasnoniebieskim tle, bo logo.png ma
           nieprzezroczyste szare tło i "invert" zniekształciłby jego
           niebieskie gradienty na sidebarze. Subtelny glow pod spodem
@@ -177,7 +177,7 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
                             : "text-zinc-400 hover:bg-zinc-800/60 hover:text-white"
                         )}
                       >
-                        <Link href={href} onClick={closeMobileSidebar}>
+                        <Link href={href} onClick={closeSidebar}>
                           <Icon className="h-4 w-4 shrink-0" />
                           <span>{title}</span>
                         </Link>

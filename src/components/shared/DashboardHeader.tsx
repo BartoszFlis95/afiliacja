@@ -73,9 +73,9 @@ export function DashboardHeader({ email, role }: DashboardHeaderProps) {
     <header className="flex h-14 shrink-0 items-center gap-2 border-b border-zinc-100 bg-white px-4 shadow-sm">
       <SidebarTrigger
         size="icon-lg"
-        className="-ml-1 text-zinc-500 hover:text-zinc-900 md:hidden"
+        className="-ml-1 text-zinc-500 hover:text-zinc-900"
       />
-      <Separator orientation="vertical" className="mr-1 h-5 md:hidden" />
+      <Separator orientation="vertical" className="mr-1 h-5" />
 
       <Breadcrumb>
         <BreadcrumbList>
