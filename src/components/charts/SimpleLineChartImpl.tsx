@@ -1,10 +1,12 @@
 "use client";
 
+import { useId } from "react";
 import {
+  Area,
   CartesianGrid,
+  ComposedChart,
   Legend,
   Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -39,6 +41,12 @@ export function SimpleLineChart({
 }: SimpleLineChartProps) {
   const formatValue =
     valueFormatter ?? (format === "currency" ? formatCurrency : (v: number) => v.toLocaleString("pl-PL"));
+  const gradientId = useId();
+  // Wypełnienie gradientem pod linią wygląda dobrze tylko dla pojedynczej
+  // serii — przy kilku nakładające się półprzezroczyste obszary robią się
+  // nieczytelne, więc dla multi-line zostaje sama linia (+ legenda).
+  const showAreaFill = lines.length === 1;
+
   if (data.length === 0) {
     return (
       <div
@@ -52,26 +60,50 @@ export function SimpleLineChart({
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#DBEAFE" vertical={false} />
+      <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+        {showAreaFill && (
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={lines[0].color} stopOpacity={0.2} />
+              <stop offset="95%" stopColor={lines[0].color} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+        )}
+        <CartesianGrid strokeDasharray="3 3" stroke="#F4F4F5" vertical={false} />
         <XAxis
           dataKey={xKey}
-          tick={{ fontSize: 12, fill: "#94A3B8" }}
+          tick={{ fontSize: 12, fill: "#A1A1AA" }}
           tickLine={false}
-          axisLine={{ stroke: "#DBEAFE" }}
+          axisLine={{ stroke: "#F4F4F5" }}
         />
         <YAxis
-          tick={{ fontSize: 12, fill: "#94A3B8" }}
+          tick={{ fontSize: 12, fill: "#A1A1AA" }}
           tickLine={false}
           axisLine={false}
           width={48}
         />
         <Tooltip
           formatter={(value) => formatValue(Number(value))}
-          labelStyle={{ color: "#0F172A", fontWeight: 600 }}
-          contentStyle={{ borderRadius: 8, border: "1px solid #DBEAFE", backgroundColor: "#fff", fontSize: 13 }}
+          labelStyle={{ color: "#18181B", fontWeight: 600 }}
+          contentStyle={{
+            borderRadius: 12,
+            border: "1px solid #F4F4F5",
+            backgroundColor: "#fff",
+            fontSize: 13,
+            boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+          }}
         />
         {lines.length > 1 && <Legend wrapperStyle={{ fontSize: 12 }} />}
+        {showAreaFill && (
+          <Area
+            type="monotone"
+            dataKey={lines[0].dataKey}
+            stroke="none"
+            fill={`url(#${gradientId})`}
+            legendType="none"
+            tooltipType="none"
+          />
+        )}
         {lines.map((line) => (
           <Line
             key={line.dataKey}
@@ -81,9 +113,11 @@ export function SimpleLineChart({
             stroke={line.color}
             strokeWidth={2}
             dot={false}
+            animationDuration={700}
+            animationEasing="ease-out"
           />
         ))}
-      </LineChart>
+      </ComposedChart>
     </ResponsiveContainer>
   );
 }
