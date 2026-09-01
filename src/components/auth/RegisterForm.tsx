@@ -101,47 +101,52 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-        {/* Przyciski wyboru roli poniżej nie są natywnymi polami formularza
-            (brak name/value) — bez tego hidden inputu `role` nigdy nie
-            trafiłby do FormData wysyłanego do registerAction. */}
-        <input type="hidden" name="role" value={role} />
-
-        {/* Typ konta */}
-        <div className="space-y-2">
-          <Label>Typ konta</Label>
+        {/*
+          Wybór typu konta to natywna grupa radio, nie dwa przyciski z
+          aria-pressed. aria-pressed opisuje niezależny przełącznik — czytnik
+          ekranu ogłaszał dwa osobne przyciski i nie przekazywał, że wybór jest
+          rozłączny. Natywne <input type="radio"> w <fieldset> daje obsługę
+          strzałkami, komunikat "1 z 2", i wartość trafia do FormData sama,
+          więc osobny hidden input przestał być potrzebny.
+        */}
+        <fieldset className="space-y-2">
+          <legend className="mb-2 text-sm font-medium text-foreground">
+            Typ konta
+          </legend>
           <div className="grid grid-cols-2 gap-3">
             {ROLE_OPTIONS.map((option) => {
               const Icon = option.icon;
-              const selected = role === option.value;
               return (
-                <button
+                <label
                   key={option.value}
-                  type="button"
-                  onClick={() => setRole(option.value)}
-                  disabled={isPending}
-                  aria-pressed={selected}
-                  className={cn(
-                    "flex flex-col items-start gap-1.5 rounded-lg border p-3.5 text-left transition-all",
-                    "hover:border-primary/40 hover:bg-primary/5",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                    selected
-                      ? "border-primary bg-primary/10 ring-1 ring-ring"
-                      : "border-border bg-card"
-                  )}
+                  className="group relative flex cursor-pointer flex-col items-start gap-1.5 rounded-lg border border-border bg-card p-3.5 text-left transition-all hover:border-primary/40 hover:bg-primary/5 has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:ring-1 has-[:checked]:ring-ring has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-background has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60"
                 >
-                  <Icon className={cn("h-4 w-4", selected ? "text-primary" : "text-muted-foreground")} />
-                  <span className={cn("text-sm font-medium", selected ? "text-primary" : "text-foreground")}>
+                  <input
+                    type="radio"
+                    name="role"
+                    value={option.value}
+                    checked={role === option.value}
+                    onChange={() => setRole(option.value)}
+                    disabled={isPending}
+                    className="sr-only"
+                  />
+                  <Icon className="h-4 w-4 text-muted-foreground group-has-[:checked]:text-primary" />
+                  <span className="text-sm font-medium text-foreground group-has-[:checked]:text-primary">
                     {option.title}
                   </span>
-                  <span className="text-xs text-muted-foreground">{option.description}</span>
-                </button>
+                  <span className="text-xs text-muted-foreground">
+                    {option.description}
+                  </span>
+                </label>
               );
             })}
           </div>
           {errors.role && (
-            <p className="text-xs text-destructive">{errors.role}</p>
+            <p role="alert" className="text-xs text-destructive">
+              {errors.role}
+            </p>
           )}
-        </div>
+        </fieldset>
 
         {/* Kod zaproszenia — wymagany tylko dla kont typu Marka */}
         {role === "BRAND" && (
