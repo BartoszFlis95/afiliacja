@@ -180,7 +180,7 @@ export default async function AdminDashboardPage() {
         </p>
       </header>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Użytkownicy łącznie"
           value={stats.totalUsers.toLocaleString("pl-PL")}

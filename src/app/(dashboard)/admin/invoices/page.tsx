@@ -71,7 +71,7 @@ export default async function AdminInvoicesPage() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {SUMMARY_CARDS.map(({ label, value, sub, icon: Icon, color }) => (
           <Card key={label}>
             <CardHeader className="pb-3">

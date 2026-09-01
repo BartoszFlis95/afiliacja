@@ -40,7 +40,7 @@ export default async function AdminFinancePage() {
         <p className="mt-1 text-sm text-slate-500">Podsumowanie finansowe platformy.</p>
       </header>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatsCard
           title="Łączny obrót"
           value={formatCurrency(summary.totalRevenue)}

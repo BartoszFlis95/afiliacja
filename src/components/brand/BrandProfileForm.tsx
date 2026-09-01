@@ -71,11 +71,11 @@ export function BrandProfileForm({ profile }: BrandProfileFormProps) {
   }
 
   return (
-    <Card className="max-w-2xl">
-      <CardHeader>
+    <Card className="w-full">
+      <CardHeader className="p-4 pb-4 md:p-6 md:pb-4">
         <CardTitle>Profil marki</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="companyName">Nazwa firmy *</Label>

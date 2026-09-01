@@ -24,15 +24,15 @@ export function WebhookSection({ apiKey, webhookSecret }: WebhookSectionProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="w-full">
+      <CardHeader className="p-4 pb-4 md:p-6 md:pb-4">
         <CardTitle>Integracja ze sklepem (Webhook)</CardTitle>
         <p className="text-sm text-muted-foreground">
           Skonfiguruj swój sklep, aby automatycznie zgłaszał zakupy do deneeu.pl
           i rejestrował konwersje influencerów.
         </p>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 p-4 pt-0 md:p-6 md:pt-0">
         <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800">
           <strong>Ważne:</strong> Od {HMAC_REQUIRED_SINCE} weryfikacja podpisu
           HMAC jest wymagana. Żądania bez nagłówka{" "}
