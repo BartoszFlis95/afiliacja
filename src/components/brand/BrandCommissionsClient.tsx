@@ -148,8 +148,8 @@ export function BrandCommissionsClient({
         />
       </div>
 
-      <Tabs defaultValue="PENDING">
-        <TabsList className="flex h-auto flex-wrap gap-1 p-1">
+      <Tabs defaultValue="PENDING" className="w-full">
+        <TabsList className="flex h-auto w-full flex-wrap gap-1 p-1">
           {TABS.map((tab) => (
             <TabsTrigger key={tab} value={tab} className="text-xs sm:text-sm">
               {TAB_LABELS[tab]}

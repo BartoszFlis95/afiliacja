@@ -235,8 +235,8 @@ export default async function InfluencerCommissionsPage() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="ALL">
-        <TabsList className="flex h-auto flex-wrap gap-1 p-1">
+      <Tabs defaultValue="ALL" className="w-full">
+        <TabsList className="flex h-auto w-full flex-wrap gap-1 p-1">
           {TABS.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value} className="text-xs sm:text-sm">
               {tab.label}
