@@ -17,8 +17,8 @@ export default async function AdminInviteCodesPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-[#0F172A]">Kody zaproszeń</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-foreground">Kody zaproszeń</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Rejestracja marek wymaga aktywnego kodu zaproszenia. Wygeneruj kod i
           wyślij link marce — influencerzy rejestrują się bez kodu.
         </p>

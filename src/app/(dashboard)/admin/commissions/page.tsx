@@ -32,8 +32,8 @@ export default async function AdminCommissionsPage({
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-[#0F172A]">Komisje</h1>
-        <p className="mt-1 text-sm text-slate-500">Wszystkie komisje z platformy.</p>
+        <h1 className="text-2xl font-bold text-foreground">Komisje</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Wszystkie komisje z platformy.</p>
       </header>
 
       <AdminCommissionsClient

@@ -142,7 +142,7 @@ export default async function AdminDashboardPage() {
       id: `conv-${c.id}`,
       timestamp: c.createdAt,
       icon: MousePointerClick,
-      iconColor: "bg-blue-50 text-blue-600",
+      iconColor: "bg-primary/10 text-primary",
       title: c.affiliateLink?.product?.name ?? "Konwersja",
       subtitle: "Nowa konwersja",
       amount: formatCurrency(Number(c.amount)),
@@ -151,7 +151,7 @@ export default async function AdminDashboardPage() {
       id: `user-${u.id}`,
       timestamp: u.createdAt,
       icon: UserPlus,
-      iconColor: "bg-emerald-50 text-emerald-600",
+      iconColor: "bg-success/10 text-success",
       title: u.email,
       subtitle: `Nowa rejestracja · ${u.role}`,
     })),
@@ -159,7 +159,7 @@ export default async function AdminDashboardPage() {
       id: `inv-${inv.id}`,
       timestamp: inv.createdAt,
       icon: FileText,
-      iconColor: "bg-violet-50 text-violet-600",
+      iconColor: "bg-primary/10 text-primary",
       title: inv.invoiceNumber,
       subtitle: `Faktura · ${inv.brand.companyName}`,
       amount: formatCurrency(Number(inv.grossAmount)),
@@ -172,10 +172,10 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl lg:text-3xl">
+        <h1 className="text-xl font-semibold text-foreground sm:text-2xl lg:text-3xl">
           Panel administratora
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Przegląd kondycji platformy Deneeu.
         </p>
       </header>
@@ -243,7 +243,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="rounded-2xl border-slate-100 shadow-sm">
+        <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader>
             <CardTitle>Rejestracje — ostatnie 30 dni</CardTitle>
           </CardHeader>
@@ -256,7 +256,7 @@ export default async function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border-slate-100 shadow-sm">
+        <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader>
             <CardTitle>Przychód platformy — ostatnie 30 dni</CardTitle>
           </CardHeader>
@@ -272,7 +272,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Card className="rounded-2xl border-slate-100 shadow-sm">
+        <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader className="pb-3">
             <p className="text-sm font-medium text-muted-foreground">Faktury (ten miesiąc)</p>
           </CardHeader>
@@ -280,14 +280,14 @@ export default async function AdminDashboardPage() {
             <p className="text-3xl font-semibold text-foreground">{invoicesThisMonth._count.id}</p>
           </CardContent>
         </Card>
-        <Card className="rounded-2xl border-slate-100 shadow-sm">
+        <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader className="pb-3">
             <p className="text-sm font-medium text-muted-foreground">
               Łączna wartość faktur (ten miesiąc)
             </p>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold text-violet-600">
+            <p className="text-3xl font-semibold text-primary">
               {formatCurrency(Number(invoicesThisMonth._sum.grossAmount ?? 0))}
             </p>
           </CardContent>
@@ -295,7 +295,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Recent activity — jedna oś czasu zamiast trzech osobnych tabel */}
-      <Card className="rounded-2xl border-slate-100 shadow-sm">
+      <Card className="rounded-2xl border-border/60 shadow-sm">
         <CardHeader className="pb-4">
           <CardTitle>Ostatnia aktywność</CardTitle>
         </CardHeader>
@@ -318,19 +318,19 @@ export default async function AdminDashboardPage() {
                         <Icon className="h-4 w-4" />
                       </span>
                       {index < activity.length - 1 && (
-                        <span className="mt-1 w-px flex-1 bg-slate-100" />
+                        <span className="mt-1 w-px flex-1 bg-muted" />
                       )}
                     </div>
                     <div className="flex min-w-0 flex-1 items-center justify-between gap-3 pb-1">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-slate-900">{item.title}</p>
-                        <p className="text-xs text-slate-500">{item.subtitle}</p>
+                        <p className="truncate text-sm font-medium text-foreground">{item.title}</p>
+                        <p className="text-xs text-muted-foreground">{item.subtitle}</p>
                       </div>
                       <div className="shrink-0 text-right">
                         {item.amount && (
-                          <p className="text-sm font-medium text-emerald-600">{item.amount}</p>
+                          <p className="text-sm font-medium text-success">{item.amount}</p>
                         )}
-                        <p className="text-xs text-slate-400">{formatDate(item.timestamp)}</p>
+                        <p className="text-xs text-muted-foreground">{formatDate(item.timestamp)}</p>
                       </div>
                     </div>
                   </div>
@@ -338,7 +338,7 @@ export default async function AdminDashboardPage() {
                 return (
                   <li key={item.id}>
                     {item.href ? (
-                      <Link href={item.href} className="-mx-2 block rounded-lg px-2 hover:bg-slate-50">
+                      <Link href={item.href} className="-mx-2 block rounded-lg px-2 hover:bg-muted/50">
                         {row}
                       </Link>
                     ) : (

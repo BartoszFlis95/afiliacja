@@ -23,7 +23,7 @@ export default async function BrandOnboardingPage() {
     return (
       <div className="mx-auto max-w-2xl p-4 sm:p-6">
         <header className="mb-8">
-          <h1 className="text-2xl font-bold text-[#0F172A]">Witaj w Deneeu</h1>
+          <h1 className="text-2xl font-bold text-foreground">Witaj w Deneeu</h1>
           <p className="mt-1 text-muted-foreground">
             Uzupełnij profil marki, aby zacząć dodawać produkty.
           </p>
@@ -73,7 +73,7 @@ export default async function BrandOnboardingPage() {
   return (
     <div className="mx-auto max-w-2xl p-4 sm:p-6">
       <header className="mb-8">
-        <h1 className="text-2xl font-bold text-[#0F172A]">
+        <h1 className="text-2xl font-bold text-foreground">
           Witaj w Deneeu, {brandProfile.companyName}!
         </h1>
         <p className="mt-1 text-muted-foreground">

@@ -62,19 +62,19 @@ const SECTIONS = [
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#EFF6FF]">
+    <div className="min-h-screen overflow-x-hidden bg-primary/10">
       <Navbar />
 
       <main className="pt-24 sm:pt-28 lg:pt-32">
         <div className="mx-auto max-w-4xl px-4 py-16">
-          <div className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm sm:p-10">
-            <h1 className="text-3xl font-black text-[#0F172A] sm:text-4xl">
+          <div className="rounded-2xl border border-primary/20 bg-card p-6 shadow-sm sm:p-10">
+            <h1 className="text-3xl font-black text-foreground sm:text-4xl">
               Polityka prywatności Deneeu
             </h1>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-muted-foreground">
               Ostatnia aktualizacja: 9 lipca 2026
             </p>
-            <p className="mt-4 text-base leading-relaxed text-slate-600">
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
               Administratorem danych osobowych przetwarzanych w związku z
               korzystaniem z platformy Deneeu jest Deneeu Sp. z o.o. z
               siedzibą w Warszawie.
@@ -83,19 +83,19 @@ export default function PrivacyPage() {
             <div className="mt-10 space-y-10">
               {SECTIONS.map((section) => (
                 <section key={section.title}>
-                  <h2 className="text-xl font-bold text-[#0F172A]">
+                  <h2 className="text-xl font-bold text-foreground">
                     {section.title}
                   </h2>
                   <div className="mt-3 space-y-3">
                     {section.paragraphs.map((paragraph, i) => (
-                      <p key={i} className="text-base leading-relaxed text-slate-600">
+                      <p key={i} className="text-base leading-relaxed text-muted-foreground">
                         {paragraph}
                       </p>
                     ))}
                     {section.list && (
                       <ul className="ml-5 list-disc space-y-1.5">
                         {section.list.map((item) => (
-                          <li key={item} className="text-base leading-relaxed text-slate-600">
+                          <li key={item} className="text-base leading-relaxed text-muted-foreground">
                             {item}
                           </li>
                         ))}
@@ -106,9 +106,9 @@ export default function PrivacyPage() {
               ))}
             </div>
 
-            <p className="mt-10 border-t border-blue-100 pt-6 text-sm text-slate-500">
+            <p className="mt-10 border-t border-primary/20 pt-6 text-sm text-muted-foreground">
               Pytania dotyczące przetwarzania danych prosimy kierować na adres{" "}
-              <a href="mailto:kontakt@deneeu.pl" className="text-blue-600 hover:underline">
+              <a href="mailto:kontakt@deneeu.pl" className="text-primary hover:underline">
                 kontakt@deneeu.pl
               </a>
               .

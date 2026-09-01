@@ -42,11 +42,11 @@ export function AnimatedStat({ value, label, suffix = "", duration = 1200 }: Ani
 
   return (
     <div ref={ref} className="text-center">
-      <p className="text-3xl font-semibold text-slate-900 sm:text-4xl">
+      <p className="text-3xl font-semibold text-foreground sm:text-4xl">
         {display.toLocaleString("pl-PL")}
         {suffix}
       </p>
-      <p className="mt-1 text-sm text-slate-500">{label}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{label}</p>
     </div>
   );
 }

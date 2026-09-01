@@ -142,7 +142,7 @@ export function SettingsForm({ profile }: { profile: InfluencerProfileValues }) 
               {error}
             </p>
           )}
-          {saved && <p className="text-sm text-green-600">Zapisano zmiany.</p>}
+          {saved && <p className="text-sm text-success">Zapisano zmiany.</p>}
 
           <Button
             type="submit"

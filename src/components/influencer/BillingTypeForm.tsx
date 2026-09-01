@@ -83,15 +83,15 @@ export function BillingTypeForm({ initialData }: Props) {
                 "flex items-center gap-3 rounded-lg border-2 p-4 text-left transition-colors",
                 isPending && "opacity-60 cursor-wait",
                 selected === value
-                  ? "border-slate-900 bg-slate-50"
-                  : "border-slate-200 bg-white hover:border-slate-300"
+                  ? "border-primary bg-primary/5"
+                  : "border-border bg-card hover:border-border"
               )}
             >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100">
-                <Icon className="h-5 w-5 text-slate-600" />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                <Icon className="h-5 w-5 text-muted-foreground" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-slate-900">{label}</p>
+                <p className="text-sm font-medium text-foreground">{label}</p>
                 <p className="text-xs text-muted-foreground">{sub}</p>
               </div>
             </button>

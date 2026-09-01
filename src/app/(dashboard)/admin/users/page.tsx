@@ -27,12 +27,12 @@ function StripeStatusBadge({
   stripeOnboardingDone: boolean;
 }) {
   if (stripeOnboardingDone) {
-    return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">✅ Stripe aktywny</Badge>;
+    return <Badge className="bg-success/15 text-success hover:bg-success/15">✅ Stripe aktywny</Badge>;
   }
   if (stripeAccountId) {
-    return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">⏳ Stripe w weryfikacji</Badge>;
+    return <Badge className="bg-warning/15 text-warning hover:bg-warning/15">⏳ Stripe w weryfikacji</Badge>;
   }
-  return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">❌ Brak Stripe</Badge>;
+  return <Badge className="bg-destructive/15 text-destructive hover:bg-destructive/15">❌ Brak Stripe</Badge>;
 }
 
 export default async function AdminUsersPage() {
@@ -100,7 +100,7 @@ export default async function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-[#0F172A]">Użytkownicy</h1>
+        <h1 className="text-2xl font-bold text-foreground">Użytkownicy</h1>
         <p className="mt-1 text-muted-foreground">
           {usersForDisplay.length.toLocaleString("pl-PL")} kont w systemie.
         </p>

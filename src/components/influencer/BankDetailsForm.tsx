@@ -113,7 +113,7 @@ export function BankDetailsForm({ initial }: Props) {
       <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Mode toggle */}
-          <div className="flex gap-2 rounded-lg border border-slate-200 bg-slate-50 p-1">
+          <div className="flex gap-2 rounded-lg border border-border bg-muted/50 p-1">
             {(["bank", "paypal"] as const).map((m) => (
               <button
                 key={m}

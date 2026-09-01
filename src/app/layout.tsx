@@ -1,25 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Lato, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeScript } from "@/components/shared/ThemeScript";
 import "./globals.css";
 
-// Playfair/Lato pozostają załadowane (nieużywane domyślnie) do czasu
-// przeprojektowania landing page w kolejnym kroku redesignu — Inter jest
-// teraz domyślnym fontem UI (premium, jak Stripe/Linear/Vercel).
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  weight: ["400", "600", "700", "800", "900"],
-});
-
-const lato = Lato({
-  subsets: ["latin"],
-  variable: "--font-lato",
-  weight: ["300", "400", "700", "900"],
-});
-
+// Playfair i Lato były tu ładowane „na później", ale żaden komponent ani
+// żadna klasa Tailwinda ich nie używała — pobierały się na każdej stronie
+// bez jednego znaku na ekranie. Inter jest jedynym fontem UI.
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -55,8 +44,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/logo.png",
-        width: 1024,
-        height: 1024,
+        width: 1600,
+        height: 903,
         alt: "Deneeu — Affiliate Marketing Platform",
       },
     ],
@@ -80,8 +69,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pl" className="scroll-smooth">
-      <body className={`${lato.variable} ${playfair.variable} ${inter.variable}`}>
+    // suppressHydrationWarning — ThemeScript dopisuje `.dark` na <html> zanim
+    // React się zhydratuje, więc klasa na serwerze i w kliencie celowo się różni.
+    <html lang="pl" className="scroll-smooth" suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
+      <body className={inter.variable}>
         <SessionProvider>
           <TooltipProvider>
             {children}

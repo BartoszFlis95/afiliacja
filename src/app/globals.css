@@ -18,31 +18,44 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Primary — blue-500, the main interactive/brand accent. */
-    --primary: 217 91% 60%;
+    /* Primary — blue-600. Był blue-500, ale to nie przechodziło WCAG AA:
+       biały tekst na przycisku dawał 3.68:1, a `text-primary` na jasnym tle
+       3.52:1, przy wymaganych 4.5:1. blue-600 daje odpowiednio 5.17:1 i 4.94:1
+       i jest wciąż wyraźnie tym samym niebieskim marki. */
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary — slate-100 */
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222 47% 11%;
 
-    /* Muted — slate-50 / slate-500 */
+    /* Muted. muted-foreground było slate-500 (215 16% 47%), co na tle
+       slate-50 daje 4.49:1 — o włos poniżej progu 4.5:1, a używa go 11 miejsc
+       samego landing page'a. Przyciemnione do 5.05:1. */
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215 16% 47%;
+    --muted-foreground: 215 18% 44%;
 
     /* Accent — slate-100 (hover/secondary backgrounds; the *brand* accent
        is --primary above, per shadcn's own accent/primary split) */
     --accent: 210 40% 96.1%;
     --accent-foreground: 222 47% 11%;
 
-    /* Destructive — Red #EF4444 (semantic color, stays) */
-    --destructive: 0 84% 60%;
+    /* Kolory semantyczne. Trzymamy je jako tokeny, a nie jako klasy emerald
+       i amber wpisane w komponentach — inaczej każde miejsce z komunikatem
+       sukcesu potrzebowałoby własnego wariantu `dark:`. */
+    --destructive: 0 84% 60%;        /* red-500  */
     --destructive-foreground: 0 0% 100%;
+    /* emerald-600 dawało 3.76:1 na bieli, amber-600 tylko 3.16:1 — oba poniżej
+       progu. Zejście o jeden stopień daje 5.58:1 i 4.58:1. */
+    --success: 161 94% 24%;          /* emerald-700 */
+    --success-foreground: 0 0% 100%;
+    --warning: 28 92% 38%;           /* amber-700  */
+    --warning-foreground: 0 0% 100%;
 
     /* Borders & Inputs — slate-200 */
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 217 91% 60%;
+    --ring: 221 83% 53%;
 
     /* Radius */
     --radius: 0.75rem;
@@ -50,17 +63,78 @@
     /* Sidebar — slate-900/navy, replaces the zinc-900 neutral. */
     --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary: 221 83% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 33% 17%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-ring: 221 83% 53%;
     --sidebar-width: 280px;
     --sidebar-width-mobile: 280px;
 
     /* Subtelny cień używany przez karty i panele. */
     --shadow-premium: 0 4px 24px rgba(0, 0, 0, 0.06);
+  }
+
+  /* ------------------------------------------------------------------
+     Dark mode. Sterowany klasą `.dark` na <html> (patrz darkMode w
+     tailwind.config.ts). Definiujemy TYLKO te same nazwy tokenów co wyżej —
+     żaden kolor nie ma tu swojej jedynej definicji, więc jasny motyw pozostaje
+     kompletny nawet gdyby ten blok zniknął.
+     ------------------------------------------------------------------ */
+  .dark {
+    --background: 222 47% 8%;
+    --foreground: 210 40% 96%;
+
+    /* Karty jaśniejsze od tła — w ciemnym motywie hierarchię buduje jasność
+       powierzchni, nie cień (cieni po prostu nie widać na ciemnym). */
+    --card: 222 40% 12%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 40% 13%;
+    --popover-foreground: 210 40% 96%;
+
+    /* W ciemnym motywie primary idzie w drugą stronę — blue-400 z ciemnym
+       tekstem na przyciskach. blue-600 na granatowym tle spadłoby do 3.4:1;
+       blue-400 daje 7.42:1 na tle i 7.02:1 dla tekstu na przycisku. */
+    --primary: 213 94% 68%;
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 96%;
+
+    --muted: 217 33% 17%;
+    /* slate-400 zamiast slate-500 — na ciemnym tle slate-500 spada poniżej 4.5:1 */
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 217 33% 20%;
+    --accent-foreground: 210 40% 96%;
+
+    /* red-500 na ciemnym tle jest zbyt jaskrawy; red-400 czyta się spokojniej
+       i trzyma kontrast wobec --background. */
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 222 47% 11%;
+    /* Na ciemnym tle wersje -600 robią się zbyt ciemne, żeby je odczytać —
+       przechodzimy na -400. */
+    --success: 158 64% 52%;
+    --success-foreground: 222 47% 11%;
+    --warning: 43 96% 56%;
+    --warning-foreground: 222 47% 11%;
+
+    --border: 217 33% 22%;
+    --input: 217 33% 24%;
+    --ring: 213 94% 68%;
+
+    /* Sidebar zostaje granatowy w obu motywach — to celowo ciemna powierzchnia,
+       a nie coś, co ma się przełączać. W ciemnym motywie jedynie pogłębiamy go
+       względem tła, żeby nadal odcinał się od treści. */
+    --sidebar-background: 222 47% 6%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-accent: 217 33% 16%;
+    --sidebar-border: 217 33% 16%;
+
+    /* Cień na ciemnym tle jest niewidoczny — głębszy czarny plus mocniejsza
+       krawędź robią za separację. */
+    --shadow-premium: 0 4px 24px rgba(0, 0, 0, 0.5);
   }
 }
 

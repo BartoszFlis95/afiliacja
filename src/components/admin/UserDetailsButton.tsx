@@ -53,40 +53,40 @@ export function UserDetailsButton({ user }: UserDetailsButtonProps) {
 
         <div className="space-y-4 text-sm">
           <div className="flex items-center justify-between">
-            <span className="text-slate-500">Rola</span>
+            <span className="text-muted-foreground">Rola</span>
             <Badge variant="outline">{user.role}</Badge>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-slate-500">Data rejestracji</span>
-            <span className="font-medium text-[#0F172A]">
+            <span className="text-muted-foreground">Data rejestracji</span>
+            <span className="font-medium text-foreground">
               {formatDate(user.createdAt)}
             </span>
           </div>
 
           {user.brandProfile && (
-            <div className="space-y-2 rounded-lg border border-blue-100 bg-[#EFF6FF] p-3">
-              <p className="font-semibold text-[#0F172A]">Profil marki</p>
+            <div className="space-y-2 rounded-lg border border-primary/20 bg-primary/10 p-3">
+              <p className="font-semibold text-foreground">Profil marki</p>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-slate-500">Nazwa firmy</span>
-                <span className="truncate font-medium text-[#0F172A]">
+                <span className="text-muted-foreground">Nazwa firmy</span>
+                <span className="truncate font-medium text-foreground">
                   {user.brandProfile.companyName}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-slate-500">Branża</span>
-                <span className="truncate font-medium text-[#0F172A]">
+                <span className="text-muted-foreground">Branża</span>
+                <span className="truncate font-medium text-foreground">
                   {user.brandProfile.industry ?? "—"}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-slate-500">Strona www</span>
-                <span className="truncate font-medium text-[#0F172A]">
+                <span className="text-muted-foreground">Strona www</span>
+                <span className="truncate font-medium text-foreground">
                   {user.brandProfile.website ?? "—"}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-slate-500">Zweryfikowana</span>
-                <span className="font-medium text-[#0F172A]">
+                <span className="text-muted-foreground">Zweryfikowana</span>
+                <span className="font-medium text-foreground">
                   {user.brandProfile.isVerified ? "Tak" : "Nie"}
                 </span>
               </div>
@@ -94,31 +94,31 @@ export function UserDetailsButton({ user }: UserDetailsButtonProps) {
           )}
 
           {user.influencerProfile && (
-            <div className="space-y-2 rounded-lg border border-blue-100 bg-[#EFF6FF] p-3">
-              <p className="font-semibold text-[#0F172A]">Profil influencera</p>
+            <div className="space-y-2 rounded-lg border border-primary/20 bg-primary/10 p-3">
+              <p className="font-semibold text-foreground">Profil influencera</p>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-slate-500">Nazwa</span>
-                <span className="truncate font-medium text-[#0F172A]">
+                <span className="text-muted-foreground">Nazwa</span>
+                <span className="truncate font-medium text-foreground">
                   {user.influencerProfile.displayName}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-slate-500">Lokalizacja</span>
-                <span className="truncate font-medium text-[#0F172A]">
+                <span className="text-muted-foreground">Lokalizacja</span>
+                <span className="truncate font-medium text-foreground">
                   {[user.influencerProfile.city, user.influencerProfile.country]
                     .filter(Boolean)
                     .join(", ") || "—"}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-slate-500">Obserwujący</span>
-                <span className="font-medium text-[#0F172A]">
+                <span className="text-muted-foreground">Obserwujący</span>
+                <span className="font-medium text-foreground">
                   {user.influencerProfile.followersCount?.toLocaleString("pl-PL") ?? "—"}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-slate-500">Metoda wypłat</span>
-                <span className="font-medium text-[#0F172A]">
+                <span className="text-muted-foreground">Metoda wypłat</span>
+                <span className="font-medium text-foreground">
                   {user.influencerProfile.hasIban
                     ? "IBAN"
                     : user.influencerProfile.hasPaypal
@@ -127,8 +127,8 @@ export function UserDetailsButton({ user }: UserDetailsButtonProps) {
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-slate-500">Stripe</span>
-                <span className="font-medium text-[#0F172A]">
+                <span className="text-muted-foreground">Stripe</span>
+                <span className="font-medium text-foreground">
                   {user.influencerProfile.stripeOnboardingDone
                     ? "Aktywny"
                     : user.influencerProfile.stripeAccountId

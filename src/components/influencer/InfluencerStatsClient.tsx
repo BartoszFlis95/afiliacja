@@ -112,7 +112,7 @@ export function InfluencerStatsClient({
                       <TableCell className="text-right text-muted-foreground">
                         {link.conversionRate.toFixed(1)}%
                       </TableCell>
-                      <TableCell className="pr-6 text-right font-medium text-emerald-600">
+                      <TableCell className="pr-6 text-right font-medium text-success">
                         {formatCurrency(link.earnings)}
                       </TableCell>
                     </TableRow>

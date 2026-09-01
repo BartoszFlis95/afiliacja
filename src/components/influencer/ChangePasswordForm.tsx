@@ -54,7 +54,7 @@ export function ChangePasswordForm() {
       <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
         <form onSubmit={handleSubmit} className="space-y-4 max-w-full md:max-w-sm">
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
               {error}
             </div>
           )}
@@ -101,7 +101,7 @@ export function ChangePasswordForm() {
           <Button
             type="submit"
             loading={isPending}
-            className="w-full md:w-auto bg-slate-900 text-white hover:bg-slate-700"
+            className="w-full md:w-auto"
           >
             {isPending ? "Zmienianie…" : "Zmień hasło"}
           </Button>

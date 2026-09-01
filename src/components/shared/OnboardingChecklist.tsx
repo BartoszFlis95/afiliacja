@@ -25,17 +25,17 @@ export function OnboardingChecklist({ steps, dashboardHref }: OnboardingChecklis
 
   return (
     <div className="space-y-4">
-      <Card className="border-blue-100">
+      <Card className="border-primary/20">
         <CardContent className="space-y-3 p-4 sm:p-6">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-medium text-[#0F172A]">
+            <span className="font-medium text-foreground">
               {doneCount} / {total} kroków ukończonych
             </span>
-            <span className="text-slate-500">{progressPct}%</span>
+            <span className="text-muted-foreground">{progressPct}%</span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-blue-600 transition-all"
+              className="h-full rounded-full bg-primary transition-all"
               style={{ width: `${progressPct}%` }}
             />
           </div>
@@ -48,20 +48,20 @@ export function OnboardingChecklist({ steps, dashboardHref }: OnboardingChecklis
             key={step.label}
             className={cn(
               "border transition-colors",
-              step.done ? "border-emerald-200 bg-emerald-50/50" : "border-slate-200 bg-white"
+              step.done ? "border-success/30 bg-success/10" : "border-border bg-card"
             )}
           >
             <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-start gap-3">
                 {step.done ? (
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
                 ) : (
-                  <Circle className="mt-0.5 h-5 w-5 shrink-0 text-slate-300" />
+                  <Circle className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground/60" />
                 )}
                 <p
                   className={cn(
                     "text-sm font-medium",
-                    step.done ? "text-emerald-800" : "text-slate-700"
+                    step.done ? "text-success" : "text-foreground"
                   )}
                 >
                   Krok {i + 1}: {step.label}

@@ -33,7 +33,7 @@ export function WebhookSection({ apiKey, webhookSecret }: WebhookSectionProps) {
         </p>
       </CardHeader>
       <CardContent className="space-y-4 p-4 pt-0 md:p-6 md:pt-0">
-        <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
           <strong>Ważne:</strong> Od {HMAC_REQUIRED_SINCE} weryfikacja podpisu
           HMAC jest wymagana. Żądania bez nagłówka{" "}
           <code className="font-mono">x-signature</code> będą odrzucane (HTTP
@@ -89,12 +89,12 @@ export function WebhookSection({ apiKey, webhookSecret }: WebhookSectionProps) {
           </p>
         </div>
 
-        <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+        <div className="rounded-md border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
           <strong>Jak używać:</strong> Po każdym udanym zakupie wyślij{" "}
           <code className="font-mono">POST {webhookUrl}</code> z nagłówkami{" "}
           <code className="font-mono">x-api-key</code> i{" "}
           <code className="font-mono">x-signature</code> oraz treścią JSON:
-          <pre className="mt-2 rounded bg-amber-100 p-2 text-xs overflow-x-auto">{`{
+          <pre className="mt-2 rounded bg-warning/15 p-2 text-xs overflow-x-auto">{`{
   "orderId": "zamowienie-123",
   "amount": 299.99,
   "ref": "<influencer_profile_id>",
@@ -103,7 +103,7 @@ export function WebhookSection({ apiKey, webhookSecret }: WebhookSectionProps) {
           Wartość <code className="font-mono">ref</code> pochodzi z cookie{" "}
           <code className="font-mono">deneeu_ref</code> ustawianego przez link afiliacyjny.
           <p className="mt-3 font-medium">Przykład (Node.js) z podpisem HMAC:</p>
-          <pre className="mt-2 rounded bg-amber-100 p-2 text-xs overflow-x-auto">{`const crypto = require("crypto");
+          <pre className="mt-2 rounded bg-warning/15 p-2 text-xs overflow-x-auto">{`const crypto = require("crypto");
 
 const payload = JSON.stringify({
   orderId: "zamowienie-123",

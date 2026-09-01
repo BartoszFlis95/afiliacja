@@ -74,7 +74,7 @@ export default async function BrandStatsPage() {
   return (
     <div className="space-y-8 p-6">
       <header>
-        <h1 className="text-2xl font-bold text-[#0F172A]">Statystyki</h1>
+        <h1 className="text-2xl font-bold text-foreground">Statystyki</h1>
         <p className="mt-1 text-muted-foreground">Wyniki Twoich produktów i partnerów.</p>
       </header>
 

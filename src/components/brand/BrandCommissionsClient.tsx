@@ -137,7 +137,7 @@ export function BrandCommissionsClient({
           onChange={(e) => setDateFrom(e.target.value)}
           className="h-8 w-[140px] text-xs"
         />
-        <span className="text-xs text-slate-400">—</span>
+        <span className="text-xs text-muted-foreground">—</span>
         <Input
           type="date"
           value={dateTo}
@@ -186,7 +186,7 @@ export function BrandCommissionsClient({
                 <ExportCSVButton data={csvData} filename={`komisje-${tab.toLowerCase()}`} />
               </div>
 
-              <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+              <div className="overflow-hidden rounded-lg border border-border bg-card">
                 {list.length === 0 ? (
                   <div className="p-6">
                     <EmptyState icon={Wallet} title="Brak komisji w tej kategorii" />
@@ -224,25 +224,25 @@ export function BrandCommissionsClient({
                               />
                             </TableCell>
                           )}
-                          <TableCell className="font-medium text-slate-900">
+                          <TableCell className="font-medium text-foreground">
                             {c.influencer?.displayName ?? "—"}
                           </TableCell>
-                          <TableCell className="text-slate-700">
+                          <TableCell className="text-foreground">
                             {c.product?.name ?? "—"}
                           </TableCell>
-                          <TableCell className="text-right text-slate-700">
+                          <TableCell className="text-right text-foreground">
                             {formatCurrency(Number(c.orderValue))}
                           </TableCell>
-                          <TableCell className="text-right text-slate-700">
+                          <TableCell className="text-right text-foreground">
                             {Number(c.commissionPercent)}%
                           </TableCell>
-                          <TableCell className="text-right font-medium text-slate-900">
+                          <TableCell className="text-right font-medium text-foreground">
                             {formatCurrency(Number(c.commissionAmount))}
                           </TableCell>
                           <TableCell>
                             <StatusBadge status={c.status} />
                           </TableCell>
-                          <TableCell className="text-slate-500">
+                          <TableCell className="text-muted-foreground">
                             {formatDate(c.createdAt)}
                           </TableCell>
                           {tab === "PENDING" && (

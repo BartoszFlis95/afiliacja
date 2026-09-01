@@ -12,11 +12,11 @@ export default async function VerifyEmailPage({
   const { token, email } = await searchParams;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] p-8">
-      <div className="w-full max-w-sm rounded-2xl border border-blue-100 bg-white p-8 shadow-xl">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/5 to-primary/15 p-8">
+      <div className="w-full max-w-sm rounded-2xl border border-primary/20 bg-card p-8 shadow-xl">
         <Link href="/" className="mb-8 flex items-center justify-center gap-2">
-          <span className="text-2xl font-black text-[#0F172A]">Deneeu</span>
-          <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+          <span className="text-2xl font-black text-foreground">Deneeu</span>
+          <span className="h-2.5 w-2.5 rounded-full bg-primary" />
         </Link>
         <VerifyEmailClient token={token} email={email} />
       </div>

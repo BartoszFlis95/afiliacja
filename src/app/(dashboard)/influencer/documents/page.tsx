@@ -47,14 +47,14 @@ export default async function InfluencerDocumentsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-[#0F172A]">Dokumenty</h1>
+        <h1 className="text-2xl font-bold text-foreground">Dokumenty</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Rachunki wystawiane automatycznie po zrealizowanych wypłatach prowizji.
         </p>
       </header>
 
       {!hasBankDetails && (
-        <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <div className="flex items-center gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           <span>
             ⚠️ Uzupełnij dane rozliczeniowe, aby platforma mogła prawidłowo wystawiać
@@ -99,7 +99,7 @@ export default async function InfluencerDocumentsPage() {
                     <TableCell className="text-muted-foreground">
                       {formatDate(doc.period)}
                     </TableCell>
-                    <TableCell className="text-right font-medium text-[#0F172A]">
+                    <TableCell className="text-right font-medium text-foreground">
                       {formatCurrency(doc.netAmount)}
                     </TableCell>
                     <TableCell>

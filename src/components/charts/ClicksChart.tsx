@@ -14,6 +14,6 @@ export const ClicksChart = dynamic<ClicksChartProps>(
   () => import("./ClicksChartImpl").then((mod) => mod.ClicksChart),
   {
     ssr: false,
-    loading: () => <div className="h-[220px] animate-pulse rounded-xl bg-blue-50" />,
+    loading: () => <div className="h-[220px] animate-pulse rounded-xl bg-primary/10" />,
   }
 );

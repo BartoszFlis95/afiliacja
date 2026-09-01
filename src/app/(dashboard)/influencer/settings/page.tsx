@@ -55,7 +55,7 @@ export default async function InfluencerSettingsPage({
   return (
     <div className="w-full space-y-6 p-4 md:p-6 lg:p-8">
       <header className="w-full">
-        <h1 className="text-xl font-bold text-[#0F172A] md:text-2xl lg:text-3xl">Ustawienia</h1>
+        <h1 className="text-xl font-bold text-foreground md:text-2xl lg:text-3xl">Ustawienia</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Zarządzaj profilem i danymi konta.
         </p>
@@ -76,7 +76,7 @@ export default async function InfluencerSettingsPage({
           >
             Dane bankowe
             {!hasBankDetails && (
-              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-red-500" />
+              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-destructive" />
             )}
           </TabsTrigger>
 
@@ -93,7 +93,7 @@ export default async function InfluencerSettingsPage({
           >
             Stripe
             {!profile.stripeOnboardingDone && (
-              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-amber-500" />
+              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-warning" />
             )}
           </TabsTrigger>
 

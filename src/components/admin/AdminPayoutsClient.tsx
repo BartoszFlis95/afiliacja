@@ -52,11 +52,11 @@ function PayoutDetailsRow({ payout }: { payout: AdminPayoutRow }) {
   const usesPaypal = payout.influencer.preferredPayout === "paypal";
 
   return (
-    <div className="border-t border-slate-100 bg-slate-50/50 px-4 py-3 text-sm">
+    <div className="border-t border-border/60 bg-muted/30 px-4 py-3 text-sm">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-slate-900"
+        className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
       >
         {open ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
         {open ? "Ukryj szczegóły" : "Pokaż dane bankowe i komisję"}
@@ -64,14 +64,14 @@ function PayoutDetailsRow({ payout }: { payout: AdminPayoutRow }) {
       {open && (
         <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <p className="mb-1 text-xs font-medium text-slate-500">Dane do wypłaty</p>
+            <p className="mb-1 text-xs font-medium text-muted-foreground">Dane do wypłaty</p>
             {usesPaypal ? (
-              <p className="text-slate-900">PayPal: {payout.influencer.paypalEmail ?? "—"}</p>
+              <p className="text-foreground">PayPal: {payout.influencer.paypalEmail ?? "—"}</p>
             ) : (
-              <div className="space-y-0.5 text-slate-900">
+              <div className="space-y-0.5 text-foreground">
                 <p>{payout.influencer.bankAccountName ?? "—"}</p>
                 <p className="font-mono text-xs">{payout.influencer.bankAccountIban ?? "—"}</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted-foreground">
                   {payout.influencer.bankAccountBank ?? "—"}
                   {payout.influencer.bankSwift ? ` · ${payout.influencer.bankSwift}` : ""}
                 </p>
@@ -79,17 +79,17 @@ function PayoutDetailsRow({ payout }: { payout: AdminPayoutRow }) {
             )}
           </div>
           <div>
-            <p className="mb-1 text-xs font-medium text-slate-500">Komisja</p>
+            <p className="mb-1 text-xs font-medium text-muted-foreground">Komisja</p>
             {payout.commission ? (
-              <div className="text-slate-900">
+              <div className="text-foreground">
                 <p>{payout.commission.productName}</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted-foreground">
                   Zamówienie: {formatCurrency(payout.commission.orderValue)} · Prowizja:{" "}
                   {formatCurrency(payout.commission.commissionAmount)}
                 </p>
               </div>
             ) : (
-              <p className="text-slate-500">—</p>
+              <p className="text-muted-foreground">—</p>
             )}
           </div>
         </div>
@@ -131,25 +131,25 @@ export function AdminPayoutsClient({ payouts }: { payouts: AdminPayoutRow[] }) {
         return (
           <TabsContent key={tab} value={tab} className="mt-4 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-muted-foreground">
                 Suma:{" "}
-                <span className="font-semibold text-slate-900">{formatCurrency(sum)}</span> (
+                <span className="font-semibold text-foreground">{formatCurrency(sum)}</span> (
                 {list.length} {list.length === 1 ? "wypłata" : "wypłat"})
               </p>
               <ExportCSVButton data={csvData} filename={`wyplaty-${tab.toLowerCase()}`} />
             </div>
 
             {list.length === 0 ? (
-              <div className="rounded-lg border border-slate-200 bg-white p-6">
+              <div className="rounded-lg border border-border bg-card p-6">
                 <EmptyState icon={Wallet} title="Brak wypłat w tej kategorii" />
               </div>
             ) : (
-              <div className="divide-y divide-slate-100 overflow-hidden rounded-lg border border-slate-200 bg-white">
+              <div className="divide-y divide-border/60 overflow-hidden rounded-lg border border-border bg-card">
                 {list.map((payout) => (
                   <div key={payout.id}>
                     <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-full bg-slate-100">
+                        <div className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-full bg-muted">
                           {payout.influencer.avatarUrl ? (
                             <Image
                               src={payout.influencer.avatarUrl}
@@ -159,25 +159,25 @@ export function AdminPayoutsClient({ payouts }: { payouts: AdminPayoutRow[] }) {
                               className="object-cover"
                             />
                           ) : (
-                            <div className="flex h-full items-center justify-center text-xs font-medium text-slate-500">
+                            <div className="flex h-full items-center justify-center text-xs font-medium text-muted-foreground">
                               {payout.influencer.displayName.slice(0, 2).toUpperCase()}
                             </div>
                           )}
                         </div>
                         <div>
-                          <p className="font-medium text-slate-900">
+                          <p className="font-medium text-foreground">
                             {payout.influencer.displayName}
                           </p>
-                          <p className="text-xs text-slate-500">{payout.influencer.email}</p>
+                          <p className="text-xs text-muted-foreground">{payout.influencer.email}</p>
                         </div>
                       </div>
 
                       <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                         <div className="text-right">
-                          <p className="font-semibold text-slate-900">
+                          <p className="font-semibold text-foreground">
                             {formatCurrency(payout.amount)}
                           </p>
-                          <p className="text-xs text-slate-500">
+                          <p className="text-xs text-muted-foreground">
                             {payout.influencer.preferredPayout === "paypal"
                               ? "PayPal"
                               : `IBAN: ${maskIban(payout.influencer.bankAccountIban)}`}

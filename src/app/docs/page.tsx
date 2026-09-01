@@ -129,20 +129,20 @@ const CHECKLIST = [
 
 export default function DocsPage() {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-white">
+    <div className="min-h-screen overflow-x-hidden bg-card">
       <Navbar />
 
       <main className="pt-24 sm:pt-28 lg:pt-32">
         {/* Header */}
-        <section className="bg-gradient-to-br from-[#EFF6FF] via-white to-[#DBEAFE] px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <section className="bg-gradient-to-br from-primary/5 via-background to-primary/15 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">
-            <span className="inline-flex rounded-full bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700">
+            <span className="inline-flex rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
               📚 Dokumentacja dla marek
             </span>
-            <h1 className="mt-6 text-3xl font-black text-[#0F172A] sm:text-4xl lg:text-5xl">
+            <h1 className="mt-6 text-3xl font-black text-foreground sm:text-4xl lg:text-5xl">
               Dokumentacja API webhooków
             </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-base text-slate-500 sm:text-lg">
+            <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
               Zintegruj swój sklep z Deneeu, aby automatycznie zgłaszać
               konwersje i naliczać prowizje influencerom w czasie
               rzeczywistym.
@@ -154,7 +154,7 @@ export default function DocsPage() {
               <a
                 key={item.href}
                 href={item.href}
-                className="rounded-full border border-blue-100 bg-white px-4 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:border-blue-200 hover:text-blue-600"
+                className="rounded-full border border-primary/20 bg-card px-4 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary"
               >
                 {item.label}
               </a>
@@ -165,26 +165,26 @@ export default function DocsPage() {
         <div className="mx-auto max-w-4xl space-y-16 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
           {/* Wprowadzenie */}
           <section id="wprowadzenie" className="scroll-mt-24">
-            <h2 className="text-2xl font-black text-[#0F172A] sm:text-3xl">
+            <h2 className="text-2xl font-black text-foreground sm:text-3xl">
               Wprowadzenie do webhooków
             </h2>
-            <div className="mt-4 space-y-4 text-base text-slate-600">
+            <div className="mt-4 space-y-4 text-base text-muted-foreground">
               <p>
                 Deneeu śledzi konwersje w modelu CPS (Cost Per Sale) —
                 płacisz wyłącznie za zarejestrowane sprzedaże. Aby to
                 działało, Twój sklep musi po każdym udanym zamówieniu wysłać
-                żądanie <code className="rounded bg-blue-50 px-1.5 py-0.5 font-mono text-sm text-blue-700">POST</code>{" "}
+                żądanie <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-sm text-primary">POST</code>{" "}
                 do naszego API z danymi zamówienia i identyfikatorem
                 influencera.
               </p>
               <p>
                 Udostępniamy dwa endpointy webhookowe:{" "}
-                <code className="rounded bg-blue-50 px-1.5 py-0.5 font-mono text-sm text-blue-700">
+                <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-sm text-primary">
                   /api/conversion
                 </code>{" "}
                 — rekomendowany endpoint bazujący na identyfikatorze
                 influencera (<code className="font-mono">ref</code>), oraz{" "}
-                <code className="rounded bg-blue-50 px-1.5 py-0.5 font-mono text-sm text-blue-700">
+                <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-sm text-primary">
                   /api/track
                 </code>{" "}
                 — alternatywny endpoint bazujący bezpośrednio na kodzie
@@ -198,10 +198,10 @@ export default function DocsPage() {
 
           {/* Szybki start */}
           <section id="szybki-start" className="scroll-mt-24">
-            <h2 className="text-2xl font-black text-[#0F172A] sm:text-3xl">
+            <h2 className="text-2xl font-black text-foreground sm:text-3xl">
               Szybki start
             </h2>
-            <p className="mt-4 text-base text-slate-600">
+            <p className="mt-4 text-base text-muted-foreground">
               Najszybszy sposób na sprawdzenie integracji to wysłanie
               żądania cURL bezpośrednio z terminala:
             </p>
@@ -219,7 +219,7 @@ export default function DocsPage() {
   }'`}
               />
             </div>
-            <p className="mt-4 text-base text-slate-600">
+            <p className="mt-4 text-base text-muted-foreground">
               W odpowiedzi otrzymasz potwierdzenie zarejestrowania konwersji
               wraz z rozbiciem prowizji:
             </p>
@@ -243,13 +243,13 @@ export default function DocsPage() {
 
           {/* Autentykacja */}
           <section id="autentykacja" className="scroll-mt-24">
-            <h2 className="text-2xl font-black text-[#0F172A] sm:text-3xl">
+            <h2 className="text-2xl font-black text-foreground sm:text-3xl">
               Autentykacja
             </h2>
-            <div className="mt-4 space-y-4 text-base text-slate-600">
+            <div className="mt-4 space-y-4 text-base text-muted-foreground">
               <p>
                 Każde żądanie musi zawierać nagłówek{" "}
-                <code className="rounded bg-blue-50 px-1.5 py-0.5 font-mono text-sm text-blue-700">
+                <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-sm text-primary">
                   x-api-key
                 </code>{" "}
                 z Twoim kluczem API. Klucz znajdziesz w panelu marki, w
@@ -270,7 +270,7 @@ x-signature: OBLICZONY_HMAC_SHA256`}
                 treści żądania (JSON), używając swojego{" "}
                 <code className="font-mono">webhookSecret</code>, i prześlij
                 wynik jako nagłówek{" "}
-                <code className="rounded bg-blue-50 px-1.5 py-0.5 font-mono text-sm text-blue-700">
+                <code className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-sm text-primary">
                   x-signature
                 </code>
                 . Nagłówek jest{" "}
@@ -283,23 +283,23 @@ x-signature: OBLICZONY_HMAC_SHA256`}
           {/* Endpoint /api/track */}
           <section id="api-track" className="scroll-mt-24">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-lg bg-blue-600 px-3 py-1 text-sm font-bold text-white">
+              <span className="rounded-lg bg-primary px-3 py-1 text-sm font-bold text-primary-foreground">
                 POST
               </span>
-              <h2 className="font-mono text-xl font-black text-[#0F172A] sm:text-2xl">
+              <h2 className="font-mono text-xl font-black text-foreground sm:text-2xl">
                 /api/track
               </h2>
             </div>
-            <p className="mt-4 text-base text-slate-600">
+            <p className="mt-4 text-base text-muted-foreground">
               Rejestruje konwersję na podstawie kodu linku afiliacyjnego (
               <code className="font-mono">code</code>). Link musi należeć do
               produktu Twojej marki, w przeciwnym razie żądanie zostanie
               odrzucone.
             </p>
 
-            <div className="mt-6 overflow-x-auto rounded-xl border border-blue-100 bg-white">
+            <div className="mt-6 overflow-x-auto rounded-xl border border-primary/20 bg-card">
               <table className="w-full min-w-[560px] text-left text-sm">
-                <thead className="bg-[#EFF6FF] text-xs uppercase tracking-wide text-slate-500">
+                <thead className="bg-primary/10 text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3 font-semibold">Pole</th>
                     <th className="px-4 py-3 font-semibold">Typ</th>
@@ -307,19 +307,19 @@ x-signature: OBLICZONY_HMAC_SHA256`}
                     <th className="px-4 py-3 font-semibold">Opis</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-blue-50">
+                <tbody className="divide-y divide-border/60">
                   {TRACK_FIELDS.map((row) => (
                     <tr key={row.field}>
-                      <td className="px-4 py-3 font-mono text-blue-700">
+                      <td className="px-4 py-3 font-mono text-primary">
                         {row.field}
                       </td>
-                      <td className="px-4 py-3 text-slate-500">
+                      <td className="px-4 py-3 text-muted-foreground">
                         {row.type}
                       </td>
-                      <td className="px-4 py-3 text-slate-500">
+                      <td className="px-4 py-3 text-muted-foreground">
                         {row.required}
                       </td>
-                      <td className="px-4 py-3 text-slate-600">
+                      <td className="px-4 py-3 text-muted-foreground">
                         {row.description}
                       </td>
                     </tr>
@@ -328,7 +328,7 @@ x-signature: OBLICZONY_HMAC_SHA256`}
               </table>
             </div>
 
-            <p className="mt-6 text-sm font-semibold text-slate-700">
+            <p className="mt-6 text-sm font-semibold text-foreground">
               Przykładowe żądanie
             </p>
             <div className="mt-2">
@@ -342,7 +342,7 @@ x-signature: OBLICZONY_HMAC_SHA256`}
               />
             </div>
 
-            <p className="mt-6 text-sm font-semibold text-slate-700">
+            <p className="mt-6 text-sm font-semibold text-foreground">
               Odpowiedź 200 OK
             </p>
             <div className="mt-2">
@@ -366,26 +366,26 @@ x-signature: OBLICZONY_HMAC_SHA256`}
           {/* Endpoint /api/conversion */}
           <section id="api-conversion" className="scroll-mt-24">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-lg bg-blue-600 px-3 py-1 text-sm font-bold text-white">
+              <span className="rounded-lg bg-primary px-3 py-1 text-sm font-bold text-primary-foreground">
                 POST
               </span>
-              <h2 className="font-mono text-xl font-black text-[#0F172A] sm:text-2xl">
+              <h2 className="font-mono text-xl font-black text-foreground sm:text-2xl">
                 /api/conversion
               </h2>
-              <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+              <span className="rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success">
                 Rekomendowany
               </span>
             </div>
-            <p className="mt-4 text-base text-slate-600">
+            <p className="mt-4 text-base text-muted-foreground">
               Rejestruje konwersję na podstawie identyfikatora influencera (
               <code className="font-mono">ref</code>). To domyślny endpoint
               prezentowany w panelu marki i zalecany dla większości
               integracji sklepowych.
             </p>
 
-            <div className="mt-6 overflow-x-auto rounded-xl border border-blue-100 bg-white">
+            <div className="mt-6 overflow-x-auto rounded-xl border border-primary/20 bg-card">
               <table className="w-full min-w-[560px] text-left text-sm">
-                <thead className="bg-[#EFF6FF] text-xs uppercase tracking-wide text-slate-500">
+                <thead className="bg-primary/10 text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3 font-semibold">Pole</th>
                     <th className="px-4 py-3 font-semibold">Typ</th>
@@ -393,19 +393,19 @@ x-signature: OBLICZONY_HMAC_SHA256`}
                     <th className="px-4 py-3 font-semibold">Opis</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-blue-50">
+                <tbody className="divide-y divide-border/60">
                   {CONVERSION_FIELDS.map((row) => (
                     <tr key={row.field}>
-                      <td className="px-4 py-3 font-mono text-blue-700">
+                      <td className="px-4 py-3 font-mono text-primary">
                         {row.field}
                       </td>
-                      <td className="px-4 py-3 text-slate-500">
+                      <td className="px-4 py-3 text-muted-foreground">
                         {row.type}
                       </td>
-                      <td className="px-4 py-3 text-slate-500">
+                      <td className="px-4 py-3 text-muted-foreground">
                         {row.required}
                       </td>
-                      <td className="px-4 py-3 text-slate-600">
+                      <td className="px-4 py-3 text-muted-foreground">
                         {row.description}
                       </td>
                     </tr>
@@ -414,7 +414,7 @@ x-signature: OBLICZONY_HMAC_SHA256`}
               </table>
             </div>
 
-            <p className="mt-6 text-sm font-semibold text-slate-700">
+            <p className="mt-6 text-sm font-semibold text-foreground">
               Przykładowe żądanie
             </p>
             <div className="mt-2">
@@ -431,7 +431,7 @@ x-signature: OBLICZONY_HMAC_SHA256`}
               />
             </div>
 
-            <p className="mt-6 text-sm font-semibold text-slate-700">
+            <p className="mt-6 text-sm font-semibold text-foreground">
               Odpowiedź 200 OK
             </p>
             <div className="mt-2">
@@ -454,18 +454,18 @@ x-signature: OBLICZONY_HMAC_SHA256`}
 
           {/* Kody błędów */}
           <section id="kody-bledow" className="scroll-mt-24">
-            <h2 className="text-2xl font-black text-[#0F172A] sm:text-3xl">
+            <h2 className="text-2xl font-black text-foreground sm:text-3xl">
               Kody błędów
             </h2>
-            <p className="mt-4 text-base text-slate-600">
+            <p className="mt-4 text-base text-muted-foreground">
               Oba endpointy zwracają błędy w formacie{" "}
               <code className="font-mono">{`{ "error": "..." }`}</code> wraz
               z odpowiednim kodem HTTP.
             </p>
 
-            <div className="mt-6 overflow-x-auto rounded-xl border border-blue-100 bg-white">
+            <div className="mt-6 overflow-x-auto rounded-xl border border-primary/20 bg-card">
               <table className="w-full min-w-[480px] text-left text-sm">
-                <thead className="bg-[#EFF6FF] text-xs uppercase tracking-wide text-slate-500">
+                <thead className="bg-primary/10 text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3 font-semibold">Kod</th>
                     <th className="px-4 py-3 font-semibold">
@@ -473,13 +473,13 @@ x-signature: OBLICZONY_HMAC_SHA256`}
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-blue-50">
+                <tbody className="divide-y divide-border/60">
                   {ERROR_CODES.map((row) => (
                     <tr key={row.code}>
-                      <td className="px-4 py-3 font-mono font-bold text-blue-700">
+                      <td className="px-4 py-3 font-mono font-bold text-primary">
                         {row.code}
                       </td>
-                      <td className="px-4 py-3 text-slate-600">
+                      <td className="px-4 py-3 text-muted-foreground">
                         {row.when}
                       </td>
                     </tr>
@@ -491,10 +491,10 @@ x-signature: OBLICZONY_HMAC_SHA256`}
 
           {/* Przykłady integracji */}
           <section id="przyklady" className="scroll-mt-24">
-            <h2 className="text-2xl font-black text-[#0F172A] sm:text-3xl">
+            <h2 className="text-2xl font-black text-foreground sm:text-3xl">
               Przykłady integracji
             </h2>
-            <p className="mt-4 text-base text-slate-600">
+            <p className="mt-4 text-base text-muted-foreground">
               Poniżej znajdziesz gotowe fragmenty kodu do wysłania webhooka
               po zakończeniu zamówienia — dla WooCommerce, Node.js/JavaScript,
               Pythona oraz cURL.
@@ -502,10 +502,10 @@ x-signature: OBLICZONY_HMAC_SHA256`}
 
             <div className="mt-8 space-y-8">
               <div>
-                <h3 className="text-lg font-bold text-[#0F172A]">
+                <h3 className="text-lg font-bold text-foreground">
                   WooCommerce (PHP)
                 </h3>
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-sm text-muted-foreground">
                   Zapisz identyfikator influencera z parametru{" "}
                   <code className="font-mono">?ref=</code> w ciasteczku
                   Twojego sklepu, a następnie wyślij webhook po zakończeniu
@@ -553,7 +553,7 @@ add_action('woocommerce_order_status_completed', function ($order_id) {
               </div>
 
               <div>
-                <h3 className="text-lg font-bold text-[#0F172A]">
+                <h3 className="text-lg font-bold text-foreground">
                   JavaScript / Node.js
                 </h3>
                 <div className="mt-3">
@@ -589,7 +589,7 @@ async function reportConversion({ orderId, amount, ref, email }) {
               </div>
 
               <div>
-                <h3 className="text-lg font-bold text-[#0F172A]">Python</h3>
+                <h3 className="text-lg font-bold text-foreground">Python</h3>
                 <div className="mt-3">
                   <CodeBlock
                     language="python"
@@ -627,7 +627,7 @@ def report_conversion(order_id: str, amount: float, ref: str, email: str | None 
               </div>
 
               <div>
-                <h3 className="text-lg font-bold text-[#0F172A]">cURL</h3>
+                <h3 className="text-lg font-bold text-foreground">cURL</h3>
                 <div className="mt-3">
                   <CodeBlock
                     language="bash"
@@ -649,19 +649,19 @@ def report_conversion(order_id: str, amount: float, ref: str, email: str | None 
 
           {/* Cookies */}
           <section id="cookies" className="scroll-mt-24">
-            <h2 className="text-2xl font-black text-[#0F172A] sm:text-3xl">
+            <h2 className="text-2xl font-black text-foreground sm:text-3xl">
               Śledzenie linków (cookies)
             </h2>
-            <div className="mt-4 space-y-4 text-base text-slate-600">
+            <div className="mt-4 space-y-4 text-base text-muted-foreground">
               <p>
                 Kiedy odwiedzający kliknie link afiliacyjny (
                 <code className="font-mono">/r/kod</code>), Deneeu zapisuje
                 dwa ciasteczka ważne przez{" "}
-                <strong className="text-[#0F172A]">30 dni</strong>:
+                <strong className="text-foreground">30 dni</strong>:
               </p>
-              <div className="overflow-x-auto rounded-xl border border-blue-100 bg-white">
+              <div className="overflow-x-auto rounded-xl border border-primary/20 bg-card">
                 <table className="w-full min-w-[480px] text-left text-sm">
-                  <thead className="bg-[#EFF6FF] text-xs uppercase tracking-wide text-slate-500">
+                  <thead className="bg-primary/10 text-xs uppercase tracking-wide text-muted-foreground">
                     <tr>
                       <th className="px-4 py-3 font-semibold">Ciasteczko</th>
                       <th className="px-4 py-3 font-semibold">Wartość</th>
@@ -670,27 +670,27 @@ def report_conversion(order_id: str, amount: float, ref: str, email: str | None 
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-blue-50">
+                  <tbody className="divide-y divide-border/60">
                     <tr>
-                      <td className="px-4 py-3 font-mono text-blue-700">
+                      <td className="px-4 py-3 font-mono text-primary">
                         deneeu_ref
                       </td>
-                      <td className="px-4 py-3 text-slate-500">
+                      <td className="px-4 py-3 text-muted-foreground">
                         ID influencera
                       </td>
-                      <td className="px-4 py-3 text-slate-600">
+                      <td className="px-4 py-3 text-muted-foreground">
                         Wartość wysyłana jako pole <code>ref</code> do{" "}
                         <code>/api/conversion</code>.
                       </td>
                     </tr>
                     <tr>
-                      <td className="px-4 py-3 font-mono text-blue-700">
+                      <td className="px-4 py-3 font-mono text-primary">
                         deneeu_link_code
                       </td>
-                      <td className="px-4 py-3 text-slate-500">
+                      <td className="px-4 py-3 text-muted-foreground">
                         Kod linku afiliacyjnego
                       </td>
-                      <td className="px-4 py-3 text-slate-600">
+                      <td className="px-4 py-3 text-muted-foreground">
                         Zapisywany dla celów analitycznych — nie jest
                         wymagany do rejestracji konwersji.
                       </td>
@@ -704,7 +704,7 @@ def report_conversion(order_id: str, amount: float, ref: str, email: str | None 
                 <code className="font-mono">?ref=...&amp;utm_source=deneeu&amp;utm_medium=affiliate&amp;utm_campaign=kod</code>
                 .
               </p>
-              <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              <div className="rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
                 <strong>Ważne:</strong> ciasteczka Deneeu są ustawiane w
                 domenie deneeu.pl i nie będą widoczne z poziomu Twojego
                 sklepu (inna domena). Zalecamy odczytanie identyfikatora{" "}
@@ -717,16 +717,16 @@ def report_conversion(order_id: str, amount: float, ref: str, email: str | None 
 
           {/* Checklist */}
           <section id="checklist" className="scroll-mt-24">
-            <h2 className="text-2xl font-black text-[#0F172A] sm:text-3xl">
+            <h2 className="text-2xl font-black text-foreground sm:text-3xl">
               Checklist testowania
             </h2>
             <ul className="mt-4 space-y-3">
               {CHECKLIST.map((item) => (
                 <li
                   key={item}
-                  className="flex items-start gap-3 rounded-xl border border-blue-100 bg-white p-4 text-sm text-slate-600 shadow-sm"
+                  className="flex items-start gap-3 rounded-xl border border-primary/20 bg-card p-4 text-sm text-muted-foreground shadow-sm"
                 >
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-blue-600" />
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-primary" />
                   {item}
                 </li>
               ))}

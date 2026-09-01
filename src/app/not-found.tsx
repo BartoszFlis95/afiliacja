@@ -4,19 +4,19 @@ import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 text-center">
-      <p className="text-8xl font-extrabold tracking-tight text-slate-200 sm:text-9xl">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-muted/50 px-4 text-center">
+      <p className="text-8xl font-extrabold tracking-tight text-muted-foreground/40 sm:text-9xl">
         404
       </p>
 
-      <div className="mt-4 flex items-center gap-2 text-slate-500">
+      <div className="mt-4 flex items-center gap-2 text-muted-foreground">
         <AlertCircle className="h-5 w-5 shrink-0" />
-        <span className="text-lg font-medium text-slate-700">
+        <span className="text-lg font-medium text-foreground">
           Strona nie istnieje
         </span>
       </div>
 
-      <p className="mt-2 max-w-sm text-sm text-slate-400">
+      <p className="mt-2 max-w-sm text-sm text-muted-foreground">
         Strona, której szukasz, nie została odnaleziona. Mogła zostać
         przeniesiona lub usunięta.
       </p>

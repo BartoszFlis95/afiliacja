@@ -79,7 +79,7 @@ export default async function AdminInvoiceDetailPage({
               "use server";
               await updateInvoiceStatusAction(invoice.id, "PAID" as const);
             }}>
-              <Button type="submit" size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Button type="submit" size="sm" className="bg-success text-success-foreground hover:bg-success/90">
                 <CheckCircle className="mr-1 h-4 w-4" />
                 Oznacz jako opłaconą
               </Button>
@@ -106,8 +106,8 @@ export default async function AdminInvoiceDetailPage({
           <CardContent className="p-8 space-y-6">
             {/* Header */}
             <div>
-              <h2 className="text-3xl font-bold text-slate-900">FAKTURA VAT</h2>
-              <p className="text-lg text-slate-600 font-mono mt-1">Nr: {invoice.invoiceNumber}</p>
+              <h2 className="text-3xl font-bold text-foreground">FAKTURA VAT</h2>
+              <p className="text-lg text-muted-foreground font-mono mt-1">Nr: {invoice.invoiceNumber}</p>
             </div>
 
             {/* Dates */}
@@ -129,20 +129,20 @@ export default async function AdminInvoiceDetailPage({
               </div>
             </div>
 
-            <hr className="border-slate-200" />
+            <hr className="border-border" />
 
             {/* Parties */}
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div className="rounded-lg bg-slate-50 p-4 text-sm space-y-1">
+              <div className="rounded-lg bg-muted/50 p-4 text-sm space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Sprzedawca</p>
-                <p className="font-semibold text-slate-900">{invoice.issuerName}</p>
+                <p className="font-semibold text-foreground">{invoice.issuerName}</p>
                 <p className="text-muted-foreground">NIP: {invoice.issuerNip}</p>
                 <p className="text-muted-foreground">{invoice.issuerAddress}</p>
                 <p className="text-muted-foreground">{invoice.issuerPostalCode} {invoice.issuerCity}</p>
               </div>
-              <div className="rounded-lg bg-slate-50 p-4 text-sm space-y-1">
+              <div className="rounded-lg bg-muted/50 p-4 text-sm space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Nabywca</p>
-                <p className="font-semibold text-slate-900">{invoice.brandCompanyName}</p>
+                <p className="font-semibold text-foreground">{invoice.brandCompanyName}</p>
                 {invoice.brandNip && <p className="text-muted-foreground">NIP: {invoice.brandNip}</p>}
                 {invoice.brandAddress && <p className="text-muted-foreground">{invoice.brandAddress}</p>}
                 {(invoice.brandPostalCode || invoice.brandCity) && (
@@ -159,11 +159,11 @@ export default async function AdminInvoiceDetailPage({
                 <div className="overflow-x-auto">
                 <Table className="min-w-[520px]">
                   <TableHeader>
-                    <TableRow className="bg-slate-900 hover:bg-slate-900">
-                      <TableHead className="pl-4 text-white">Opis</TableHead>
-                      <TableHead className="text-right text-white">Ilość</TableHead>
-                      <TableHead className="text-right text-white">Cena jedn.</TableHead>
-                      <TableHead className="pr-4 text-right text-white">Wartość</TableHead>
+                    <TableRow className="bg-sidebar text-sidebar-foreground hover:bg-sidebar">
+                      <TableHead className="pl-4 text-sidebar-foreground">Opis</TableHead>
+                      <TableHead className="text-right text-sidebar-foreground">Ilość</TableHead>
+                      <TableHead className="text-right text-sidebar-foreground">Cena jedn.</TableHead>
+                      <TableHead className="pr-4 text-right text-sidebar-foreground">Wartość</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -192,7 +192,7 @@ export default async function AdminInvoiceDetailPage({
                   <span>VAT {invoice.vatRate}%</span>
                   <span>{formatPLN(invoice.vatAmount)}</span>
                 </div>
-                <div className="flex justify-between font-bold text-base text-slate-900 border-t border-slate-200 pt-2">
+                <div className="flex justify-between font-bold text-base text-foreground border-t border-border pt-2">
                   <span>Do zapłaty (brutto)</span>
                   <span>{formatPLN(invoice.grossAmount)}</span>
                 </div>
@@ -200,15 +200,15 @@ export default async function AdminInvoiceDetailPage({
             </div>
 
             {/* Footer */}
-            <div className="rounded-lg bg-slate-50 p-4 text-sm text-muted-foreground">
+            <div className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
               <p>Forma płatności: przelew bankowy</p>
               <p>Termin płatności: {formatDate(invoice.dueDate)}</p>
             </div>
 
             {/* Notes */}
             {invoice.notes && (
-              <div className="rounded-lg border border-slate-200 p-4 text-sm">
-                <p className="font-medium text-slate-700 mb-1">Uwagi</p>
+              <div className="rounded-lg border border-border p-4 text-sm">
+                <p className="font-medium text-foreground mb-1">Uwagi</p>
                 <p className="text-muted-foreground">{invoice.notes}</p>
               </div>
             )}

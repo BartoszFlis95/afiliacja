@@ -22,15 +22,16 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
   }
 
   return (
-    <div className="overflow-hidden rounded-xl bg-[#0F172A]">
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-2">
-        <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
+    <div data-surface="dark"
+      className="overflow-hidden rounded-xl bg-sidebar">
+      <div className="flex items-center justify-between border-b border-sidebar-border px-4 py-2">
+        <span className="text-xs font-medium uppercase tracking-wide text-sidebar-foreground/60">
           {language ?? "code"}
         </span>
         <button
           type="button"
           onClick={handleCopy}
-          className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+          className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
         >
           {copied ? (
             <>
@@ -43,7 +44,7 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
           )}
         </button>
       </div>
-      <pre className="overflow-x-auto p-4 text-sm leading-relaxed text-[#E2E8F0]">
+      <pre className="overflow-x-auto p-4 text-sm leading-relaxed text-sidebar-foreground">
         <code>{code}</code>
       </pre>
     </div>

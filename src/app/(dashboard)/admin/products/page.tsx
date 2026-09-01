@@ -34,7 +34,7 @@ export default async function AdminProductsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-[#0F172A]">Produkty</h1>
+        <h1 className="text-2xl font-bold text-foreground">Produkty</h1>
         <p className="mt-1 text-muted-foreground">
           {products.length.toLocaleString("pl-PL")} produktów w systemie.
         </p>

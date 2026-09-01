@@ -25,6 +25,6 @@ export const SimpleLineChart = dynamic<SimpleLineChartProps>(
   () => import("./SimpleLineChartImpl").then((mod) => mod.SimpleLineChart),
   {
     ssr: false,
-    loading: () => <div className="h-[300px] animate-pulse rounded-xl bg-blue-50" />,
+    loading: () => <div className="h-[300px] animate-pulse rounded-xl bg-primary/10" />,
   }
 );

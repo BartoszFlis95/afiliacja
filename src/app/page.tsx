@@ -79,42 +79,42 @@ const FEATURES = [
     title: "Bezpieczne webhooky",
     description:
       "Weryfikacja apiKey i HMAC dla każdego żądania. Twoje dane są bezpieczne.",
-    gradient: "from-blue-50 to-blue-100/50",
+    gradient: "from-primary/10 to-primary/15",
   },
   {
     icon: "📊",
     title: "Statystyki w czasie rzeczywistym",
     description:
       "Kliknięcia, konwersje i zarobki aktualizowane na bieżąco.",
-    gradient: "from-emerald-50 to-emerald-100/50",
+    gradient: "from-success/10 to-success/15",
   },
   {
     icon: "⚡",
     title: "Szybkie wypłaty",
     description:
       "Wypłaty przez IBAN lub Stripe Connect. Pieniądze trafiają bezpośrednio na konto.",
-    gradient: "from-amber-50 to-amber-100/50",
+    gradient: "from-warning/10 to-warning/15",
   },
   {
     icon: "🔗",
     title: "Unikalne linki afiliacyjne",
     description:
       "Każdy influencer ma swój link z UTM tracking i cookie 30 dni.",
-    gradient: "from-violet-50 to-violet-100/50",
+    gradient: "from-primary/10 to-primary/15",
   },
   {
     icon: "📧",
     title: "Automatyczne powiadomienia",
     description:
       "Emaile o nowych komisjach, zatwierdzeniach i wypłatach. Zero ręcznej pracy.",
-    gradient: "from-rose-50 to-rose-100/50",
+    gradient: "from-destructive/10 to-destructive/15",
   },
   {
     icon: "📱",
     title: "Responsywny panel",
     description:
       "Zarządzaj platformą z telefonu, tabletu lub komputera. Zawsze pod ręką.",
-    gradient: "from-slate-100 to-slate-200/50",
+    gradient: "from-muted to-border/50",
   },
 ];
 
@@ -133,11 +133,11 @@ export default async function LandingPage() {
   ]);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-white">
+    <div className="min-h-screen overflow-x-hidden bg-card">
       <Navbar />
 
       {/* Hero */}
-      <section className="scroll-mt-24 bg-gradient-to-br from-slate-50 via-white to-blue-50/60 px-4 pt-24 pb-12 sm:px-6 sm:pt-28 sm:pb-16 lg:px-8 lg:pt-32 lg:pb-20">
+      <section className="scroll-mt-24 bg-gradient-to-br from-muted/40 via-background to-primary/10 px-4 pt-24 pb-12 sm:px-6 sm:pt-28 sm:pb-16 lg:px-8 lg:pt-32 lg:pb-20">
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 sm:gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Na mobile logo schodzi POD tekst (order-2). Wcześniej stało nad
               nagłówkiem w rozmiarze 90vw i samo zajmowało cały pierwszy ekran —
@@ -154,11 +154,11 @@ export default async function LandingPage() {
           />
 
           <div className="order-1 flex flex-col items-center text-center lg:order-2 lg:items-start lg:text-left">
-            <span className="inline-flex rounded-full bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700">
+            <span className="inline-flex rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
               🚀 Platforma CPS dla marek i influencerów
             </span>
 
-            <h1 className="mt-6 text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl lg:text-6xl">
+            <h1 className="mt-6 text-3xl font-semibold leading-tight text-foreground sm:text-4xl lg:text-6xl">
               Łączymy marki z influencerami przez marketing afiliacyjny
             </h1>
 
@@ -166,7 +166,7 @@ export default async function LandingPage() {
               Automatyzuj prowizje, śledzenie konwersji i wypłaty
             </p>
 
-            <p className="mt-6 max-w-lg text-base text-slate-500 sm:text-lg">
+            <p className="mt-6 max-w-lg text-base text-muted-foreground sm:text-lg">
               Platforma CPS (Cost Per Sale) która łączy marki z
               influencerami. Płacisz tylko za wyniki.
             </p>
@@ -189,15 +189,15 @@ export default async function LandingPage() {
               </Button>
             </div>
 
-            <ul className="mt-10 flex flex-col items-center gap-2 text-sm text-slate-500 sm:flex-row sm:gap-6 lg:items-start">
+            <ul className="mt-10 flex flex-col items-center gap-2 text-sm text-muted-foreground sm:flex-row sm:gap-6 lg:items-start">
               <li className="flex items-center gap-2">
-                <span className="text-emerald-600">✓</span> Darmowa rejestracja
+                <span className="text-success">✓</span> Darmowa rejestracja
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-emerald-600">✓</span> Bez karty kredytowej
+                <span className="text-success">✓</span> Bez karty kredytowej
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-emerald-600">✓</span> Pierwsze wyniki w
+                <span className="text-success">✓</span> Pierwsze wyniki w
                 24h
               </li>
             </ul>
@@ -206,7 +206,7 @@ export default async function LandingPage() {
       </section>
 
       {/* Statystyki */}
-      <section className="border-y border-slate-100 bg-white px-4 py-10 sm:px-6 lg:px-8">
+      <section className="border-y border-border/60 bg-card px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 sm:grid-cols-4">
           <AnimatedStat value={totalBrands} label="Marek na platformie" />
           <AnimatedStat value={totalInfluencers} label="Influencerów" />
@@ -218,14 +218,14 @@ export default async function LandingPage() {
       {/* Jak to działa */}
       <section
         id="jak-to-dziala"
-        className="scroll-mt-24 bg-slate-50 px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24"
+        className="scroll-mt-24 bg-muted/50 px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24"
       >
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
+            <h2 className="text-3xl font-semibold text-foreground sm:text-4xl">
               Jak to działa?
             </h2>
-            <p className="mt-3 text-base text-slate-500 sm:text-lg">
+            <p className="mt-3 text-base text-muted-foreground sm:text-lg">
               Trzy proste kroki do automatycznych prowizji
             </p>
           </div>
@@ -233,21 +233,21 @@ export default async function LandingPage() {
           <div className="mt-10 grid grid-cols-1 gap-8 sm:gap-6 lg:mt-16 lg:grid-cols-3 lg:gap-8">
             {STEPS.map((step, index) => (
               <div key={step.number} className="relative text-center">
-                <div className="inline-flex rounded-2xl bg-slate-100 p-4 text-4xl shadow-sm">
+                <div className="inline-flex rounded-2xl bg-muted p-4 text-4xl shadow-sm">
                   {step.icon}
                 </div>
-                <div className="mx-auto -mt-4 flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
+                <div className="mx-auto -mt-4 flex h-8 w-8 items-center justify-center rounded-full bg-sidebar text-sm font-semibold text-sidebar-foreground">
                   {step.number}
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                <h3 className="mt-4 text-lg font-semibold text-foreground">
                   {step.title}
                 </h3>
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-sm text-muted-foreground">
                   {step.description}
                 </p>
 
                 {index < STEPS.length - 1 && (
-                  <span className="absolute right-[-1.5rem] top-8 hidden text-4xl text-slate-300 lg:block">
+                  <span className="absolute right-[-1.5rem] top-8 hidden text-4xl text-muted-foreground/60 lg:block">
                     →
                   </span>
                 )}
@@ -260,31 +260,31 @@ export default async function LandingPage() {
       {/* Dla kogo */}
       <section
         id="dla-kogo"
-        className="scroll-mt-24 bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24"
+        className="scroll-mt-24 bg-card px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24"
       >
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
+            <h2 className="text-3xl font-semibold text-foreground sm:text-4xl">
               Dla marek i influencerów
             </h2>
-            <p className="mt-3 text-base text-slate-500 sm:text-lg">
+            <p className="mt-3 text-base text-muted-foreground sm:text-lg">
               Jedna platforma — dwie strony sukcesu
             </p>
           </div>
 
           <div className="mt-10 grid grid-cols-1 gap-8 lg:mt-16 lg:grid-cols-2">
-            <div className="overflow-hidden rounded-2xl border border-slate-100 shadow-sm">
+            <div className="overflow-hidden rounded-2xl border border-border/60 shadow-sm">
               <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-6">
                 <h3 className="text-xl font-semibold text-white">🏢 Dla Marek</h3>
               </div>
-              <div className="bg-slate-50 p-6 sm:p-8 lg:p-10">
+              <div className="bg-muted/50 p-6 sm:p-8 lg:p-10">
                 <ul className="space-y-3">
                   {BRAND_BENEFITS.map((benefit) => (
                     <li
                       key={benefit}
-                      className="flex items-start gap-2 text-sm text-slate-600"
+                      className="flex items-start gap-2 text-sm text-muted-foreground"
                     >
-                      <span className="text-blue-600">✓</span> {benefit}
+                      <span className="text-primary">✓</span> {benefit}
                     </li>
                   ))}
                 </ul>
@@ -294,20 +294,20 @@ export default async function LandingPage() {
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-slate-100 shadow-sm">
-              <div className="bg-slate-900 p-6">
-                <h3 className="text-xl font-semibold text-white">
+            <div className="overflow-hidden rounded-2xl border border-border/60 shadow-sm">
+              <div className="bg-sidebar p-6">
+                <h3 className="text-xl font-semibold text-sidebar-foreground">
                   🎯 Dla Influencerów
                 </h3>
               </div>
-              <div className="bg-white p-6 sm:p-8 lg:p-10">
+              <div className="bg-card p-6 sm:p-8 lg:p-10">
                 <ul className="space-y-3">
                   {INFLUENCER_BENEFITS.map((benefit) => (
                     <li
                       key={benefit}
-                      className="flex items-start gap-2 text-sm text-slate-600"
+                      className="flex items-start gap-2 text-sm text-muted-foreground"
                     >
-                      <span className="text-slate-900">✓</span> {benefit}
+                      <span className="text-foreground">✓</span> {benefit}
                     </li>
                   ))}
                 </ul>
@@ -326,14 +326,14 @@ export default async function LandingPage() {
       {/* Korzyści */}
       <section
         id="korzysci"
-        className="scroll-mt-24 bg-slate-50 px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24"
+        className="scroll-mt-24 bg-muted/50 px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24"
       >
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
+            <h2 className="text-3xl font-semibold text-foreground sm:text-4xl">
               Dlaczego Deneeu?
             </h2>
-            <p className="mt-3 text-base text-slate-500 sm:text-lg">
+            <p className="mt-3 text-base text-muted-foreground sm:text-lg">
               Wszystko czego potrzebujesz w jednym miejscu
             </p>
           </div>
@@ -342,17 +342,17 @@ export default async function LandingPage() {
             {FEATURES.map((feature) => (
               <div
                 key={feature.title}
-                className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md"
+                className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md"
               >
                 <span
                   className={`inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-2xl ${feature.gradient}`}
                 >
                   {feature.icon}
                 </span>
-                <h3 className="mb-2 mt-4 font-semibold text-slate-900">
+                <h3 className="mb-2 mt-4 font-semibold text-foreground">
                   {feature.title}
                 </h3>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-muted-foreground">
                   {feature.description}
                 </p>
               </div>
@@ -362,7 +362,10 @@ export default async function LandingPage() {
       </section>
 
       {/* CTA końcowe */}
-      <section className="relative mx-4 my-12 max-w-5xl overflow-hidden rounded-3xl px-6 py-10 text-center shadow-lg sm:px-8 lg:mx-auto lg:my-20 lg:py-16">
+      <section
+        data-surface="dark"
+        className="relative mx-4 my-12 max-w-5xl overflow-hidden rounded-3xl px-6 py-10 text-center shadow-lg sm:px-8 lg:mx-auto lg:my-20 lg:py-16"
+      >
         <Image
           src="/hero-bg.png"
           alt=""
@@ -384,7 +387,7 @@ export default async function LandingPage() {
           <Button
             asChild
             size="lg"
-            className="mt-8 h-12 w-full rounded-xl bg-white px-8 text-base font-semibold text-blue-600 shadow-sm transition-all duration-200 hover:bg-blue-50 hover:shadow-md sm:h-auto sm:w-auto sm:py-4 sm:text-lg"
+            className="mt-8 h-12 w-full rounded-xl bg-card px-8 text-base font-semibold text-primary shadow-sm transition-all duration-200 hover:bg-primary/10 hover:shadow-md sm:h-auto sm:w-auto sm:py-4 sm:text-lg"
           >
             <Link href="/register">Utwórz konto za darmo →</Link>
           </Button>

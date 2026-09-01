@@ -55,10 +55,10 @@ export function LoginForm({ passwordResetDone = false }: { passwordResetDone?: b
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Zaloguj się
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Witaj z powrotem — wpisz swoje dane.
         </p>
       </div>
@@ -67,7 +67,7 @@ export function LoginForm({ passwordResetDone = false }: { passwordResetDone?: b
         {passwordResetDone && (
           <div
             role="status"
-            className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+            className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success"
           >
             Hasło zmienione. Zaloguj się nowym hasłem.
           </div>
@@ -76,7 +76,7 @@ export function LoginForm({ passwordResetDone = false }: { passwordResetDone?: b
         {error && (
           <div
             role="alert"
-            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             {error}
           </div>
@@ -85,7 +85,7 @@ export function LoginForm({ passwordResetDone = false }: { passwordResetDone?: b
         {notVerifiedEmail && (
           <div
             role="alert"
-            className="space-y-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+            className="space-y-2 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning"
           >
             <p className="font-medium">⚠️ Email niezweryfikowany</p>
             <p>Potwierdź swój email przed logowaniem.</p>
@@ -96,7 +96,7 @@ export function LoginForm({ passwordResetDone = false }: { passwordResetDone?: b
               variant="outline"
               disabled={isResending}
               onClick={handleResend}
-              className="border-amber-300 bg-white text-amber-800 hover:bg-amber-100"
+              className="border-warning/40 bg-card text-warning hover:bg-warning/15"
             >
               {isResending ? "Wysyłanie…" : "📧 Wyślij email ponownie"}
             </Button>
@@ -134,7 +134,7 @@ export function LoginForm({ passwordResetDone = false }: { passwordResetDone?: b
           <p className="text-right">
             <Link
               href="/forgot-password"
-              className="text-xs font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              className="text-xs font-medium text-primary hover:text-primary transition-colors"
             >
               Zapomniałeś hasła?
             </Link>
@@ -146,11 +146,11 @@ export function LoginForm({ passwordResetDone = false }: { passwordResetDone?: b
         </Button>
       </form>
 
-      <p className="text-center text-sm text-slate-500">
+      <p className="text-center text-sm text-muted-foreground">
         Nie masz konta?{" "}
         <Link
           href="/register"
-          className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+          className="font-medium text-primary hover:text-primary transition-colors"
         >
           Utwórz konto
         </Link>

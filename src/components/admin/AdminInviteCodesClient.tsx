@@ -78,13 +78,13 @@ export function AdminInviteCodesClient({ codes }: { codes: InviteCodeRow[] }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">{rows.length.toLocaleString("pl-PL")} kodów</p>
+        <p className="text-sm text-muted-foreground">{rows.length.toLocaleString("pl-PL")} kodów</p>
         <Button size="sm" onClick={handleGenerate} loading={isPending}>
           Wygeneruj kod
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+      <div className="overflow-hidden rounded-lg border border-border bg-card">
         {rows.length === 0 ? (
           <div className="p-6">
             <EmptyState icon={Ticket} title="Brak wygenerowanych kodów zaproszeń" />
@@ -107,7 +107,7 @@ export function AdminInviteCodesClient({ codes }: { codes: InviteCodeRow[] }) {
                 const isUsedUp = row.usedCount >= row.maxUses;
                 return (
                   <TableRow key={row.id}>
-                    <TableCell className="font-mono text-xs text-slate-700">{row.code}</TableCell>
+                    <TableCell className="font-mono text-xs text-foreground">{row.code}</TableCell>
                     <TableCell>
                       {!row.isActive ? (
                         <Badge variant="destructive">Wyłączony</Badge>
@@ -117,14 +117,14 @@ export function AdminInviteCodesClient({ codes }: { codes: InviteCodeRow[] }) {
                         <Badge variant="success">Aktywny</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-right text-slate-600">
+                    <TableCell className="text-right text-muted-foreground">
                       {row.usedCount} / {row.maxUses}
                     </TableCell>
-                    <TableCell className="text-slate-500">
+                    <TableCell className="text-muted-foreground">
                       {row.expiresAt ? formatDate(row.expiresAt) : "—"}
                     </TableCell>
-                    <TableCell className="text-slate-600">{row.createdBy?.email ?? "—"}</TableCell>
-                    <TableCell className="text-slate-500">{formatDate(row.createdAt)}</TableCell>
+                    <TableCell className="text-muted-foreground">{row.createdBy?.email ?? "—"}</TableCell>
+                    <TableCell className="text-muted-foreground">{formatDate(row.createdAt)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button

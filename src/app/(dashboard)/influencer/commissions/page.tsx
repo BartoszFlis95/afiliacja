@@ -53,7 +53,7 @@ function payoutStepIndex(status: string): number {
 function PayoutStepper({ status }: { status: string }) {
   if (status === "REJECTED") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-red-600">
+      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-destructive">
         <X className="h-3.5 w-3.5" /> Odrzucona
       </span>
     );
@@ -70,21 +70,21 @@ function PayoutStepper({ status }: { status: string }) {
               className={cn(
                 "flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-medium",
                 i < currentIndex
-                  ? "bg-emerald-600 text-white"
+                  ? "bg-success text-success-foreground"
                   : i === currentIndex
-                  ? "bg-slate-900 text-white"
-                  : "bg-slate-100 text-slate-400"
+                  ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
               )}
             >
               {i < currentIndex ? <Check className="h-3 w-3" /> : i + 1}
             </span>
-            <span className="text-[10px] text-slate-500">{step}</span>
+            <span className="text-[10px] text-muted-foreground">{step}</span>
           </div>
           {i < PAYOUT_STEPS.length - 1 && (
             <span
               className={cn(
                 "h-0.5 w-6",
-                i < currentIndex ? "bg-emerald-600" : "bg-slate-100"
+                i < currentIndex ? "bg-success" : "bg-muted"
               )}
             />
           )}
@@ -132,7 +132,7 @@ function CommissionsTable({ commissions, bankDetails, availableBalance }: {
             <TableCell className="text-right text-muted-foreground">
               {formatCurrency(Number(commission.orderValue))}
             </TableCell>
-            <TableCell className="text-right font-medium text-emerald-600">
+            <TableCell className="text-right font-medium text-success">
               {formatCurrency(Number(commission.commissionAmount))}
             </TableCell>
             <TableCell>
@@ -203,7 +203,7 @@ export default async function InfluencerCommissionsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-[#0F172A]">Moje prowizje</h1>
+        <h1 className="text-2xl font-bold text-foreground">Moje prowizje</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Śledź zarobki i zlecaj wypłaty zatwierdzonych prowizji.
         </p>
@@ -214,21 +214,21 @@ export default async function InfluencerCommissionsPage() {
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Saldo dostępne do wypłaty</p>
-              <p className="text-2xl font-bold text-[#0F172A]">
+              <p className="text-2xl font-bold text-foreground">
                 {formatCurrency(availableBalance)}
               </p>
             </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100">
-              <Wallet className="h-5 w-5 text-emerald-600" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/15">
+              <Wallet className="h-5 w-5 text-success" />
             </div>
           </div>
           <p className="mt-3 text-xs text-muted-foreground">Suma zatwierdzonych prowizji</p>
           {canWithdraw ? (
-            <div className="mt-3 text-sm text-green-600">
+            <div className="mt-3 text-sm text-success">
               ✅ {formatCurrency(availableBalance)} — możesz wypłacić
             </div>
           ) : (
-            <div className="mt-3 text-sm text-amber-600">
+            <div className="mt-3 text-sm text-warning">
               ⚠️ {formatCurrency(availableBalance)} — minimum to {MINIMUM_PAYOUT} zł
             </div>
           )}
@@ -272,13 +272,13 @@ export default async function InfluencerCommissionsPage() {
               {payouts.map((payout) => (
                 <div
                   key={payout.id}
-                  className="flex flex-col gap-3 rounded-lg border border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
-                    <p className="font-medium text-slate-900">
+                    <p className="font-medium text-foreground">
                       {formatCurrency(Number(payout.amount))}
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-muted-foreground">
                       Zgłoszono {formatDate(payout.requestedAt)}
                     </p>
                   </div>

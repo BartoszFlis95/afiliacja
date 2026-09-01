@@ -43,10 +43,10 @@ const TYPE_LABEL: Record<(typeof TYPE_OPTIONS)[number], string> = {
 };
 
 const TYPE_BADGE_CLASS: Record<string, string> = {
-  SELF_CLICK: "bg-red-100 text-red-800",
+  SELF_CLICK: "bg-destructive/15 text-destructive",
   IP_RATE_LIMIT: "bg-orange-100 text-orange-800",
-  SUSPICIOUS_CONVERSION: "bg-amber-100 text-amber-800",
-  COOLING_PERIOD: "bg-slate-100 text-slate-700",
+  SUSPICIOUS_CONVERSION: "bg-warning/15 text-warning",
+  COOLING_PERIOD: "bg-muted text-foreground",
 };
 
 export function AdminFraudClient({ logs }: { logs: FraudLogRow[] }) {
@@ -116,7 +116,7 @@ export function AdminFraudClient({ logs }: { logs: FraudLogRow[] }) {
           onChange={(e) => setDateFrom(e.target.value)}
           className="h-8 w-[140px] text-xs"
         />
-        <span className="text-xs text-slate-400">—</span>
+        <span className="text-xs text-muted-foreground">—</span>
         <Input
           type="date"
           value={dateTo}
@@ -126,11 +126,11 @@ export function AdminFraudClient({ logs }: { logs: FraudLogRow[] }) {
       </div>
 
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">{filtered.length.toLocaleString("pl-PL")} zdarzeń</p>
+        <p className="text-sm text-muted-foreground">{filtered.length.toLocaleString("pl-PL")} zdarzeń</p>
         <ExportCSVButton data={csvData} filename="fraud-log" />
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+      <div className="overflow-hidden rounded-lg border border-border bg-card">
         {filtered.length === 0 ? (
           <div className="p-6">
             <EmptyState icon={ShieldAlert} title="Brak zdarzeń spełniających kryteria" />
@@ -155,27 +155,27 @@ export function AdminFraudClient({ logs }: { logs: FraudLogRow[] }) {
                   <TableCell>
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                        TYPE_BADGE_CLASS[log.type] ?? "bg-slate-100 text-slate-700"
+                        TYPE_BADGE_CLASS[log.type] ?? "bg-muted text-foreground"
                       }`}
                     >
                       {TYPE_LABEL[log.type as (typeof TYPE_OPTIONS)[number]] ?? log.type}
                     </span>
                   </TableCell>
-                  <TableCell className="max-w-[260px] text-xs text-slate-600">{log.reason}</TableCell>
-                  <TableCell className="font-mono text-xs text-slate-500">
+                  <TableCell className="max-w-[260px] text-xs text-muted-foreground">{log.reason}</TableCell>
+                  <TableCell className="font-mono text-xs text-muted-foreground">
                     {log.affiliateLink?.code ?? "—"}
                   </TableCell>
-                  <TableCell className="text-slate-600">
+                  <TableCell className="text-muted-foreground">
                     {log.affiliateLink?.influencerProfile?.displayName ?? "—"}
                   </TableCell>
-                  <TableCell className="text-slate-600">
+                  <TableCell className="text-muted-foreground">
                     {log.commission?.brand?.companyName ?? "—"}
                   </TableCell>
-                  <TableCell className="text-right text-slate-600">
+                  <TableCell className="text-right text-muted-foreground">
                     {log.commission ? formatCurrency(log.commission.orderValue) : "—"}
                   </TableCell>
-                  <TableCell className="font-mono text-xs text-slate-500">{log.ip ?? "—"}</TableCell>
-                  <TableCell className="text-slate-500">{formatDate(log.createdAt)}</TableCell>
+                  <TableCell className="font-mono text-xs text-muted-foreground">{log.ip ?? "—"}</TableCell>
+                  <TableCell className="text-muted-foreground">{formatDate(log.createdAt)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

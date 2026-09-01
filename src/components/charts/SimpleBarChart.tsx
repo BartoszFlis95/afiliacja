@@ -18,6 +18,6 @@ export const SimpleBarChart = dynamic<SimpleBarChartProps>(
   () => import("./SimpleBarChartImpl").then((mod) => mod.SimpleBarChart),
   {
     ssr: false,
-    loading: () => <div className="h-[300px] animate-pulse rounded-xl bg-blue-50" />,
+    loading: () => <div className="h-[300px] animate-pulse rounded-xl bg-primary/10" />,
   }
 );

@@ -53,10 +53,10 @@ export default async function PublicProductDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <nav className="border-b border-slate-100">
+    <div className="min-h-screen bg-card">
+      <nav className="border-b border-border/60">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="text-xl font-bold tracking-tight text-slate-900">
+          <Link href="/" className="text-xl font-bold tracking-tight text-foreground">
             Deneeu
           </Link>
           <Button asChild variant="ghost" size="sm">
@@ -67,20 +67,20 @@ export default async function PublicProductDetailPage({
 
       <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
-        <nav className="mb-6 flex items-center gap-1.5 text-sm text-slate-500">
-          <Link href="/" className="transition-colors hover:text-slate-900">
+        <nav className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">
+          <Link href="/" className="transition-colors hover:text-foreground">
             Strona główna
           </Link>
           <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-          <Link href="/products" className="transition-colors hover:text-slate-900">
+          <Link href="/products" className="transition-colors hover:text-foreground">
             Produkty
           </Link>
           <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-          <span className="truncate font-medium text-slate-900">{product.name}</span>
+          <span className="truncate font-medium text-foreground">{product.name}</span>
         </nav>
 
         {/* Zdjęcie produktu */}
-        <div className="relative w-full h-64 sm:h-80 rounded-2xl overflow-hidden bg-slate-100 mb-8">
+        <div className="relative w-full h-64 sm:h-80 rounded-2xl overflow-hidden bg-muted mb-8">
           {product.imageUrl ? (
             <Image
               src={product.imageUrl}
@@ -92,7 +92,7 @@ export default async function PublicProductDetailPage({
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <ImageIcon className="w-16 h-16 text-slate-300" />
+              <ImageIcon className="w-16 h-16 text-muted-foreground/60" />
             </div>
           )}
         </div>
@@ -106,34 +106,34 @@ export default async function PublicProductDetailPage({
           </Badge>
         </div>
 
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
           {product.name}
         </h1>
-        <p className="mt-2 text-slate-500">
+        <p className="mt-2 text-muted-foreground">
           {product.brandProfile?.companyName ?? "—"}
         </p>
 
-        <p className="mt-6 text-3xl font-semibold text-slate-900">
+        <p className="mt-6 text-3xl font-semibold text-foreground">
           {product.price ? formatCurrency(Number(product.price)) : "—"}
         </p>
 
         {product.description && (
           <div className="mt-6 space-y-2">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Opis
             </h2>
-            <p className="whitespace-pre-line leading-relaxed text-slate-600">
+            <p className="whitespace-pre-line leading-relaxed text-muted-foreground">
               {product.description}
             </p>
           </div>
         )}
 
-        <div className="mt-8 max-w-xs space-y-3 rounded-2xl border border-slate-100 bg-slate-50 p-5">
+        <div className="mt-8 max-w-xs space-y-3 rounded-2xl border border-border/60 bg-muted/50 p-5">
           {isInfluencer ? (
             existingCode ? (
               <>
-                <Badge className="gap-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-50">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <Badge className="gap-1.5 bg-success/10 text-success hover:bg-success/10">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success" />
                   Już promujesz ten produkt
                 </Badge>
                 <CopyLinkButton code={existingCode} />

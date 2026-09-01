@@ -92,10 +92,10 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Załóż konto
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Wybierz typ konta i podaj swoje dane.
         </p>
       </div>
@@ -122,24 +122,24 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
                   aria-pressed={selected}
                   className={cn(
                     "flex flex-col items-start gap-1.5 rounded-lg border p-3.5 text-left transition-all",
-                    "hover:border-blue-300 hover:bg-blue-50/50",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+                    "hover:border-primary/40 hover:bg-primary/5",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                     selected
-                      ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500"
-                      : "border-slate-200 bg-white"
+                      ? "border-primary bg-primary/10 ring-1 ring-ring"
+                      : "border-border bg-card"
                   )}
                 >
-                  <Icon className={cn("h-4 w-4", selected ? "text-blue-600" : "text-slate-400")} />
-                  <span className={cn("text-sm font-medium", selected ? "text-blue-700" : "text-slate-700")}>
+                  <Icon className={cn("h-4 w-4", selected ? "text-primary" : "text-muted-foreground")} />
+                  <span className={cn("text-sm font-medium", selected ? "text-primary" : "text-foreground")}>
                     {option.title}
                   </span>
-                  <span className="text-xs text-slate-500">{option.description}</span>
+                  <span className="text-xs text-muted-foreground">{option.description}</span>
                 </button>
               );
             })}
           </div>
           {errors.role && (
-            <p className="text-xs text-red-600">{errors.role}</p>
+            <p className="text-xs text-destructive">{errors.role}</p>
           )}
         </div>
 
@@ -158,11 +158,11 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
               defaultValue={inviteFromUrl}
               disabled={isPending}
             />
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted-foreground">
               Rejestracja marek odbywa się na zaproszenie. Kod otrzymasz od zespołu Deneeu.
             </p>
             {errors.inviteCode && (
-              <p className="text-xs text-red-600">{errors.inviteCode}</p>
+              <p className="text-xs text-destructive">{errors.inviteCode}</p>
             )}
           </div>
         )}
@@ -181,7 +181,7 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
             disabled={isPending}
           />
           {errors.email && (
-            <p className="text-xs text-red-600">{errors.email}</p>
+            <p className="text-xs text-destructive">{errors.email}</p>
           )}
         </div>
 
@@ -198,7 +198,7 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
             disabled={isPending}
           />
           {errors.password && (
-            <p className="text-xs text-red-600">{errors.password}</p>
+            <p className="text-xs text-destructive">{errors.password}</p>
           )}
         </div>
 
@@ -215,14 +215,14 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
             disabled={isPending}
           />
           {errors.confirmPassword && (
-            <p className="text-xs text-red-600">{errors.confirmPassword}</p>
+            <p className="text-xs text-destructive">{errors.confirmPassword}</p>
           )}
         </div>
 
         {formError && (
           <p
             role="alert"
-            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             {formError}
           </p>
@@ -233,11 +233,11 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
         </Button>
       </form>
 
-      <p className="text-center text-sm text-slate-500">
+      <p className="text-center text-sm text-muted-foreground">
         Masz już konto?{" "}
         <Link
           href="/login"
-          className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+          className="font-medium text-primary hover:text-primary transition-colors"
         >
           Zaloguj się
         </Link>

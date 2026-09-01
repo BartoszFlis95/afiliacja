@@ -41,19 +41,19 @@ export function ForgotPasswordForm() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Sprawdź skrzynkę email
           </h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             Jeśli konto o podanym adresie istnieje, wysłaliśmy na nie link do
             zresetowania hasła. Link jest ważny przez 1 godzinę.
           </p>
         </div>
 
-        <p className="text-center text-sm text-slate-500">
+        <p className="text-center text-sm text-muted-foreground">
           <Link
             href="/login"
-            className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+            className="font-medium text-primary hover:text-primary transition-colors"
           >
             Wróć do logowania
           </Link>
@@ -65,10 +65,10 @@ export function ForgotPasswordForm() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Nie pamiętasz hasła?
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Podaj swój email, a wyślemy Ci link do zresetowania hasła.
         </p>
       </div>
@@ -77,7 +77,7 @@ export function ForgotPasswordForm() {
         {error && (
           <div
             role="alert"
-            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             {error}
           </div>
@@ -102,10 +102,10 @@ export function ForgotPasswordForm() {
         </Button>
       </form>
 
-      <p className="text-center text-sm text-slate-500">
+      <p className="text-center text-sm text-muted-foreground">
         <Link
           href="/login"
-          className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+          className="font-medium text-primary hover:text-primary transition-colors"
         >
           Wróć do logowania
         </Link>

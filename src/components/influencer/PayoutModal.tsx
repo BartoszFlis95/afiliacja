@@ -102,27 +102,27 @@ export function PayoutModal({ commissionId, amount, availableAmount, bankDetails
 
         <form onSubmit={onSubmit} className="space-y-4">
           {error && (
-            <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            <div role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
               {error}
             </div>
           )}
 
-          <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-700">
+          <div className="rounded-lg border border-primary/20 bg-primary/10 p-3 text-sm text-primary">
             ℹ️ Minimalna kwota wypłaty: {MINIMUM_PAYOUT} zł
           </div>
 
           {belowMinimum ? (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
-              <p className="text-sm font-medium text-amber-800">
+            <div className="rounded-lg border border-warning/30 bg-warning/10 p-3">
+              <p className="text-sm font-medium text-warning">
                 ⚠️ Za mało środków do wypłaty
               </p>
-              <p className="mt-1 text-xs text-amber-600">
+              <p className="mt-1 text-xs text-warning">
                 Masz {formatPLN(availableAmount)}. Minimalna kwota wypłaty to{" "}
                 {MINIMUM_PAYOUT} zł. Zbieraj prowizje i wróć gdy osiągniesz minimum.
               </p>
             </div>
           ) : (
-            <p className="text-sm font-medium text-emerald-700">
+            <p className="text-sm font-medium text-success">
               Wypłacisz: {formatPLN(amount)}
             </p>
           )}
@@ -130,7 +130,7 @@ export function PayoutModal({ commissionId, amount, availableAmount, bankDetails
           {usesSavedDetails ? (
             <>
               {!bankDetails!.hasBankDetails ? (
-                <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-800">
+                <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-3 py-3 text-sm text-warning">
                   <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                   <div>
                     <p className="font-medium">Brak danych bankowych</p>
@@ -144,11 +144,11 @@ export function PayoutModal({ commissionId, amount, availableAmount, bankDetails
                   </div>
                 </div>
               ) : !belowMinimum ? (
-                <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 space-y-1">
+                <div className="rounded-lg border border-border bg-muted/50 px-4 py-3 space-y-1">
                   <p className="text-xs text-muted-foreground">
                     {bankDetails!.preferredPayout === "paypal" ? "Konto PayPal" : "Numer konta IBAN"}
                   </p>
-                  <p className="font-mono text-sm font-medium text-slate-900">
+                  <p className="font-mono text-sm font-medium text-foreground">
                     {bankDetails!.preferredPayout === "paypal"
                       ? bankDetails!.paypalEmail
                       : maskIban(bankDetails!.bankAccountIban!)}
@@ -158,7 +158,7 @@ export function PayoutModal({ commissionId, amount, availableAmount, bankDetails
             </>
           ) : (
             <div className="space-y-2">
-              <Label htmlFor="bankAccount" className="font-medium text-slate-700">
+              <Label htmlFor="bankAccount" className="font-medium text-foreground">
                 Numer konta bankowego
               </Label>
               <Input
@@ -170,7 +170,7 @@ export function PayoutModal({ commissionId, amount, availableAmount, bankDetails
                 autoComplete="off"
                 required
                 disabled={isPending}
-                className="border-slate-300 focus-visible:ring-slate-900"
+                className="border-border focus-visible:ring-foreground"
               />
             </div>
           )}
@@ -179,7 +179,7 @@ export function PayoutModal({ commissionId, amount, availableAmount, bankDetails
             <Button
               type="submit"
               disabled={isPending || belowMinimum || (usesSavedDetails && !bankDetails!.hasBankDetails)}
-              className="bg-slate-900 text-white hover:bg-slate-700"
+              
             >
               {isPending ? "Wysyłanie…" : "Złóż wniosek o wypłatę"}
             </Button>

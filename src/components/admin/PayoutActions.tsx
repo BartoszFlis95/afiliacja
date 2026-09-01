@@ -56,7 +56,7 @@ export function PayoutActions({
           Oznacz jako wypłacone
         </Button>
       )}
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }

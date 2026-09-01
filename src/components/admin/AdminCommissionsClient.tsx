@@ -103,14 +103,14 @@ export function AdminCommissionsClient({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-1 border-b border-slate-200">
+      <div className="flex items-center gap-1 border-b border-border">
         <button
           type="button"
           onClick={() => setActiveTab("all")}
           className={`px-3 py-2 text-sm font-medium ${
             activeTab === "all"
-              ? "border-b-2 border-slate-900 text-slate-900"
-              : "text-slate-500 hover:text-slate-700"
+              ? "border-b-2 border-primary text-foreground"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           Wszystkie
@@ -120,8 +120,8 @@ export function AdminCommissionsClient({
           onClick={() => setActiveTab("suspicious")}
           className={`px-3 py-2 text-sm font-medium ${
             activeTab === "suspicious"
-              ? "border-b-2 border-amber-500 text-amber-700"
-              : "text-slate-500 hover:text-slate-700"
+              ? "border-b-2 border-warning text-warning"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           ⚠️ Podejrzane{suspiciousCount > 0 ? ` (${suspiciousCount})` : ""}
@@ -129,12 +129,12 @@ export function AdminCommissionsClient({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <label className="flex items-center gap-2 text-xs text-slate-600">
+        <label className="flex items-center gap-2 text-xs text-muted-foreground">
           <input
             type="checkbox"
             checked={suspiciousOnly}
             onChange={(e) => setSuspiciousOnly(e.target.checked)}
-            className="h-3.5 w-3.5 rounded border-slate-300"
+            className="h-3.5 w-3.5 rounded border-border"
           />
           Pokaż tylko podejrzane
         </label>
@@ -175,7 +175,7 @@ export function AdminCommissionsClient({
           onChange={(e) => setDateFrom(e.target.value)}
           className="h-8 w-[140px] text-xs"
         />
-        <span className="text-xs text-slate-400">—</span>
+        <span className="text-xs text-muted-foreground">—</span>
         <Input
           type="date"
           value={dateTo}
@@ -185,11 +185,11 @@ export function AdminCommissionsClient({
       </div>
 
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">{filtered.length.toLocaleString("pl-PL")} komisji</p>
+        <p className="text-sm text-muted-foreground">{filtered.length.toLocaleString("pl-PL")} komisji</p>
         <ExportCSVButton data={csvData} filename="komisje-platforma" />
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+      <div className="overflow-hidden rounded-lg border border-border bg-card">
         {filtered.length === 0 ? (
           <div className="p-6">
             <EmptyState icon={Wallet} title="Brak komisji spełniających kryteria" />
@@ -213,9 +213,9 @@ export function AdminCommissionsClient({
               {filtered.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell className="font-medium">{c.influencer?.displayName ?? "—"}</TableCell>
-                  <TableCell className="text-slate-600">{c.brand?.companyName ?? "—"}</TableCell>
-                  <TableCell className="text-slate-600">{c.product?.name ?? "—"}</TableCell>
-                  <TableCell className="text-right text-slate-600">
+                  <TableCell className="text-muted-foreground">{c.brand?.companyName ?? "—"}</TableCell>
+                  <TableCell className="text-muted-foreground">{c.product?.name ?? "—"}</TableCell>
+                  <TableCell className="text-right text-muted-foreground">
                     {formatCurrency(Number(c.orderValue))}
                   </TableCell>
                   <TableCell className="text-right font-medium">
@@ -225,16 +225,16 @@ export function AdminCommissionsClient({
                     <div className="flex flex-wrap items-center gap-1">
                       <StatusBadge status={c.status} />
                       {c.isSuspicious && (
-                        <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                        <span className="inline-flex items-center rounded-full bg-warning/15 px-2 py-0.5 text-xs font-medium text-warning">
                           ⚠️ Podejrzane
                         </span>
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="max-w-[220px] text-xs text-slate-500">
+                  <TableCell className="max-w-[220px] text-xs text-muted-foreground">
                     {c.suspiciousReason ?? "—"}
                   </TableCell>
-                  <TableCell className="text-slate-500">{formatDate(c.createdAt)}</TableCell>
+                  <TableCell className="text-muted-foreground">{formatDate(c.createdAt)}</TableCell>
                   <TableCell className="text-right">
                     {c.status === "PENDING" && (
                       <div className="flex justify-end gap-2">

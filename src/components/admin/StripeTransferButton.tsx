@@ -48,7 +48,7 @@ export function StripeTransferButton({
         <Button size="sm" variant="outline" disabled>
           💳 Ręczny przelew IBAN
         </Button>
-        <p className="text-xs text-slate-500">Influencer nie połączył Stripe</p>
+        <p className="text-xs text-muted-foreground">Influencer nie połączył Stripe</p>
       </div>
     );
   }

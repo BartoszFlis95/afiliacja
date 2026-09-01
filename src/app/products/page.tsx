@@ -57,18 +57,18 @@ export default async function PublicProductsPage({
       </nav>
 
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <header className="relative mb-8 overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-slate-50 via-white to-blue-50/50 p-8 sm:p-10">
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
+        <header className="relative mb-8 overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-muted/40 via-background to-primary/10 p-8 sm:p-10">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
             Produkty
           </h1>
-          <p className="mt-2 text-slate-500">
+          <p className="mt-2 text-muted-foreground">
             Odkryj produkty dostępne w programie afiliacyjnym.
           </p>
         </header>
 
         <form
           method="get"
-          className="mb-8 flex flex-wrap items-end gap-4 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm"
+          className="mb-8 flex flex-wrap items-end gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-sm"
         >
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="category">Kategoria</Label>
@@ -113,9 +113,9 @@ export default async function PublicProductsPage({
                 href={`/products/${product.slug}`}
                 className="group"
               >
-                <Card className="h-full overflow-hidden rounded-2xl border-slate-100 shadow-sm transition-all duration-200 group-hover:-translate-y-[1px] group-hover:shadow-md">
+                <Card className="h-full overflow-hidden rounded-2xl border-border/60 shadow-sm transition-all duration-200 group-hover:-translate-y-[1px] group-hover:shadow-md">
                   {/* Miniaturka */}
-                  <div className="relative w-full h-44 bg-slate-100">
+                  <div className="relative w-full h-44 bg-muted">
                     {product.imageUrl ? (
                       <Image
                         src={product.imageUrl}
@@ -126,7 +126,7 @@ export default async function PublicProductsPage({
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <ImageIcon className="w-12 h-12 text-slate-300" />
+                        <ImageIcon className="w-12 h-12 text-muted-foreground/60" />
                       </div>
                     )}
                   </div>

@@ -205,7 +205,7 @@ export default async function InfluencerDashboardPage() {
   return (
     <div className="space-y-6 sm:space-y-8">
       {!hasBankDetails && (
-        <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <div className="flex items-center gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           <span>
             ⚠️ Uzupełnij dane bankowe aby wypłacić zarobki.{" "}
@@ -218,10 +218,10 @@ export default async function InfluencerDashboardPage() {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl lg:text-3xl">
+          <h1 className="text-xl font-semibold text-foreground sm:text-2xl lg:text-3xl">
             Panel influencera
           </h1>
-          <p className="mt-1 text-sm text-slate-500">Twoje wyniki w skrócie.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Twoje wyniki w skrócie.</p>
         </div>
         <Button asChild className="shadow-sm transition-all duration-200 hover:shadow-md">
           <Link href="/influencer/products">Przeglądaj produkty</Link>
@@ -229,27 +229,30 @@ export default async function InfluencerDashboardPage() {
       </div>
 
       {/* Earnings highlight */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 p-6 text-white md:p-8">
+      <div
+        data-surface="dark"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 p-6 text-white md:p-8"
+      >
         <div className="absolute inset-0 bg-blue-500/5" />
         <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm text-slate-400">Łączne zarobki</p>
+            <p className="text-sm text-muted-foreground">Łączne zarobki</p>
             <p className="mt-1 text-4xl font-bold md:text-5xl">{formatCurrency(totalEarnings)} PLN</p>
-            <p className="mt-2 flex items-center gap-4 text-sm text-slate-400">
+            <p className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
               <span>{totalConversions.toLocaleString("pl-PL")} konwersji</span>
               <span>•</span>
               <span>{totalClicks.toLocaleString("pl-PL")} kliknięć</span>
             </p>
           </div>
           <div className="rounded-xl bg-white/10 p-4 backdrop-blur">
-            <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-slate-400">
+            <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-muted-foreground">
               <PiggyBank className="h-3.5 w-3.5" /> Dostępne do wypłaty
             </p>
             <p className="mt-1 text-2xl font-bold">{formatCurrency(availableBalance)}</p>
             <Button
               asChild
               size="sm"
-              className="mt-2 w-full bg-blue-500 hover:bg-blue-400"
+              className="mt-2 w-full bg-primary hover:bg-primary/90"
             >
               <Link href="/influencer/commissions">Wypłać</Link>
             </Button>
@@ -260,7 +263,7 @@ export default async function InfluencerDashboardPage() {
       <AnimatedStatsGrid cards={statsCards} className="grid grid-cols-1 gap-4 sm:grid-cols-2" />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="rounded-2xl border-slate-100 shadow-sm">
+        <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader>
             <CardTitle>Kliknięcia — ostatnie 30 dni</CardTitle>
           </CardHeader>
@@ -269,7 +272,7 @@ export default async function InfluencerDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border-slate-100 shadow-sm">
+        <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader>
             <CardTitle>Zarobki — ostatnie 12 miesięcy</CardTitle>
           </CardHeader>
@@ -280,7 +283,7 @@ export default async function InfluencerDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="rounded-2xl border-slate-100 shadow-sm">
+        <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle>Top 5 linków</CardTitle>
             <Button variant="ghost" size="sm" asChild>
@@ -300,16 +303,16 @@ export default async function InfluencerDashboardPage() {
               topLinks.map((link) => (
                 <div
                   key={link.id}
-                  className="flex flex-col gap-3 rounded-xl border border-slate-100 p-4 transition-all duration-200 hover:border-slate-200 hover:shadow-sm sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-xl border border-border/60 p-4 transition-all duration-200 hover:border-border hover:shadow-sm sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-bold text-slate-900">
+                    <p className="truncate font-bold text-foreground">
                       {link.product?.name ?? "—"}
                     </p>
-                    <div className="mt-1.5 flex items-center gap-4 text-xs text-slate-500">
+                    <div className="mt-1.5 flex items-center gap-4 text-xs text-muted-foreground">
                       <span>{link.totalClicks.toLocaleString("pl-PL")} kliknięć</span>
                       <span>{link.totalConversions.toLocaleString("pl-PL")} konwersji</span>
-                      <span className="font-medium text-emerald-600">
+                      <span className="font-medium text-success">
                         {formatCurrency(Number(link.totalEarnings))}
                       </span>
                     </div>
@@ -321,7 +324,7 @@ export default async function InfluencerDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border-slate-100 shadow-sm">
+        <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle>Ostatnie konwersje</CardTitle>
             <Button variant="ghost" size="sm" asChild>
@@ -356,7 +359,7 @@ export default async function InfluencerDashboardPage() {
                       <TableCell className="text-muted-foreground">
                         {commission.brand?.companyName ?? "—"}
                       </TableCell>
-                      <TableCell className="text-right font-medium text-emerald-600">
+                      <TableCell className="text-right font-medium text-success">
                         {formatCurrency(Number(commission.commissionAmount))}
                       </TableCell>
                       <TableCell className="pr-6 text-right">
@@ -375,10 +378,10 @@ export default async function InfluencerDashboardPage() {
       {availableProducts.length > 0 && (
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-slate-900">Dostępne produkty</h2>
+            <h2 className="text-base font-semibold text-foreground">Dostępne produkty</h2>
             <Link
               href="/influencer/products"
-              className="text-sm text-slate-500 transition-colors hover:text-slate-900"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               Zobacz wszystkie →
             </Link>
@@ -388,9 +391,9 @@ export default async function InfluencerDashboardPage() {
               <Link
                 key={product.id}
                 href="/influencer/products"
-                className="group overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md"
+                className="group overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md"
               >
-                <div className="relative h-24 w-full bg-slate-50">
+                <div className="relative h-24 w-full bg-muted/50">
                   {product.imageUrl ? (
                     <Image
                       src={product.imageUrl}
@@ -401,13 +404,13 @@ export default async function InfluencerDashboardPage() {
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
-                      <ImageIcon className="h-6 w-6 text-slate-300" />
+                      <ImageIcon className="h-6 w-6 text-muted-foreground/60" />
                     </div>
                   )}
                 </div>
                 <div className="p-3">
-                  <p className="line-clamp-1 text-xs font-medium text-slate-900">{product.name}</p>
-                  <Badge variant="outline" className="mt-1.5 border-slate-200 text-[10px] text-slate-600">
+                  <p className="line-clamp-1 text-xs font-medium text-foreground">{product.name}</p>
+                  <Badge variant="outline" className="mt-1.5 border-border text-[10px] text-muted-foreground">
                     {Number(product.influencerCommissionRate).toFixed(1).replace(/\.0$/, "")}% prowizji
                   </Badge>
                 </div>

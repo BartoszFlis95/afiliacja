@@ -33,9 +33,9 @@ import {
 export const dynamic = "force-dynamic";
 
 const AVATAR_COLORS = [
-  "bg-blue-100 text-blue-700",
+  "bg-primary/15 text-primary",
   "bg-purple-100 text-purple-700",
-  "bg-green-100 text-green-700",
+  "bg-success/15 text-success",
   "bg-orange-100 text-orange-700",
 ];
 
@@ -194,7 +194,7 @@ export default async function BrandDashboardPage() {
   return (
     <div className="space-y-6 sm:space-y-8">
       {!brandProfile.apiKey && (
-        <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <div className="flex items-center gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           <span>
             ⚠️ Skonfiguruj webhook aby śledzić sprzedaż.{" "}
@@ -206,7 +206,10 @@ export default async function BrandDashboardPage() {
       )}
 
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-slate-900 p-6 text-white md:p-8">
+      <div
+        data-surface="dark"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-slate-900 p-6 text-white md:p-8"
+      >
         <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/5" />
         <div className="absolute right-8 top-8 h-20 w-20 rounded-full bg-white/5" />
 
@@ -222,7 +225,7 @@ export default async function BrandDashboardPage() {
           </div>
           <Button
             asChild
-            className="w-full bg-white font-semibold text-blue-600 shadow-lg hover:bg-blue-50 md:w-auto"
+            className="w-full bg-card font-semibold text-primary shadow-lg hover:bg-primary/10 md:w-auto"
           >
             <Link href="/brand/products/new">
               <PlusCircle className="mr-2 h-4 w-4" />
@@ -242,9 +245,9 @@ export default async function BrandDashboardPage() {
           <Link
             key={href}
             href={href}
-            className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white px-4 py-3.5 text-sm font-medium text-slate-700 shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:border-slate-200 hover:shadow-md"
+            className="flex items-center gap-3 rounded-xl border border-border/60 bg-card px-4 py-3.5 text-sm font-medium text-foreground shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:border-border hover:shadow-md"
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Icon className="h-4 w-4" />
             </span>
             {label}
@@ -255,7 +258,7 @@ export default async function BrandDashboardPage() {
       <AnimatedStatsGrid cards={statsCards} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="rounded-2xl border-slate-100 shadow-sm">
+        <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader>
             <CardTitle>Przychód — ostatnie 30 dni</CardTitle>
           </CardHeader>
@@ -269,7 +272,7 @@ export default async function BrandDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border-slate-100 shadow-sm">
+        <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader>
             <CardTitle>Top produkty wg przychodu</CardTitle>
           </CardHeader>
@@ -280,7 +283,7 @@ export default async function BrandDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="rounded-2xl border-slate-100 shadow-sm">
+        <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle>Top influencerzy</CardTitle>
             <Button variant="ghost" size="sm" asChild>
@@ -295,7 +298,7 @@ export default async function BrandDashboardPage() {
             ) : (
               <Table>
                 <TableHeader>
-                  <TableRow className="border-t border-slate-100 hover:bg-transparent">
+                  <TableRow className="border-t border-border/60 hover:bg-transparent">
                     <TableHead className="pl-6">Influencer</TableHead>
                     <TableHead className="text-right">Kliknięcia</TableHead>
                     <TableHead className="text-right">CR%</TableHead>
@@ -309,7 +312,7 @@ export default async function BrandDashboardPage() {
                     const initials = link.influencerProfile.displayName.slice(0, 2).toUpperCase();
                     const avatarColor = AVATAR_COLORS[index % AVATAR_COLORS.length];
                     return (
-                      <TableRow key={link.id} className="hover:bg-blue-50/30">
+                      <TableRow key={link.id} className="hover:bg-primary/5">
                         <TableCell className="py-4 pl-6 font-medium">
                           <div className="flex items-center gap-3">
                             <div
@@ -322,9 +325,9 @@ export default async function BrandDashboardPage() {
                             </div>
                             <div className="min-w-0">
                               <p className="truncate">{link.influencerProfile.displayName}</p>
-                              <div className="mt-1.5 h-1 w-24 overflow-hidden rounded-full bg-slate-100">
+                              <div className="mt-1.5 h-1 w-24 overflow-hidden rounded-full bg-muted">
                                 <div
-                                  className="h-full rounded-full bg-blue-500"
+                                  className="h-full rounded-full bg-primary"
                                   style={{ width: `${earningsShare}%` }}
                                 />
                               </div>
@@ -337,7 +340,7 @@ export default async function BrandDashboardPage() {
                         <TableCell className="py-4 text-right text-muted-foreground">
                           {cr.toFixed(1)}%
                         </TableCell>
-                        <TableCell className="py-4 pr-6 text-right font-medium text-emerald-600">
+                        <TableCell className="py-4 pr-6 text-right font-medium text-success">
                           {formatCurrency(Number(link.totalEarnings))}
                         </TableCell>
                       </TableRow>
@@ -349,7 +352,7 @@ export default async function BrandDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border-slate-100 shadow-sm">
+        <Card className="rounded-2xl border-border/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle>Ostatnie konwersje</CardTitle>
             <Button variant="ghost" size="sm" asChild>
@@ -362,14 +365,14 @@ export default async function BrandDashboardPage() {
                 <EmptyState icon={TrendingUp} title="Brak ostatnich konwersji" />
               </div>
             ) : (
-              <ul className="divide-y divide-slate-100">
+              <ul className="divide-y divide-border/60">
                 {recentCommissions.map((c) => (
                   <li key={c.id} className="flex items-center justify-between px-6 py-3 text-sm">
                     <div>
-                      <p className="font-medium text-slate-900">{c.product?.name ?? "—"}</p>
-                      <p className="text-xs text-slate-500">{c.influencer?.displayName ?? "—"}</p>
+                      <p className="font-medium text-foreground">{c.product?.name ?? "—"}</p>
+                      <p className="text-xs text-muted-foreground">{c.influencer?.displayName ?? "—"}</p>
                     </div>
-                    <p className="font-medium text-emerald-600">
+                    <p className="font-medium text-success">
                       {formatCurrency(Number(c.orderValue))}
                     </p>
                   </li>

@@ -65,7 +65,7 @@ export default async function BrandProductEditPage({
   return (
     <div className="mx-auto max-w-2xl p-4 sm:p-6">
       <header className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-2xl font-bold text-[#0F172A]">Edytuj produkt</h1>
+        <h1 className="text-2xl sm:text-2xl font-bold text-foreground">Edytuj produkt</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Zmień dane produktu lub zaktualizuj zdjęcie.
         </p>

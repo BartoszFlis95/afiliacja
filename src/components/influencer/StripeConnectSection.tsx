@@ -84,31 +84,31 @@ export function StripeConnectSection({ initialStatus, autoRefresh = false }: Pro
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-slate-900">
+          <CardTitle className="flex items-center gap-2 text-foreground">
             <CreditCard className="h-5 w-5" />
             Połącz konto Stripe
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted-foreground">
             Połącz swoje konto bankowe przez Stripe, aby otrzymywać automatyczne wypłaty
             prowizji.
           </p>
-          <ul className="space-y-1.5 text-sm text-slate-600">
+          <ul className="space-y-1.5 text-sm text-muted-foreground">
             <li className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-600" /> Bezpieczne połączenie
+              <CheckCircle2 className="h-4 w-4 text-success" /> Bezpieczne połączenie
             </li>
             <li className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-600" /> Wypłaty w PLN
+              <CheckCircle2 className="h-4 w-4 text-success" /> Wypłaty w PLN
             </li>
             <li className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-600" /> Automatyczne przelewy
+              <CheckCircle2 className="h-4 w-4 text-success" /> Automatyczne przelewy
             </li>
           </ul>
           <Button
             onClick={handleConnect}
             loading={isPending}
-            className="bg-slate-900 hover:bg-slate-700"
+            
           >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             🔗 Połącz z Stripe
@@ -122,13 +122,13 @@ export function StripeConnectSection({ initialStatus, autoRefresh = false }: Pro
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-slate-900">
-            <Clock className="h-5 w-5 text-amber-500" />
+          <CardTitle className="flex items-center gap-2 text-foreground">
+            <Clock className="h-5 w-5 text-warning" />
             Weryfikacja w toku
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted-foreground">
             Twoje konto Stripe jest weryfikowane. Może to potrwać 1-2 dni robocze.
           </p>
           <div className="flex flex-wrap gap-2">
@@ -153,19 +153,19 @@ export function StripeConnectSection({ initialStatus, autoRefresh = false }: Pro
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-slate-900">
-            <AlertTriangle className="h-5 w-5 text-red-500" />
+          <CardTitle className="flex items-center gap-2 text-foreground">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
             Wymagane działanie
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted-foreground">
             Stripe wymaga dodatkowych informacji, aby aktywować Twoje konto.
           </p>
           <Button
             onClick={handleConnect}
             loading={isPending}
-            className="bg-slate-900 hover:bg-slate-700"
+            
           >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             <ExternalLink className="mr-2 h-4 w-4" /> Uzupełnij dane w Stripe
@@ -178,13 +178,13 @@ export function StripeConnectSection({ initialStatus, autoRefresh = false }: Pro
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-slate-900">
-          <CheckCircle2 className="h-5 w-5 text-green-600" />
+        <CardTitle className="flex items-center gap-2 text-foreground">
+          <CheckCircle2 className="h-5 w-5 text-success" />
           Stripe aktywny
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-muted-foreground">
           Twoje konto Stripe jest aktywne. Wypłaty będą realizowane automatycznie po
           zatwierdzeniu przez admina.
         </p>

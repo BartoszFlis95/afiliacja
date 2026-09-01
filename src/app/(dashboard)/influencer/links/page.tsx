@@ -63,13 +63,13 @@ export default async function InfluencerLinksPage({
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <header>
-          <h1 className="text-2xl font-bold text-[#0F172A]">Moje linki</h1>
+          <h1 className="text-2xl font-bold text-foreground">Moje linki</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {links.length.toLocaleString("pl-PL")} linków afiliacyjnych.
           </p>
         </header>
 
-        <div className="inline-flex items-center gap-1 self-start rounded-lg border border-slate-200 bg-white p-1">
+        <div className="inline-flex items-center gap-1 self-start rounded-lg border border-border bg-card p-1">
           {SORT_OPTIONS.map((opt) => (
             <Button
               key={opt.value}
@@ -78,9 +78,9 @@ export default async function InfluencerLinksPage({
               size="sm"
               variant="ghost"
               className={cn(
-                "h-7 px-3 text-xs font-medium hover:bg-slate-100",
+                "h-7 px-3 text-xs font-medium hover:bg-muted",
                 sort === opt.value &&
-                  "bg-slate-900 text-white hover:bg-slate-900 hover:text-white"
+                  "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
               )}
             >
               <Link href={`/influencer/links?sort=${opt.value}`}>{opt.label}</Link>
@@ -104,7 +104,7 @@ export default async function InfluencerLinksPage({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {links.map((link) => (
             <Card key={link.id} className="overflow-hidden">
-              <div className="relative h-40 w-full bg-slate-100">
+              <div className="relative h-40 w-full bg-muted">
                 {link.product?.imageUrl ? (
                   <Image
                     src={link.product.imageUrl}
@@ -114,43 +114,43 @@ export default async function InfluencerLinksPage({
                     className="object-cover"
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-slate-300">
+                  <div className="flex h-full items-center justify-center text-muted-foreground/60">
                     <LinkIcon className="h-10 w-10" />
                   </div>
                 )}
               </div>
               <CardContent className="space-y-3 p-4">
                 <div>
-                  <p className="line-clamp-1 font-medium text-slate-900">
+                  <p className="line-clamp-1 font-medium text-foreground">
                     {link.product?.name ?? "—"}
                   </p>
-                  <p className="line-clamp-1 text-sm text-slate-500">
+                  <p className="line-clamp-1 text-sm text-muted-foreground">
                     {link.product?.brandProfile?.companyName ?? "—"}
                   </p>
                 </div>
 
-                <p className="inline-block rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                <p className="inline-block rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
                   {link.product?.influencerCommissionRate ?? 0}% prowizji
                 </p>
 
-                <div className="grid grid-cols-3 gap-2 rounded-lg bg-slate-50 p-3 text-center">
+                <div className="grid grid-cols-3 gap-2 rounded-lg bg-muted/50 p-3 text-center">
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-foreground">
                       {link.totalClicks.toLocaleString("pl-PL")}
                     </p>
-                    <p className="text-[11px] text-slate-500">Kliknięcia</p>
+                    <p className="text-[11px] text-muted-foreground">Kliknięcia</p>
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-foreground">
                       {link.totalConversions.toLocaleString("pl-PL")}
                     </p>
-                    <p className="text-[11px] text-slate-500">Konwersje</p>
+                    <p className="text-[11px] text-muted-foreground">Konwersje</p>
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-emerald-600">
+                    <p className="text-sm font-semibold text-success">
                       {formatCurrency(Number(link.totalEarnings))}
                     </p>
-                    <p className="text-[11px] text-slate-500">Zarobki</p>
+                    <p className="text-[11px] text-muted-foreground">Zarobki</p>
                   </div>
                 </div>
 

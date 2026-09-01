@@ -131,7 +131,7 @@ export function BrandProfileForm({ profile }: BrandProfileFormProps) {
           {success && (
             <p
               role="status"
-              className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
+              className="rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
             >
               Profil został zaktualizowany.
             </p>

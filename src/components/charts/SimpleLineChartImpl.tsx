@@ -50,7 +50,7 @@ export function SimpleLineChart({
   if (data.length === 0) {
     return (
       <div
-        className="flex items-center justify-center text-sm text-slate-400"
+        className="flex items-center justify-center text-sm text-muted-foreground"
         style={{ height }}
       >
         Brak danych do wyświetlenia

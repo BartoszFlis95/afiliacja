@@ -69,10 +69,10 @@ export function VerifyEmailClient({
   if (status === "verifying") {
     return (
       <div className="space-y-4 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-          <Mail className="h-6 w-6 animate-pulse text-blue-600" />
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/15">
+          <Mail className="h-6 w-6 animate-pulse text-primary" />
         </div>
-        <h1 className="text-xl font-semibold text-[#0F172A]">Weryfikujemy Twój email…</h1>
+        <h1 className="text-xl font-semibold text-foreground">Weryfikujemy Twój email…</h1>
       </div>
     );
   }
@@ -80,14 +80,14 @@ export function VerifyEmailClient({
   if (status === "success") {
     return (
       <div className="space-y-4 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-          <CheckCircle2 className="h-6 w-6 text-green-600" />
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success/15">
+          <CheckCircle2 className="h-6 w-6 text-success" />
         </div>
-        <h1 className="text-xl font-semibold text-[#0F172A]">Email potwierdzony! ✅</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-xl font-semibold text-foreground">Email potwierdzony! ✅</h1>
+        <p className="text-sm text-muted-foreground">
           Za chwilę przekierujemy Cię do logowania…
         </p>
-        <Button asChild className="w-full bg-blue-600 hover:bg-blue-700">
+        <Button asChild className="w-full bg-primary hover:bg-blue-700">
           <Link href="/login">Przejdź do logowania</Link>
         </Button>
       </div>
@@ -97,14 +97,14 @@ export function VerifyEmailClient({
   if (status === "error") {
     return (
       <div className="space-y-4 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-          <XCircle className="h-6 w-6 text-red-600" />
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/15">
+          <XCircle className="h-6 w-6 text-destructive" />
         </div>
-        <h1 className="text-xl font-semibold text-[#0F172A]">Nie udało się potwierdzić ❌</h1>
-        <p className="text-sm text-slate-500">{verifyError}</p>
+        <h1 className="text-xl font-semibold text-foreground">Nie udało się potwierdzić ❌</h1>
+        <p className="text-sm text-muted-foreground">{verifyError}</p>
 
         <div className="space-y-1.5 text-left">
-          <Label htmlFor="resend-email" className="text-xs font-medium text-slate-700">
+          <Label htmlFor="resend-email" className="text-xs font-medium text-foreground">
             Adres email
           </Label>
           <Input
@@ -117,10 +117,10 @@ export function VerifyEmailClient({
           />
         </div>
 
-        {resendMessage && <p className="text-xs text-slate-500">{resendMessage}</p>}
+        {resendMessage && <p className="text-xs text-muted-foreground">{resendMessage}</p>}
 
         <Button
-          className="w-full bg-blue-600 hover:bg-blue-700"
+          className="w-full bg-primary hover:bg-blue-700"
           disabled={isResending}
           onClick={handleResend}
         >
@@ -136,19 +136,19 @@ export function VerifyEmailClient({
   // idle — brak tokena w URL: właśnie zarejestrowany użytkownik czeka na maila.
   return (
     <div className="space-y-4 text-center">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-        <Mail className="h-6 w-6 text-blue-600" />
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/15">
+        <Mail className="h-6 w-6 text-primary" />
       </div>
-      <h1 className="text-xl font-semibold text-[#0F172A]">Sprawdź swoją skrzynkę 📧</h1>
-      <p className="text-sm text-slate-500">
+      <h1 className="text-xl font-semibold text-foreground">Sprawdź swoją skrzynkę 📧</h1>
+      <p className="text-sm text-muted-foreground">
         Wysłaliśmy link weryfikacyjny na{" "}
-        {email ? <span className="font-medium text-[#0F172A]">{email}</span> : "Twój adres email"}.
+        {email ? <span className="font-medium text-foreground">{email}</span> : "Twój adres email"}.
       </p>
-      <p className="text-xs text-slate-400">Link ważny przez 24 godziny.</p>
+      <p className="text-xs text-muted-foreground">Link ważny przez 24 godziny.</p>
 
       {!email && (
         <div className="space-y-1.5 text-left">
-          <Label htmlFor="resend-email" className="text-xs font-medium text-slate-700">
+          <Label htmlFor="resend-email" className="text-xs font-medium text-foreground">
             Adres email
           </Label>
           <Input
@@ -162,10 +162,10 @@ export function VerifyEmailClient({
         </div>
       )}
 
-      {resendMessage && <p className="text-xs text-slate-500">{resendMessage}</p>}
+      {resendMessage && <p className="text-xs text-muted-foreground">{resendMessage}</p>}
 
       <Button
-        className="w-full bg-blue-600 hover:bg-blue-700"
+        className="w-full bg-primary hover:bg-blue-700"
         disabled={isResending}
         onClick={handleResend}
       >

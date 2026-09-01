@@ -10,18 +10,18 @@ const STATUS_CONFIG: Record<
   string,
   { label: string; bg: string; text: string; border: string; dot: string }
 > = {
-  PENDING:    { label: "Oczekuje",     bg: "bg-amber-50",   text: "text-amber-700",   border: "border-amber-100",   dot: "bg-amber-500" },
-  APPROVED:   { label: "Zatwierdzona", bg: "bg-blue-50",    text: "text-blue-700",    border: "border-blue-100",    dot: "bg-blue-500" },
-  CONFIRMED:  { label: "Potwierdzona", bg: "bg-blue-50",    text: "text-blue-700",    border: "border-blue-100",    dot: "bg-blue-500" },
-  PROCESSING: { label: "W realizacji", bg: "bg-violet-50",  text: "text-violet-700",  border: "border-violet-100",  dot: "bg-violet-500" },
+  PENDING:    { label: "Oczekuje",     bg: "bg-warning/10",   text: "text-warning",   border: "border-warning/30",   dot: "bg-warning" },
+  APPROVED:   { label: "Zatwierdzona", bg: "bg-primary/10",    text: "text-primary",    border: "border-primary/20",    dot: "bg-primary" },
+  CONFIRMED:  { label: "Potwierdzona", bg: "bg-primary/10",    text: "text-primary",    border: "border-primary/20",    dot: "bg-primary" },
+  PROCESSING: { label: "W realizacji", bg: "bg-primary/10",  text: "text-primary",  border: "border-primary/30",  dot: "bg-primary" },
   PAID:       { label: "Wypłacona",    bg: "bg-purple-50",  text: "text-purple-700",  border: "border-purple-100",  dot: "bg-purple-500" },
   COMPLETED:  { label: "Zrealizowana", bg: "bg-purple-50",  text: "text-purple-700",  border: "border-purple-100",  dot: "bg-purple-500" },
-  REJECTED:   { label: "Odrzucona",    bg: "bg-red-50",     text: "text-red-700",     border: "border-red-100",     dot: "bg-red-500" },
-  CANCELLED:  { label: "Anulowana",    bg: "bg-red-50",     text: "text-red-700",     border: "border-red-100",     dot: "bg-red-500" },
-  DRAFT:      { label: "Szkic",        bg: "bg-slate-50",   text: "text-slate-600",   border: "border-slate-100",   dot: "bg-slate-400" },
-  ISSUED:     { label: "Wystawiona",   bg: "bg-blue-50",    text: "text-blue-700",    border: "border-blue-100",    dot: "bg-blue-500" },
-  ACTIVE:     { label: "Aktywny",      bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-100", dot: "bg-emerald-500" },
-  INACTIVE:   { label: "Nieaktywny",   bg: "bg-slate-50",   text: "text-slate-600",   border: "border-slate-100",   dot: "bg-slate-400" },
+  REJECTED:   { label: "Odrzucona",    bg: "bg-destructive/10",     text: "text-destructive",     border: "border-destructive/30",     dot: "bg-destructive" },
+  CANCELLED:  { label: "Anulowana",    bg: "bg-destructive/10",     text: "text-destructive",     border: "border-destructive/30",     dot: "bg-destructive" },
+  DRAFT:      { label: "Szkic",        bg: "bg-muted/50",   text: "text-muted-foreground",   border: "border-border/60",   dot: "bg-muted-foreground" },
+  ISSUED:     { label: "Wystawiona",   bg: "bg-primary/10",    text: "text-primary",    border: "border-primary/20",    dot: "bg-primary" },
+  ACTIVE:     { label: "Aktywny",      bg: "bg-success/10", text: "text-success", border: "border-success/30", dot: "bg-success" },
+  INACTIVE:   { label: "Nieaktywny",   bg: "bg-muted/50",   text: "text-muted-foreground",   border: "border-border/60",   dot: "bg-muted-foreground" },
 };
 
 export function StatusBadge({
@@ -35,10 +35,10 @@ export function StatusBadge({
 }) {
   const config = STATUS_CONFIG[status] ?? {
     label: status,
-    bg: "bg-slate-50",
-    text: "text-slate-600",
-    border: "border-slate-100",
-    dot: "bg-slate-400",
+    bg: "bg-muted/50",
+    text: "text-muted-foreground",
+    border: "border-border/60",
+    dot: "bg-muted-foreground",
   };
 
   return (

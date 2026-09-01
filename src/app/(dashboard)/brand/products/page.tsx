@@ -101,7 +101,7 @@ export default async function BrandProductsPage({
     <div className="space-y-6 p-4 sm:p-6">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#0F172A]">Produkty</h1>
+          <h1 className="text-2xl font-bold text-foreground">Produkty</h1>
           <p className="mt-1 text-muted-foreground">
             {productRows.length.toLocaleString("pl-PL")} produktów.
           </p>
@@ -112,7 +112,7 @@ export default async function BrandProductsPage({
       </header>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="inline-flex flex-wrap items-center gap-1 rounded-lg border border-slate-200 bg-white p-1">
+        <div className="inline-flex flex-wrap items-center gap-1 rounded-lg border border-border bg-card p-1">
           {STATUS_FILTERS.map((f) => (
             <Button
               key={f.value}
@@ -121,9 +121,9 @@ export default async function BrandProductsPage({
               size="sm"
               variant="ghost"
               className={cn(
-                "h-7 px-3 text-xs font-medium hover:bg-slate-100",
+                "h-7 px-3 text-xs font-medium hover:bg-muted",
                 statusFilter === f.value &&
-                  "bg-slate-900 text-white hover:bg-slate-900 hover:text-white"
+                  "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
               )}
             >
               <Link href={`/brand/products?status=${f.value}&sort=${sort}`}>{f.label}</Link>
@@ -131,7 +131,7 @@ export default async function BrandProductsPage({
           ))}
         </div>
 
-        <div className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-1">
+        <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-card p-1">
           {SORT_OPTIONS.map((opt) => (
             <Button
               key={opt.value}
@@ -140,9 +140,9 @@ export default async function BrandProductsPage({
               size="sm"
               variant="ghost"
               className={cn(
-                "h-7 px-3 text-xs font-medium hover:bg-slate-100",
+                "h-7 px-3 text-xs font-medium hover:bg-muted",
                 sort === opt.value &&
-                  "bg-slate-900 text-white hover:bg-slate-900 hover:text-white"
+                  "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
               )}
             >
               <Link href={`/brand/products?status=${statusFilter}&sort=${opt.value}`}>
@@ -168,7 +168,7 @@ export default async function BrandProductsPage({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {productRows.map((product) => (
             <Card key={product.id} className="overflow-hidden">
-              <div className="relative h-40 w-full bg-slate-100">
+              <div className="relative h-40 w-full bg-muted">
                 {product.imageUrl ? (
                   <Image
                     src={product.imageUrl}
@@ -178,7 +178,7 @@ export default async function BrandProductsPage({
                     className="object-cover"
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-slate-300">
+                  <div className="flex h-full items-center justify-center text-muted-foreground/60">
                     <ImageIcon className="h-10 w-10" />
                   </div>
                 )}
@@ -188,40 +188,40 @@ export default async function BrandProductsPage({
               </div>
               <CardContent className="space-y-3 p-4">
                 <div>
-                  <p className="line-clamp-1 font-medium text-slate-900">{product.name}</p>
-                  <p className="text-sm text-slate-500">
+                  <p className="line-clamp-1 font-medium text-foreground">{product.name}</p>
+                  <p className="text-sm text-muted-foreground">
                     {product.price ? formatCurrency(Number(product.price)) : "Cena nieustawiona"}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 rounded-lg bg-slate-50 p-3 text-center">
+                <div className="grid grid-cols-3 gap-2 rounded-lg bg-muted/50 p-3 text-center">
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-foreground">
                       {product.clicks.toLocaleString("pl-PL")}
                     </p>
-                    <p className="text-[11px] text-slate-500">Kliknięcia</p>
+                    <p className="text-[11px] text-muted-foreground">Kliknięcia</p>
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-foreground">
                       {product.conversions.toLocaleString("pl-PL")}
                     </p>
-                    <p className="text-[11px] text-slate-500">Konwersje</p>
+                    <p className="text-[11px] text-muted-foreground">Konwersje</p>
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-emerald-600">
+                    <p className="text-sm font-semibold text-success">
                       {formatCurrency(product.revenue)}
                     </p>
-                    <p className="text-[11px] text-slate-500">Przychód</p>
+                    <p className="text-[11px] text-muted-foreground">Przychód</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 text-xs text-slate-500">
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span>
-                    Komisja: <strong className="text-slate-900">{product.commissionRate}%</strong>
+                    Komisja: <strong className="text-foreground">{product.commissionRate}%</strong>
                   </span>
                   <span>
                     Influencer:{" "}
-                    <strong className="text-slate-900">{product.influencerCommissionRate}%</strong>
+                    <strong className="text-foreground">{product.influencerCommissionRate}%</strong>
                   </span>
                 </div>
 

@@ -63,10 +63,10 @@ export function ResetPasswordForm({ token }: { token: string }) {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Link wygasł
           </h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             Ten link do resetowania hasła wygasł lub został już wykorzystany.
             Wygeneruj nowy, aby ustawić nowe hasło.
           </p>
@@ -82,10 +82,10 @@ export function ResetPasswordForm({ token }: { token: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Ustaw nowe hasło
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Wpisz i potwierdź swoje nowe hasło.
         </p>
       </div>
@@ -94,7 +94,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
         {formError && (
           <div
             role="alert"
-            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             {formError}
           </div>
@@ -112,7 +112,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
             disabled={isPending}
           />
           {errors.password && (
-            <p className="text-xs text-red-600">{errors.password}</p>
+            <p className="text-xs text-destructive">{errors.password}</p>
           )}
         </div>
 
@@ -128,7 +128,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
             disabled={isPending}
           />
           {errors.confirmPassword && (
-            <p className="text-xs text-red-600">{errors.confirmPassword}</p>
+            <p className="text-xs text-destructive">{errors.confirmPassword}</p>
           )}
         </div>
 
