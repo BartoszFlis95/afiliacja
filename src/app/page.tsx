@@ -146,8 +146,8 @@ export default async function LandingPage() {
           <Image
             src="/logo.png"
             alt="Deneeu"
-            width={2720}
-            height={1536}
+            width={1600}
+            height={903}
             sizes="(min-width: 1024px) 640px, (min-width: 640px) 420px, 80vw"
             className="order-2 mx-auto h-auto w-full max-w-[280px] rounded-2xl object-contain drop-shadow-2xl sm:max-w-[420px] lg:order-1 lg:max-w-[640px]"
             priority

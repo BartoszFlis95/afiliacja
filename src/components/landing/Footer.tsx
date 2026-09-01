@@ -35,8 +35,8 @@ export function Footer() {
               <Image
                 src="/logo.png"
                 alt="Deneeu"
-                width={2720}
-                height={1536}
+                width={1600}
+                height={903}
                 sizes="200px"
                 className="h-10 w-auto rounded-lg object-contain"
               />

@@ -146,8 +146,8 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
             <Image
               src="/logo.png"
               alt="Deneeu"
-              width={2720}
-              height={1536}
+              width={1600}
+              height={903}
               sizes="220px"
               className="h-11 w-auto rounded-lg object-contain"
               priority

@@ -18,8 +18,8 @@ export default function AuthLayout({
           <Image
             src="/logo.png"
             alt="Deneeu"
-            width={2720}
-            height={1536}
+            width={1600}
+            height={903}
             sizes="150px"
             className="h-8 w-auto rounded-lg object-contain"
             priority
@@ -63,8 +63,8 @@ export default function AuthLayout({
               <Image
                 src="/logo.png"
                 alt="Deneeu"
-                width={2720}
-                height={1536}
+                width={1600}
+                height={903}
                 sizes="(min-width: 640px) 320px, 260px"
                 className="h-14 w-auto rounded-xl object-contain sm:h-[72px]"
                 priority
