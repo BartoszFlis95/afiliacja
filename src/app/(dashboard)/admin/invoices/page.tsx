@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { FileText, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
 
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { getInvoicesAction, getBrandsListAction } from "@/actions/invoice.actions";
 import { GenerateInvoiceModal } from "@/components/admin/GenerateInvoiceModal";
 import { EmptyState } from "@/components/shared/EmptyState";

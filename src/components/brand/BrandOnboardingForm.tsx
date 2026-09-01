@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { BrandProfileSchema } from "@/lib/validations/profile.schema";
 import { createBrandProfileAction } from "@/actions/brand.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,14 +13,7 @@ import { FormField } from "@/components/ui/form-field";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-const OnboardingSchema = z.object({
-  companyName: z.string().min(2, "Nazwa firmy musi mieć co najmniej 2 znaki"),
-  industry: z.string().optional(),
-  website: z.string().url("Nieprawidłowy URL").optional().or(z.literal("")),
-  description: z.string().optional(),
-});
-
-type OnboardingFormData = z.infer<typeof OnboardingSchema>;
+type OnboardingFormData = z.infer<typeof BrandProfileSchema>;
 
 export function BrandOnboardingForm() {
   const router = useRouter();
@@ -31,7 +25,7 @@ export function BrandOnboardingForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<OnboardingFormData>({
-    resolver: zodResolver(OnboardingSchema),
+    resolver: zodResolver(BrandProfileSchema),
   });
 
   function onSubmit(data: OnboardingFormData) {

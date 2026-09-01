@@ -2,15 +2,9 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { z } from "zod";
+import { BrandProfileSchema } from "@/lib/validations/profile.schema";
 import { redirect } from "next/navigation";
 
-const BrandProfileSchema = z.object({
-  companyName: z.string().min(2, "Nazwa firmy musi mieć co najmniej 2 znaki"),
-  industry: z.string().optional(),
-  website: z.string().url("Nieprawidłowy URL").optional().or(z.literal("")),
-  description: z.string().optional(),
-});
 
 async function getAuthUser() {
   const session = await auth();

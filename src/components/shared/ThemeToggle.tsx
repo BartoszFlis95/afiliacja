@@ -8,28 +8,44 @@ import { THEME_STORAGE_KEY } from "@/components/shared/ThemeScript"
 
 type Theme = "light" | "dark"
 
-function currentTheme(): Theme {
-  return document.documentElement.classList.contains("dark") ? "dark" : "light"
+/**
+ * Motyw żyje poza Reactem — ustawia go blokujący ThemeScript, wpisując klasę
+ * na <html> jeszcze przed pierwszym malowaniem. Czytamy go więc przez
+ * useSyncExternalStore, a nie przez useState + useEffect: nie ma osobnego
+ * źródła prawdy, które mogłoby rozjechać się z tym, co widać, i nie ma
+ * synchronicznego setState w efekcie (cascading render).
+ *
+ * `getServerSnapshot` zwraca null, bo serwer nie wie, jaki motyw ma dana
+ * osoba — dzięki temu pierwszy render jest zgodny po obu stronach.
+ */
+function subscribe(onChange: () => void) {
+  const observer = new MutationObserver(onChange)
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  })
+  // Zmiana motywu w innej karcie tej samej domeny.
+  window.addEventListener("storage", onChange)
+  return () => {
+    observer.disconnect()
+    window.removeEventListener("storage", onChange)
+  }
 }
 
-/**
- * Przełącznik jasny/ciemny.
- *
- * Stan czyta z klasy na <html>, którą ustawił już ThemeScript — nie trzyma
- * własnego źródła prawdy, więc nie ma jak rozjechać się z tym, co widać.
- * Do pierwszego efektu renderuje się jako `null`: serwer nie wie, jaki motyw
- * ma dana osoba, a wyrenderowanie „na sztywno” słońca albo księżyca dałoby
- * niezgodność hydratacji.
- */
-export function ThemeToggle({ className }: { className?: string }) {
-  const [theme, setTheme] = React.useState<Theme | null>(null)
+const getSnapshot = (): Theme =>
+  document.documentElement.classList.contains("dark") ? "dark" : "light"
 
-  React.useEffect(() => {
-    setTheme(currentTheme())
-  }, [])
+const getServerSnapshot = (): Theme | null => null
+
+export function ThemeToggle({ className }: { className?: string }) {
+  const theme = React.useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot
+  )
 
   function toggle() {
-    const next: Theme = currentTheme() === "dark" ? "light" : "dark"
+    const next: Theme = getSnapshot() === "dark" ? "light" : "dark"
     document.documentElement.classList.toggle("dark", next === "dark")
     document.documentElement.style.colorScheme = next
     try {
@@ -37,11 +53,11 @@ export function ThemeToggle({ className }: { className?: string }) {
     } catch {
       /* brak dostępu do localStorage — motyw zadziała do końca sesji */
     }
-    setTheme(next)
   }
 
   if (theme === null) {
-    // Rezerwujemy miejsce, żeby układ nie skoczył po hydratacji.
+    // Serwer i pierwszy render klienta: rezerwujemy miejsce, żeby układ
+    // nie skoczył po hydratacji.
     return <div className={cn("size-9", className)} aria-hidden />
   }
 

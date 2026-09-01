@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { createInfluencerProfileAction } from "@/actions/influencer.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FormField } from "@/components/ui/form-field";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
@@ -56,49 +56,64 @@ export function OnboardingForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="displayName">Nazwa wyświetlana *</Label>
-            <Input id="displayName" name="displayName" required />
-          </div>
+          <FormField label="Nazwa wyświetlana" required>
+            {(f) => (
+              <Input
+                {...f}
+                name="displayName"
+                required
+                autoComplete="nickname"
+                placeholder="Jak mają Cię widzieć marki"
+              />
+            )}
+          </FormField>
 
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            <Textarea id="bio" name="bio" rows={3} />
-          </div>
+          <FormField label="Bio" hint="Krótko o sobie — marki to widzą przy Twoim profilu.">
+            {(f) => <Textarea {...f} name="bio" rows={3} />}
+          </FormField>
 
-          <div className="space-y-2">
-            <Label htmlFor="website">Strona WWW</Label>
-            <Input id="website" name="website" type="url" placeholder="https://" />
-          </div>
+          <FormField label="Strona WWW">
+            {(f) => (
+              <Input {...f} name="website" type="url" inputMode="url" placeholder="https://" />
+            )}
+          </FormField>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="instagramUrl">Instagram</Label>
-              <Input id="instagramUrl" name="instagramUrl" type="url" placeholder="https://" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="youtubeUrl">YouTube</Label>
-              <Input id="youtubeUrl" name="youtubeUrl" type="url" placeholder="https://" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tiktokUrl">TikTok</Label>
-              <Input id="tiktokUrl" name="tiktokUrl" type="url" placeholder="https://" />
-            </div>
+            <FormField label="Instagram">
+              {(f) => (
+                <Input {...f} name="instagramUrl" type="url" inputMode="url" placeholder="https://" />
+              )}
+            </FormField>
+            <FormField label="YouTube">
+              {(f) => (
+                <Input {...f} name="youtubeUrl" type="url" inputMode="url" placeholder="https://" />
+              )}
+            </FormField>
+            <FormField label="TikTok">
+              {(f) => (
+                <Input {...f} name="tiktokUrl" type="url" inputMode="url" placeholder="https://" />
+              )}
+            </FormField>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="followersCount">Liczba obserwujących</Label>
-            <Input
-              id="followersCount"
-              name="followersCount"
-              type="number"
-              min={0}
-              placeholder="0"
-            />
-          </div>
+          <FormField label="Liczba obserwujących">
+            {(f) => (
+              <Input
+                {...f}
+                name="followersCount"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                placeholder="0"
+              />
+            )}
+          </FormField>
 
           {error && (
-            <p role="alert" className="text-sm text-destructive">
+            <p
+              role="alert"
+              className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            >
               {error}
             </p>
           )}

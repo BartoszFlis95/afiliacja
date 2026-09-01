@@ -5,19 +5,13 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { BrandProfileSchema } from "@/lib/validations/profile.schema";
 import { updateBrandProfileAction } from "@/actions/brand.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/ui/form-field";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-const BrandProfileSchema = z.object({
-  companyName: z.string().min(2, "Nazwa firmy musi mieć co najmniej 2 znaki"),
-  industry: z.string().optional(),
-  website: z.string().url("Nieprawidłowy URL").optional().or(z.literal("")),
-  description: z.string().optional(),
-});
 
 type BrandProfileFormData = z.infer<typeof BrandProfileSchema>;
 

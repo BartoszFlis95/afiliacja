@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { updateInfluencerProfileAction } from "@/actions/influencer.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FormField } from "@/components/ui/form-field";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
@@ -68,81 +68,107 @@ export function SettingsForm({ profile }: { profile: InfluencerProfileValues }) 
       <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="displayName">Nazwa wyświetlana *</Label>
-              <Input
-                id="displayName"
-                name="displayName"
-                required
-                defaultValue={profile.displayName}
-              />
-            </div>
+            <FormField label="Nazwa wyświetlana" required>
+              {(f) => (
+                <Input
+                  {...f}
+                  name="displayName"
+                  required
+                  autoComplete="nickname"
+                  defaultValue={profile.displayName}
+                />
+              )}
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="website">Strona WWW</Label>
-              <Input
-                id="website"
-                name="website"
-                type="url"
-                defaultValue={profile.website ?? ""}
-              />
-            </div>
+            <FormField label="Strona WWW">
+              {(f) => (
+                <Input
+                  {...f}
+                  name="website"
+                  type="url"
+                  inputMode="url"
+                  placeholder="https://"
+                  defaultValue={profile.website ?? ""}
+                />
+              )}
+            </FormField>
 
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea
-                id="bio"
-                name="bio"
-                rows={3}
-                defaultValue={profile.bio ?? ""}
-              />
-            </div>
+            <FormField
+              label="Bio"
+              className="md:col-span-2"
+              hint="Krótko o sobie — marki to widzą przy Twoim profilu."
+            >
+              {(f) => (
+                <Textarea {...f} name="bio" rows={3} defaultValue={profile.bio ?? ""} />
+              )}
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="instagramUrl">Instagram</Label>
-              <Input
-                id="instagramUrl"
-                name="instagramUrl"
-                type="url"
-                defaultValue={profile.instagramUrl ?? ""}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="youtubeUrl">YouTube</Label>
-              <Input
-                id="youtubeUrl"
-                name="youtubeUrl"
-                type="url"
-                defaultValue={profile.youtubeUrl ?? ""}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tiktokUrl">TikTok</Label>
-              <Input
-                id="tiktokUrl"
-                name="tiktokUrl"
-                type="url"
-                defaultValue={profile.tiktokUrl ?? ""}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="followersCount">Liczba obserwujących</Label>
-              <Input
-                id="followersCount"
-                name="followersCount"
-                type="number"
-                min={0}
-                defaultValue={profile.followersCount}
-              />
-            </div>
+            <FormField label="Instagram">
+              {(f) => (
+                <Input
+                  {...f}
+                  name="instagramUrl"
+                  type="url"
+                  inputMode="url"
+                  placeholder="https://"
+                  defaultValue={profile.instagramUrl ?? ""}
+                />
+              )}
+            </FormField>
+            <FormField label="YouTube">
+              {(f) => (
+                <Input
+                  {...f}
+                  name="youtubeUrl"
+                  type="url"
+                  inputMode="url"
+                  placeholder="https://"
+                  defaultValue={profile.youtubeUrl ?? ""}
+                />
+              )}
+            </FormField>
+            <FormField label="TikTok">
+              {(f) => (
+                <Input
+                  {...f}
+                  name="tiktokUrl"
+                  type="url"
+                  inputMode="url"
+                  placeholder="https://"
+                  defaultValue={profile.tiktokUrl ?? ""}
+                />
+              )}
+            </FormField>
+            <FormField label="Liczba obserwujących">
+              {(f) => (
+                <Input
+                  {...f}
+                  name="followersCount"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  defaultValue={profile.followersCount}
+                />
+              )}
+            </FormField>
           </div>
 
           {error && (
-            <p role="alert" className="text-sm text-destructive">
+            <p
+              role="alert"
+              className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            >
               {error}
             </p>
           )}
-          {saved && <p className="text-sm text-success">Zapisano zmiany.</p>}
+          {saved && (
+            <p
+              role="status"
+              className="rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
+            >
+              Zapisano zmiany.
+            </p>
+          )}
 
           <Button
             type="submit"

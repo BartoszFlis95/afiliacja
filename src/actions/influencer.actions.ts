@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { BankDetailsSchema } from "@/lib/validations/bank.schema";
+import { InfluencerProfileSchema } from "@/lib/validations/profile.schema";
 
 type ActionResult<T = unknown> = {
   success: boolean;
@@ -15,17 +16,8 @@ type ActionResult<T = unknown> = {
   data?: T;
 };
 
-const profileSchema = z.object({
-  displayName: z.string().trim().min(1, "Nazwa wyświetlana jest wymagana"),
-  bio: z.string().trim().optional().or(z.literal("")),
-  website: z.string().trim().url("Nieprawidłowy URL").optional().or(z.literal("")),
-  instagramUrl: z.string().trim().url("Nieprawidłowy URL").optional().or(z.literal("")),
-  youtubeUrl: z.string().trim().url("Nieprawidłowy URL").optional().or(z.literal("")),
-  tiktokUrl: z.string().trim().url("Nieprawidłowy URL").optional().or(z.literal("")),
-  followersCount: z.coerce.number().int().min(0).optional(),
-});
 
-function normalize(input: z.infer<typeof profileSchema>) {
+function normalize(input: z.infer<typeof InfluencerProfileSchema>) {
   return {
     displayName: input.displayName,
     bio: input.bio || null,
@@ -53,7 +45,7 @@ export async function createInfluencerProfileAction(
     return { success: false, error: "Brak autoryzacji" };
   }
 
-  const parsed = profileSchema.safeParse(formData);
+  const parsed = InfluencerProfileSchema.safeParse(formData);
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Nieprawidłowe dane" };
   }
@@ -87,7 +79,7 @@ export async function updateInfluencerProfileAction(
     return { success: false, error: "Brak autoryzacji" };
   }
 
-  const parsed = profileSchema.safeParse(formData);
+  const parsed = InfluencerProfileSchema.safeParse(formData);
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Nieprawidłowe dane" };
   }
