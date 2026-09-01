@@ -8,7 +8,11 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      // min-w-0 pozwala kontenerowi skurczyć się poniżej min-content tabeli,
+      // gdy leży bezpośrednio w kontenerze flex/grid. Uwaga: gdy tabela siedzi
+      // w <Card>, o zwijaniu decyduje min-w-0 NA KARCIE (to ona jest elementem
+      // gridu) — patrz card.tsx.
+      className="relative w-full min-w-0 overflow-x-auto"
     >
       <table
         data-slot="table"

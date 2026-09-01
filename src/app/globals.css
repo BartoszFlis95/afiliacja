@@ -43,13 +43,16 @@
     /* Kolory semantyczne. Trzymamy je jako tokeny, a nie jako klasy emerald
        i amber wpisane w komponentach — inaczej każde miejsce z komunikatem
        sukcesu potrzebowałoby własnego wariantu `dark:`. */
-    --destructive: 0 84% 60%;        /* red-500  */
+    /* red-500 dawał 3.78:1 zarówno dla tekstu błędu na karcie, jak i dla
+       białego tekstu na przycisku destrukcyjnym — poniżej progu 4.5:1.
+       red-600 podnosi oba do 5.36:1 i 5.61:1. */
+    --destructive: 0 72% 46%;        /* red-600  */
     --destructive-foreground: 0 0% 100%;
     /* emerald-600 dawało 3.76:1 na bieli, amber-600 tylko 3.16:1 — oba poniżej
        progu. Zejście o jeden stopień daje 5.58:1 i 4.58:1. */
     --success: 161 94% 24%;          /* emerald-700 */
     --success-foreground: 0 0% 100%;
-    --warning: 28 92% 38%;           /* amber-700  */
+    --warning: 26 90% 35%;           /* amber-700, 5.26:1 na tle strony */
     --warning-foreground: 0 0% 100%;
 
     /* Borders & Inputs — slate-200 */

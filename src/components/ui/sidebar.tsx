@@ -166,6 +166,7 @@ function Sidebar({
     return (
       <div
         data-slot="sidebar"
+        data-surface="dark"
         className={cn(
           "flex h-full w-[var(--sidebar-width)] flex-col bg-sidebar text-sidebar-foreground",
           className
@@ -187,8 +188,17 @@ function Sidebar({
         dir={dir}
         data-sidebar="sidebar"
         data-slot="sidebar"
+        data-surface="dark"
         className={cn(
-          "w-[var(--sidebar-width)] max-w-[var(--sidebar-width)] sm:max-w-[var(--sidebar-width)] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden",
+          // Szerokość musi być zapisana z tym samym prefiksem wariantu co w
+          // SheetContent (`data-[side=…]:`). Zwykłe `w-…`/`sm:max-w-…` przegrywa
+          // dwojako: selektor SheetContenta ma atrybut, więc wyższą
+          // specyficzność, a tailwind-merge nie widzi konfliktu między różnymi
+          // prefiksami i zostawia obie klasy. Efekt: panel szedł na fallback
+          // Sheeta (3/4 ekranu, max 384 px) zamiast na 280 px z tokenu.
+          "bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden",
+          "data-[side=left]:w-[var(--sidebar-width)] data-[side=right]:w-[var(--sidebar-width)]",
+          "data-[side=left]:sm:max-w-[var(--sidebar-width)] data-[side=right]:sm:max-w-[var(--sidebar-width)]",
           className
         )}
         side={side}

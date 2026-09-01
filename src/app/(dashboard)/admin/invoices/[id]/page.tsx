@@ -159,7 +159,7 @@ export default async function AdminInvoiceDetailPage({
                 <div className="overflow-x-auto">
                 <Table className="min-w-[520px]">
                   <TableHeader>
-                    <TableRow className="bg-sidebar text-sidebar-foreground hover:bg-sidebar">
+                    <TableRow data-surface="dark" className="bg-sidebar text-sidebar-foreground hover:bg-sidebar">
                       <TableHead className="pl-4 text-sidebar-foreground">Opis</TableHead>
                       <TableHead className="text-right text-sidebar-foreground">Ilość</TableHead>
                       <TableHead className="text-right text-sidebar-foreground">Cena jedn.</TableHead>

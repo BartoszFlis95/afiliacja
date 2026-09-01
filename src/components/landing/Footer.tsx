@@ -27,7 +27,7 @@ const FOOTER_COLUMNS: {
 
 export function Footer() {
   return (
-    <footer className="border-t border-sidebar-border bg-sidebar">
+    <footer data-surface="dark" className="border-t border-sidebar-border bg-sidebar">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-3">
           <div className="sm:col-span-2 lg:col-span-1">
@@ -35,10 +35,10 @@ export function Footer() {
               <Image
                 src="/logo.png"
                 alt="Deneeu"
-                width={1600}
-                height={903}
+                width={2172}
+                height={724}
                 sizes="200px"
-                className="h-10 w-auto rounded-lg object-contain"
+                className="h-9 w-auto object-contain"
               />
             </Link>
             <p className="mt-4 max-w-xs text-sm text-sidebar-foreground/70">

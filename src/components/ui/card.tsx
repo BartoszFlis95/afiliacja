@@ -7,7 +7,11 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "rounded-xl border border-border bg-card text-card-foreground shadow-md",
+        // min-w-0: elementy grida i flexa mają domyślnie min-width:auto, więc
+        // karta z szeroką tabelą w środku nie mieściła się w swojej kolumnie —
+        // rozpychała grida i całą stronę w poziomie, zamiast pozwolić tabeli
+        // przewijać się w jej własnym `overflow-x-auto`.
+        "min-w-0 rounded-xl border border-border bg-card text-card-foreground shadow-md",
         className
       )}
       {...props}

@@ -139,17 +139,17 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
           odwołuje się do niebieskiego akcentu marki bez zmiany tła sidebaru. */}
       <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
         <Link href="/" className="flex items-center justify-center">
-          {/* Bez białej płytki pod spodem — logo ma własne ciemne tło,
-              więc jasny kafelek na granatowym sidebarze tworzył obcą ramkę.
+          {/* Bez płytki pod spodem — logo ma przezroczyste tło i chromowaną
+              kolorystykę, która czyta się wprost na granacie sidebara.
               Zostaje sam niebieski glow jako akcent marki. */}
           <div className="relative inline-block rounded-xl shadow-[0_0_28px_rgba(59,130,246,0.25)]">
             <Image
               src="/logo.png"
               alt="Deneeu"
-              width={1600}
-              height={903}
+              width={2172}
+              height={724}
               sizes="220px"
-              className="h-11 w-auto rounded-lg object-contain"
+              className="h-9 w-auto object-contain"
               priority
             />
           </div>

@@ -44,8 +44,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/logo.png",
-        width: 1600,
-        height: 903,
+        width: 2172,
+        height: 724,
         alt: "Deneeu — Affiliate Marketing Platform",
       },
     ],
