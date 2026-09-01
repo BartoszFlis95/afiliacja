@@ -68,8 +68,8 @@ export function ImageUpload({ value, onChange, label = "Zdjęcie" }: ImageUpload
             src={value}
             alt="Zdjęcie"
             fill
+            sizes="(max-width: 768px) 100vw, 672px"
             className="object-cover"
-            unoptimized
           />
         </div>
         <div className="flex gap-2">

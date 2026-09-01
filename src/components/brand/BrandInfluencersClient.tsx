@@ -110,8 +110,8 @@ export function BrandInfluencersClient({ rows }: { rows: InfluencerRow[] }) {
                             src={row.avatarUrl}
                             alt={row.displayName}
                             fill
+                            sizes="32px"
                             className="object-cover"
-                            unoptimized
                           />
                         ) : (
                           <div className="flex h-full items-center justify-center text-xs font-medium text-slate-500">

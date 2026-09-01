@@ -155,8 +155,8 @@ export function AdminPayoutsClient({ payouts }: { payouts: AdminPayoutRow[] }) {
                               src={payout.influencer.avatarUrl}
                               alt={payout.influencer.displayName}
                               fill
+                              sizes="36px"
                               className="object-cover"
-                              unoptimized
                             />
                           ) : (
                             <div className="flex h-full items-center justify-center text-xs font-medium text-slate-500">

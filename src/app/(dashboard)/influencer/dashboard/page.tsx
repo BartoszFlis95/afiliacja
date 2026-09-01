@@ -396,8 +396,8 @@ export default async function InfluencerDashboardPage() {
                       src={product.imageUrl}
                       alt={product.name}
                       fill
+                      sizes="(max-width: 640px) 100vw, 320px"
                       className="object-cover"
-                      unoptimized
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">

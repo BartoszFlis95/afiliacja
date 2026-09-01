@@ -110,8 +110,8 @@ export default async function InfluencerLinksPage({
                     src={link.product.imageUrl}
                     alt={link.product.name}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover"
-                    unoptimized
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center text-slate-300">
