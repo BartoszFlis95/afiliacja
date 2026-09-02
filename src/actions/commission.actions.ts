@@ -5,6 +5,7 @@ import { after } from "next/server";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { syncConversionStatus } from "@/lib/conversions";
 import { sendEmail } from "@/lib/resend";
 import { formatEmailAmount } from "@/emails/utils";
 import CommissionApprovedEmail from "@/emails/CommissionApprovedEmail";
@@ -53,23 +54,6 @@ async function getInfluencerProfileId(userId: string) {
   return profile?.id ?? null;
 }
 
-/**
- * Commission i Conversion są tworzone razem w /api/track, ale nie mają
- * bezpośredniej relacji (tylko wspólne affiliateLinkId+orderId) — bez tego
- * kroku Conversion.status zostaje na zawsze PENDING, a dashboardy, statystyki
- * i generowanie faktur filtrują właśnie po statusie CONFIRMED/PAID.
- */
-export async function syncConversionStatus(
-  affiliateLinkId: string,
-  orderId: string | null,
-  status: ConversionStatus
-) {
-  if (!orderId) return;
-  await prisma.conversion.updateMany({
-    where: { affiliateLinkId, orderId },
-    data: { status },
-  });
-}
 
 // ---------------------------------------------------------------------------
 // BRAND

@@ -9,7 +9,7 @@ import { stripe } from "@/lib/stripe";
 import { getAppUrl, sendEmail } from "@/lib/resend";
 import { formatEmailAmount } from "@/emails/utils";
 import PayoutCompletedEmail from "@/emails/PayoutCompletedEmail";
-import { syncConversionStatus } from "@/actions/commission.actions";
+import { syncConversionStatus } from "@/lib/conversions";
 import { CommissionStatus, ConversionStatus, PayoutStatus } from "@prisma/client";
 import type { StripeAccountStatus, StripeConnectStatus } from "@/types";
 
