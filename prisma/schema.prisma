@@ -76,6 +76,8 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  // FK z onDelete: Cascade — usunięcie konta użytkownika.
+  @@index([userId])
 }
 
 model Session {
@@ -84,6 +86,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model VerificationToken {
@@ -114,26 +118,26 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts          Account[]
-  sessions          Session[]
-  brandProfile      BrandProfile?
-  influencerProfile InfluencerProfile?
+  accounts           Account[]
+  sessions           Session[]
+  brandProfile       BrandProfile?
+  influencerProfile  InfluencerProfile?
   createdInviteCodes InviteCode[]
 }
 
 model BrandProfile {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  companyName    String
-  industry       String?
-  website        String?
-  logoUrl        String?
-  description    String?
-  isVerified     Boolean  @default(false)
-  apiKey         String   @unique @default(cuid())
-  webhookSecret  String   @default(cuid())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  companyName   String
+  industry      String?
+  website       String?
+  logoUrl       String?
+  description   String?
+  isVerified    Boolean  @default(false)
+  apiKey        String   @unique @default(cuid())
+  webhookSecret String   @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   products    Product[]
@@ -142,8 +146,8 @@ model BrandProfile {
 }
 
 model InfluencerProfile {
-  id             String   @id @default(cuid())
-  userId         String   @unique
+  id             String  @id @default(cuid())
+  userId         String  @unique
   displayName    String
   bio            String?
   avatarUrl      String?
@@ -152,26 +156,26 @@ model InfluencerProfile {
   youtubeUrl     String?
   tiktokUrl      String?
   followersCount Int?
-  isVerified     Boolean  @default(false)
+  isVerified     Boolean @default(false)
 
-  bankAccountName  String?
-  bankAccountIban  String?
-  bankAccountBank  String?
-  bankSwift        String?
-  paypalEmail      String?
-  preferredPayout  String?
-  phone            String?
-  city             String?
-  country          String?
+  bankAccountName String?
+  bankAccountIban String?
+  bankAccountBank String?
+  bankSwift       String?
+  paypalEmail     String?
+  preferredPayout String?
+  phone           String?
+  city            String?
+  country         String?
 
   stripeAccountId      String?
   stripeAccountStatus  String?
-  stripeOnboardingDone Boolean  @default(false)
+  stripeOnboardingDone Boolean @default(false)
 
-  billingType    BillingType?
+  billingType BillingType?
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   affiliateLinks AffiliateLink[]
@@ -180,24 +184,27 @@ model InfluencerProfile {
 }
 
 model Product {
-  id             String        @id @default(cuid())
-  brandProfileId String
-  name           String
-  description    String?
-  imageUrl       String?
-  category       String?
+  id                       String        @id @default(cuid())
+  brandProfileId           String
+  name                     String
+  description              String?
+  imageUrl                 String?
+  category                 String?
   price                    Decimal?
   commissionRate           Float
-  influencerCommissionRate Float    @default(0)
-  productUrl               String   @default("")
-  slug           String        @unique
-  status         ProductStatus @default(DRAFT)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  influencerCommissionRate Float         @default(0)
+  productUrl               String        @default("")
+  slug                     String        @unique
+  status                   ProductStatus @default(DRAFT)
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
 
   brandProfile   BrandProfile    @relation(fields: [brandProfileId], references: [id], onDelete: Cascade)
   affiliateLinks AffiliateLink[]
   commissions    Commission[]
+
+  // Katalog marki i publiczna lista: filtr po statusie w obrębie marki.
+  @@index([brandProfileId, status])
 }
 
 model AffiliateLink {
@@ -218,6 +225,9 @@ model AffiliateLink {
   fraudLogs         FraudLog[]
 
   @@unique([influencerProfileId, productId])
+  // influencerProfileId pokryty przez @@unique poniżej (prefiks od lewej);
+  // productId nie jest, a to FK z kaskadą.
+  @@index([productId])
 }
 
 model Click {
@@ -231,6 +241,10 @@ model Click {
   createdAt       DateTime @default(now())
 
   affiliateLink AffiliateLink @relation(fields: [affiliateLinkId], references: [id], onDelete: Cascade)
+
+  // Statystyki linku: liczba kliknięć w okresie. Najczęściej zapisywana
+  // tabela w systemie, dlatego tylko JEDEN indeks, pokrywający oba użycia.
+  @@index([affiliateLinkId, createdAt])
 }
 
 model Conversion {
@@ -252,26 +266,29 @@ model Conversion {
   // numerów zamówień (np. sekwencyjnych 1001, 1002...) — unikalność musi być
   // per-link, nie globalna, inaczej druga marka z tym samym orderId dostaje P2002.
   @@unique([orderId, affiliateLinkId])
+  // @@unique([orderId, affiliateLinkId]) pokrywa tylko orderId (prefiks od lewej),
+  // więc wyszukiwanie po samym linku potrzebuje własnego indeksu.
+  @@index([affiliateLinkId, status])
 }
 
 model Commission {
-  id                String           @id @default(cuid())
-  influencerId      String
-  brandId           String
-  productId         String
-  affiliateLinkId   String
-  orderId           String?
-  orderValue        Decimal
-  commissionPercent Float
-  commissionAmount  Decimal
-  platformFeePercent Float           @default(0)
-  platformFeeAmount  Decimal        @default(0)
-  status            CommissionStatus @default(PENDING)
-  ipAddress         String?
-  isSuspicious      Boolean          @default(false)
-  suspiciousReason  String?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id                 String           @id @default(cuid())
+  influencerId       String
+  brandId            String
+  productId          String
+  affiliateLinkId    String
+  orderId            String?
+  orderValue         Decimal
+  commissionPercent  Float
+  commissionAmount   Decimal
+  platformFeePercent Float            @default(0)
+  platformFeeAmount  Decimal          @default(0)
+  status             CommissionStatus @default(PENDING)
+  ipAddress          String?
+  isSuspicious       Boolean          @default(false)
+  suspiciousReason   String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
 
   influencer    InfluencerProfile @relation(fields: [influencerId], references: [id], onDelete: Cascade)
   brand         BrandProfile      @relation(fields: [brandId], references: [id], onDelete: Cascade)
@@ -279,6 +296,22 @@ model Commission {
   affiliateLink AffiliateLink     @relation(fields: [affiliateLinkId], references: [id], onDelete: Cascade)
   payout        Payout?
   fraudLogs     FraudLog[]
+
+  // Dashboard influencera: where { influencerId } oraz { influencerId, createdAt: gte }.
+  // Kolumna createdAt na drugiej pozycji obsługuje oba warianty (prefiks od lewej).
+  @@index([influencerId, createdAt])
+  // Panel marki: lista prowizji filtrowana po statusie.
+  @@index([brandId, status])
+  // Panel admina: wszystkie prowizje danego statusu, najnowsze pierwsze.
+  @@index([status, createdAt])
+  // Idempotencja w /api/conversion: where { orderId, brandId }.
+  @@index([brandId, orderId])
+  // Widok fraudu.
+  @@index([isSuspicious])
+  // FK z onDelete: Cascade — bez indeksu każde usunięcie rodzica skanuje
+  // całą tabelę prowizji w poszukiwaniu wierszy do skasowania.
+  @@index([affiliateLinkId])
+  @@index([productId])
 }
 
 model Payout {
@@ -298,6 +331,9 @@ model Payout {
 
   influencer InfluencerProfile @relation(fields: [influencerId], references: [id], onDelete: Cascade)
   commission Commission        @relation(fields: [commissionId], references: [id], onDelete: Cascade)
+
+  @@index([influencerId, status])
+  @@index([status, requestedAt])
 }
 
 model FraudLog {
@@ -316,6 +352,8 @@ model FraudLog {
 
   @@index([type])
   @@index([createdAt])
+  @@index([affiliateLinkId])
+  @@index([commissionId])
 }
 
 model InviteCode {
@@ -331,20 +369,21 @@ model InviteCode {
   createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
   @@index([isActive])
+  @@index([createdById])
 }
 
 model Invoice {
-  id              String        @id @default(cuid())
-  invoiceNumber   String        @unique
-  brandId         String
+  id            String @id @default(cuid())
+  invoiceNumber String @unique
+  brandId       String
 
-  periodFrom      DateTime
-  periodTo        DateTime
+  periodFrom DateTime
+  periodTo   DateTime
 
-  netAmount        Decimal       @db.Decimal(10, 2)
-  vatRate          Decimal       @db.Decimal(5, 2)  @default(23)
-  vatAmount        Decimal       @db.Decimal(10, 2)
-  grossAmount      Decimal       @db.Decimal(10, 2)
+  netAmount   Decimal @db.Decimal(10, 2)
+  vatRate     Decimal @default(23) @db.Decimal(5, 2)
+  vatAmount   Decimal @db.Decimal(10, 2)
+  grossAmount Decimal @db.Decimal(10, 2)
 
   brandCompanyName String
   brandNip         String?
@@ -353,25 +392,28 @@ model Invoice {
   brandPostalCode  String?
   brandEmail       String
 
-  issuerName       String        @default("Deneeu Sp. z o.o.")
-  issuerNip        String        @default("0000000000")
-  issuerAddress    String        @default("ul. Przykładowa 1")
-  issuerCity       String        @default("Warszawa")
-  issuerPostalCode String        @default("00-001")
+  issuerName       String @default("Deneeu Sp. z o.o.")
+  issuerNip        String @default("0000000000")
+  issuerAddress    String @default("ul. Przykładowa 1")
+  issuerCity       String @default("Warszawa")
+  issuerPostalCode String @default("00-001")
 
-  status          InvoiceStatus  @default(DRAFT)
-  issuedAt        DateTime       @default(now())
-  dueDate         DateTime
-  paidAt          DateTime?
+  status   InvoiceStatus @default(DRAFT)
+  issuedAt DateTime      @default(now())
+  dueDate  DateTime
+  paidAt   DateTime?
 
-  items           Json
-  notes           String?
+  items Json
+  notes String?
 
-  paidViaStripe    Boolean       @default(false)
-  payoutsTriggered Boolean       @default(false)
+  paidViaStripe    Boolean @default(false)
+  payoutsTriggered Boolean @default(false)
 
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  brand           BrandProfile   @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  brand BrandProfile @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@index([brandId, periodFrom])
+  @@index([status])
 }
