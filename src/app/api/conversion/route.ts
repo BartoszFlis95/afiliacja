@@ -9,7 +9,7 @@ import { formatEmailAmount } from "@/emails/utils";
 import NewCommissionEmail from "@/emails/NewCommissionEmail";
 import CommissionPendingBrandEmail from "@/emails/CommissionPendingBrandEmail";
 import { CommissionStatus, FraudType } from "@prisma/client";
-import crypto from "crypto";
+import { verifyHmacSignature } from "@/lib/hmac";
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,25 +47,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const expectedSignature = crypto
-      .createHmac("sha256", brand.webhookSecret)
-      .update(body)
-      .digest("hex");
-
-    // Porównanie w czasie stałym. Zwykłe `!==` na stringach przerywa na
-    // pierwszym różniącym się znaku, więc czas odpowiedzi zdradza, ile
-    // początkowych znaków podpisu było poprawnych — to pozwala odgadywać
-    // podpis bajt po bajcie zamiast łamać go w całości.
-    // timingSafeEqual wymaga buforów równej długości, stąd wcześniejsze
-    // sprawdzenie długości (samo w sobie nie jest tajemnicą — długość HMAC
-    // SHA-256 w hex jest stała i publicznie znana).
-    const signatureBuffer = Buffer.from(signature, "utf8");
-    const expectedBuffer = Buffer.from(expectedSignature, "utf8");
-
-    if (
-      signatureBuffer.length !== expectedBuffer.length ||
-      !crypto.timingSafeEqual(signatureBuffer, expectedBuffer)
-    ) {
+    if (!verifyHmacSignature(body, signature, brand.webhookSecret)) {
       return NextResponse.json(
         { success: false, error: "Invalid HMAC signature" },
         { status: 401 }
