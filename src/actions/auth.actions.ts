@@ -16,6 +16,7 @@ import {
 import { Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const VERIFICATION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -271,6 +272,15 @@ export async function verifyEmailAction(
 export async function resendVerificationEmailAction(
   email: string
 ): Promise<{ success: boolean; error?: string }> {
+  const ip = await getClientIp();
+  const rateLimit = checkRateLimit(`resend-verification:${ip}`);
+  if (!rateLimit.allowed) {
+    return {
+      success: false,
+      error: "Zbyt wiele prób. Spróbuj ponownie później.",
+    };
+  }
+
   const normalizedEmail = email?.toLowerCase().trim();
   if (!normalizedEmail) {
     return { success: false, error: "Podaj adres email." };
@@ -311,6 +321,15 @@ async function sendPasswordResetEmail(email: string, token: string) {
 export async function forgotPasswordAction(
   email: string
 ): Promise<{ success: boolean; error?: string }> {
+  const ip = await getClientIp();
+  const rateLimit = checkRateLimit(`forgot-password:${ip}`);
+  if (!rateLimit.allowed) {
+    return {
+      success: false,
+      error: "Zbyt wiele prób. Spróbuj ponownie później.",
+    };
+  }
+
   const parsed = ForgotPasswordSchema.safeParse({ email });
   if (!parsed.success) {
     return { success: false, error: parsed.error.errors[0].message };
