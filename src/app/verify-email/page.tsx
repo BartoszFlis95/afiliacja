@@ -1,3 +1,12 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Weryfikacja adresu email",
+  description: "Potwierdź adres email w Deneeu.",
+  // Strona transakcyjna: jednorazowy token w URL-u, zero wartości dla wyszukiwarki.
+  robots: { index: false, follow: false },
+};
+
 import Link from "next/link";
 
 import { VerifyEmailClient } from "@/components/auth/VerifyEmailClient";

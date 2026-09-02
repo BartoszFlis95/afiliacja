@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -12,6 +13,54 @@ import { GenerateLinkButton } from "@/components/influencer/GenerateLinkButton";
 import { CopyLinkButton } from "@/components/influencer/CopyLinkButton";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Strony produktów to jedyna treść tego serwisu, która ma realną szansę
+ * rankować w wyszukiwarce — jest ich tyle, ile produktów w katalogu, a każda
+ * odpowiada na konkretne zapytanie. Bez generateMetadata wszystkie dostawały
+ * domyślny tytuł i opis z root layoutu, czyli w wynikach wyglądały identycznie.
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await prisma.product.findUnique({
+    where: { slug },
+    select: {
+      name: true,
+      description: true,
+      category: true,
+      imageUrl: true,
+      status: true,
+      commissionRate: true,
+      brandProfile: { select: { companyName: true } },
+    },
+  });
+
+  if (!product || product.status !== "ACTIVE") {
+    return { title: "Produkt niedostępny", robots: { index: false, follow: false } };
+  }
+
+  const marka = product.brandProfile?.companyName ?? "Deneeu";
+  const opis =
+    product.description?.trim() ||
+    `${product.name} od ${marka} w programie afiliacyjnym Deneeu. Prowizja ${Number(product.commissionRate)}% za każdą sprzedaż z Twojego linku.`;
+
+  return {
+    title: `${product.name} — ${marka}`,
+    description: opis.slice(0, 160),
+    alternates: { canonical: `/products/${slug}` },
+    openGraph: {
+      type: "website",
+      title: `${product.name} — ${marka}`,
+      description: opis.slice(0, 160),
+      url: `/products/${slug}`,
+      images: product.imageUrl ? [{ url: product.imageUrl, alt: product.name }] : undefined,
+    },
+  };
+}
 
 export default async function PublicProductDetailPage({
   params,
@@ -28,6 +77,37 @@ export default async function PublicProductDetailPage({
   if (!product || product.status !== "ACTIVE") {
     notFound();
   }
+
+  /**
+   * Dane strukturalne Product (schema.org). Bez nich Google widzi stronę
+   * produktu jako zwykły tekst; z nimi może pokazać wynik rozszerzony
+   * z ceną i marką, co realnie zmienia CTR.
+   *
+   * Świadomie NIE deklarujemy `offers.availability` ani `aggregateRating` —
+   * nie mamy tych danych, a wymyślanie ich to naruszenie wytycznych Google
+   * i ryzyko ręcznej kary.
+   */
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    ...(product.description ? { description: product.description } : {}),
+    ...(product.imageUrl ? { image: product.imageUrl } : {}),
+    ...(product.category ? { category: product.category } : {}),
+    ...(product.brandProfile?.companyName
+      ? { brand: { "@type": "Brand", name: product.brandProfile.companyName } }
+      : {}),
+    ...(product.price != null
+      ? {
+          offers: {
+            "@type": "Offer",
+            price: Number(product.price),
+            priceCurrency: "PLN",
+            url: product.productUrl || undefined,
+          },
+        }
+      : {}),
+  };
 
   const session = await auth();
   const isInfluencer = session?.user?.role === "INFLUENCER";
@@ -53,7 +133,14 @@ export default async function PublicProductDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-card">
+    <>
+      <script
+        type="application/ld+json"
+        // JSON.stringify na obiekcie zbudowanym z danych z bazy — nie ma tu
+        // stringów sklejanych ręcznie, więc nie ma czego wstrzyknąć.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="min-h-screen bg-card">
       <nav className="border-b border-border/60">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="text-xl font-bold tracking-tight text-foreground">
@@ -155,5 +242,6 @@ export default async function PublicProductDetailPage({
         </div>
       </main>
     </div>
+    </>
   );
 }

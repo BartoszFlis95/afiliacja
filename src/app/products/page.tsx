@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ImageIcon } from "lucide-react";
@@ -9,6 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+export const metadata: Metadata = {
+  title: "Produkty w programie afiliacyjnym",
+  description:
+    "Przeglądaj produkty dostępne w programie afiliacyjnym Deneeu. Wybierz produkt, wygeneruj link i zarabiaj prowizję od każdej sprzedaży.",
+  alternates: { canonical: "/products" },
+};
 import {
   Card,
   CardContent,
