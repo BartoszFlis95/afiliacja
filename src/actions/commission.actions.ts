@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 
 import { auth } from "@/lib/auth";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { syncConversionStatus } from "@/lib/conversions";
 import { sendEmail } from "@/lib/resend";
@@ -220,6 +221,32 @@ export async function adminRejectCommissionAction(
   return result;
 }
 
+/**
+ * Zamienia wszystkie pola Decimal prowizji na liczby.
+ *
+ * Prisma zwraca Decimal, a to nie jest zwykły obiekt — nie przechodzi przez
+ * granicę Server -> Client Component. Next zgłaszał na panelu admina:
+ * "Only plain objects can be passed to Client Components. Decimal objects are
+ * not supported" wskazując `platformFeeAmount`.
+ *
+ * Wcześniej każda z trzech akcji listujących wypisywała konwersje ręcznie
+ * i wszystkie trzy pomijały to samo pole. Stąd jedna funkcja: dopisanie
+ * kolejnego pola Decimal do modelu wymaga zmiany w jednym miejscu, a nie
+ * pamiętania o trzech.
+ */
+function serializeCommission<T extends {
+  orderValue: Prisma.Decimal;
+  commissionAmount: Prisma.Decimal;
+  platformFeeAmount: Prisma.Decimal;
+}>(c: T) {
+  return {
+    ...c,
+    orderValue: Number(c.orderValue),
+    commissionAmount: Number(c.commissionAmount),
+    platformFeeAmount: Number(c.platformFeeAmount),
+  };
+}
+
 export async function getAllCommissionsAction() {
   const guard = await requireRole("ADMIN");
   if (!guard.ok) return { success: false as const, error: guard.error };
@@ -233,11 +260,7 @@ export async function getAllCommissionsAction() {
     orderBy: { createdAt: "desc" },
   });
 
-  const serialized = commissions.map((c) => ({
-    ...c,
-    orderValue: Number(c.orderValue),
-    commissionAmount: Number(c.commissionAmount),
-  }));
+  const serialized = commissions.map(serializeCommission);
 
   return { success: true as const, data: serialized };
 }
@@ -259,11 +282,7 @@ export async function getBrandCommissionsAction() {
     orderBy: { createdAt: "desc" },
   });
 
-  const serialized = commissions.map((c) => ({
-    ...c,
-    orderValue:       Number(c.orderValue),
-    commissionAmount: Number(c.commissionAmount),
-  }));
+  const serialized = commissions.map(serializeCommission);
 
   return { success: true as const, data: serialized };
 }
@@ -293,11 +312,7 @@ export async function getInfluencerCommissionsAction() {
     orderBy: { createdAt: "desc" },
   });
 
-  const serialized = commissions.map((c) => ({
-    ...c,
-    orderValue:       Number(c.orderValue),
-    commissionAmount: Number(c.commissionAmount),
-  }));
+  const serialized = commissions.map(serializeCommission);
 
   return { success: true as const, data: serialized };
 }
