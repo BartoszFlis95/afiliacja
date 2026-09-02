@@ -1,8 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import { SessionProvider } from "next-auth/react";
-import { Toaster } from "sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeScript } from "@/components/shared/ThemeScript";
 import { SkipLink } from "@/components/shared/SkipLink";
 import "./globals.css";
@@ -78,12 +75,16 @@ export default function RootLayout({
       </head>
       <body className={inter.variable}>
         <SkipLink />
-        <SessionProvider>
-          <TooltipProvider>
-            {children}
-            <Toaster richColors position="top-right" />
-          </TooltipProvider>
-        </SessionProvider>
+        {/*
+          SessionProvider, TooltipProvider i Toaster były tu, czyli ładowały się
+          na KAŻDEJ stronie — także na landingu, logowaniu, dokumentacji i
+          regulaminie, gdzie żadne z nich nie jest do niczego używane.
+          SessionProvider w ogóle nie miał odbiorcy: nigdzie nie ma useSession,
+          a wylogowanie idzie przez akcję serwerową. Tooltip pojawia się tylko
+          w wykresach, a toast() wyłącznie w komponentach paneli — wszystkie
+          trzy siedzą teraz w layoucie (dashboard).
+        */}
+        {children}
       </body>
     </html>
   );
