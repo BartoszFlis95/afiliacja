@@ -83,11 +83,16 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             amount: true,
+            status: true,
             influencer: { select: { displayName: true } },
           },
         });
 
-        if (payout) {
+        // Stripe ponawia webhooki aż do odpowiedzi 2xx, więc to samo zdarzenie
+        // potrafi przyjść kilka razy. Sam update jest idempotentny, ale wysyłka
+        // maili już nie — bez tego warunku każde ponowienie zasypywało adminów
+        // kolejnym alertem o tym samym transferze.
+        if (payout && payout.status !== PayoutStatus.REJECTED) {
           await prisma.payout.update({
             where: { id: payout.id },
             data: { status: PayoutStatus.REJECTED },

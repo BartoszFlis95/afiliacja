@@ -52,7 +52,20 @@ export async function POST(request: NextRequest) {
       .update(body)
       .digest("hex");
 
-    if (signature !== expectedSignature) {
+    // Porównanie w czasie stałym. Zwykłe `!==` na stringach przerywa na
+    // pierwszym różniącym się znaku, więc czas odpowiedzi zdradza, ile
+    // początkowych znaków podpisu było poprawnych — to pozwala odgadywać
+    // podpis bajt po bajcie zamiast łamać go w całości.
+    // timingSafeEqual wymaga buforów równej długości, stąd wcześniejsze
+    // sprawdzenie długości (samo w sobie nie jest tajemnicą — długość HMAC
+    // SHA-256 w hex jest stała i publicznie znana).
+    const signatureBuffer = Buffer.from(signature, "utf8");
+    const expectedBuffer = Buffer.from(expectedSignature, "utf8");
+
+    if (
+      signatureBuffer.length !== expectedBuffer.length ||
+      !crypto.timingSafeEqual(signatureBuffer, expectedBuffer)
+    ) {
       return NextResponse.json(
         { success: false, error: "Invalid HMAC signature" },
         { status: 401 }

@@ -5,7 +5,14 @@ import { r2Client, R2_BUCKET, R2_PUBLIC_URL } from "@/lib/r2";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+// Rozszerzenie wyprowadzamy z ZWERYFIKOWANEGO typu MIME, a nie z nazwy pliku
+// podanej przez klienta — nazwa jest dowolna i trafiała wprost do klucza w R2.
+const ALLOWED_TYPES: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+};
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export async function POST(request: NextRequest) {
@@ -29,7 +36,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    const ext = ALLOWED_TYPES[file.type];
+    if (!ext) {
       return NextResponse.json(
         { success: false, error: "Dozwolone tylko JPG, PNG, WEBP, GIF" },
         { status: 400 }
@@ -43,7 +51,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const ext = file.name.split(".").pop() ?? "jpg";
     const random = Math.random().toString(36).substring(2, 10);
     const fileName = `${session.user.id}/${Date.now()}-${random}.${ext}`;
 
@@ -63,9 +70,12 @@ export async function POST(request: NextRequest) {
     const url = `${R2_PUBLIC_URL}/${fileName}`;
     return NextResponse.json({ success: true, url });
   } catch (error) {
+    // Szczegóły zostają w logach serwera. Odsyłanie String(error) wprost do
+    // klienta ujawniało komunikaty z AWS SDK (nazwa bucketa, region, powód
+    // odmowy dostępu) każdemu, kto wywołał ten endpoint.
     console.error("[upload] R2 error:", error);
     return NextResponse.json(
-      { success: false, error: `Błąd uploadu: ${String(error)}` },
+      { success: false, error: "Nie udało się wgrać pliku. Spróbuj ponownie." },
       { status: 500 }
     );
   }
