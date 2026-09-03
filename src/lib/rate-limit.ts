@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { Redis } from "@upstash/redis";
 
 /**
  * Domyślne okno: akcje wysyłające maile (reset hasła, ponowna weryfikacja).
@@ -15,17 +16,44 @@ const MAX_ATTEMPTS = 3;
  * ukarać kogoś, kto pomylił się trzy razy.
  */
 export const PROGI = {
-  email:    { limit: 3,  oknoMs: 60 * 60 * 1000 },
-  logowanie:{ limit: 10, oknoMs: 15 * 60 * 1000 },
+  email: { limit: 3, oknoMs: 60 * 60 * 1000 },
+  logowanie: { limit: 10, oknoMs: 15 * 60 * 1000 },
   rejestracja: { limit: 5, oknoMs: 60 * 60 * 1000 },
 } as const;
 
-type Bucket = { count: number; resetAt: number };
+export type RateLimitResult =
+  | { allowed: true }
+  | { allowed: false; retryAfterMs: number };
 
-// In-memory — resetuje się przy restarcie/redeployu procesu i nie jest
-// współdzielony między instancjami. Wystarczające jako pierwsza linia
-// obrony przed spamem na jednej instancji; przy skalowaniu poziomym
-// docelowo trzeba przenieść do współdzielonego store (np. Redis).
+// ---------------------------------------------------------------------------
+// Backend współdzielony (Redis)
+// ---------------------------------------------------------------------------
+
+/**
+ * Klient tworzony leniwie i tylko gdy obie zmienne są ustawione. Bez nich
+ * limiter działa na pamięci procesu — poprawnie przy jednej instancji, ale
+ * na serverless każda instancja liczy osobno.
+ */
+let redis: Redis | null = null;
+let redisSprawdzony = false;
+
+function getRedis(): Redis | null {
+  if (redisSprawdzony) return redis;
+  redisSprawdzony = true;
+
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+
+  redis = new Redis({ url, token });
+  return redis;
+}
+
+// ---------------------------------------------------------------------------
+// Backend zapasowy (pamięć procesu)
+// ---------------------------------------------------------------------------
+
+type Bucket = { count: number; resetAt: number };
 const buckets = new Map<string, Bucket>();
 
 /**
@@ -36,16 +64,11 @@ const buckets = new Map<string, Bucket>();
 const MAX_KEYS = 10_000;
 
 /**
- * Sprzątanie amortyzowane.
- *
- * Poprzednia wersja przechodziła całą mapę przy KAŻDYM wywołaniu. Ponieważ
- * w oknie godzinnym nic nie wygasa, mapa tylko rosła, a koszt był kwadratowy:
- * zmierzone 7 ms dla 1000 różnych IP, 298 ms dla 10 000 i 8549 ms dla 50 000.
- * Teraz przechodzimy ją dopiero po przekroczeniu progu, a gdy po usunięciu
- * wygasłych nadal jest za duża, kasujemy najstarsze wpisy (Map zachowuje
- * kolejność wstawiania). To poświęca odrobinę dokładności przy skrajnym
- * natężeniu ruchu na rzecz stałego kosztu — kompromis właściwy dla obrony,
- * która sama nie może być kosztem.
+ * Sprzątanie amortyzowane. Przechodzenie całej mapy przy KAŻDYM wywołaniu
+ * dawało koszt kwadratowy: zmierzone 7 ms dla 1000 różnych IP, 298 ms dla
+ * 10 000 i 8549 ms dla 50 000. Teraz przechodzimy ją dopiero po przekroczeniu
+ * progu, a gdy po usunięciu wygasłych nadal jest za duża, kasujemy najstarsze
+ * wpisy (Map zachowuje kolejność wstawiania).
  */
 function pruneExpired(now: number) {
   if (buckets.size < MAX_KEYS) return;
@@ -64,33 +87,7 @@ function pruneExpired(now: number) {
   }
 }
 
-export async function getClientIp(): Promise<string> {
-  const headersList = await headers();
-  const forwardedFor = headersList.get("x-forwarded-for");
-  if (forwardedFor) return forwardedFor.split(",")[0].trim();
-  return headersList.get("x-real-ip") ?? "unknown";
-}
-
-export type RateLimitResult =
-  | { allowed: true }
-  | { allowed: false; retryAfterMs: number };
-
-/**
- * Funkcja jest `async` mimo że obecna implementacja niczego nie czeka.
- *
- * To celowe: docelowy backend (Redis/Upstash) jest z natury asynchroniczny,
- * a zmiana sygnatury z synchronicznej na asynchroniczną dotknęłaby KAŻDEGO
- * miejsca wywołania. Dziś to cztery miejsca, wszystkie i tak w funkcjach
- * async — więc koszt jest zerowy. Później byłby to refaktor przez cały kod
- * autoryzacji, robiony pod presją.
- *
- * Dzięki temu podmiana wnętrza na Redis to zmiana w JEDNYM pliku.
- */
-export async function checkRateLimit(
-  key: string,
-  limit: number = MAX_ATTEMPTS,
-  oknoMs: number = WINDOW_MS
-): Promise<RateLimitResult> {
+function wPamieci(key: string, limit: number, oknoMs: number): RateLimitResult {
   const now = Date.now();
   pruneExpired(now);
 
@@ -106,4 +103,62 @@ export async function checkRateLimit(
 
   bucket.count += 1;
   return { allowed: true };
+}
+
+// ---------------------------------------------------------------------------
+
+export async function getClientIp(): Promise<string> {
+  const headersList = await headers();
+  const forwardedFor = headersList.get("x-forwarded-for");
+  if (forwardedFor) return forwardedFor.split(",")[0].trim();
+  return headersList.get("x-real-ip") ?? "unknown";
+}
+
+/**
+ * Sprawdza i zwiększa licznik dla klucza.
+ *
+ * Na Redisie: INCR, a przy pierwszym trafieniu PEXPIRE ustawiające okno.
+ * INCR jest atomowy, więc dwie instancje zwiększające ten sam licznik
+ * jednocześnie nie zgubią żadnej próby — to jest właśnie powód, dla którego
+ * przechodzimy na współdzielony backend.
+ *
+ * GDY REDIS ZAWIEDZIE, schodzimy na licznik w pamięci zamiast odrzucać
+ * żądanie. Rate limiting jest siatką bezpieczeństwa, nie bramką — awaria
+ * Redisa nie może zamienić się w awarię logowania dla wszystkich.
+ */
+export async function checkRateLimit(
+  key: string,
+  limit: number = MAX_ATTEMPTS,
+  oknoMs: number = WINDOW_MS,
+): Promise<RateLimitResult> {
+  const client = getRedis();
+  if (!client) return wPamieci(key, limit, oknoMs);
+
+  try {
+    const pelnyKlucz = `rl:${key}`;
+    const licznik = await client.incr(pelnyKlucz);
+
+    // Okno ustawiamy tylko przy pierwszym trafieniu — inaczej każda kolejna
+    // próba przesuwałaby koniec okna i nikt nigdy by się nie odblokował.
+    if (licznik === 1) {
+      await client.pexpire(pelnyKlucz, oknoMs);
+      return { allowed: true };
+    }
+
+    if (licznik > limit) {
+      const ttl = await client.pttl(pelnyKlucz);
+      // -1 oznacza klucz bez TTL (nie powinno wystąpić, ale gdyby PEXPIRE
+      // przepadło, klucz zostałby na zawsze i zablokował adres na stałe).
+      if (ttl < 0) {
+        await client.pexpire(pelnyKlucz, oknoMs);
+        return { allowed: false, retryAfterMs: oknoMs };
+      }
+      return { allowed: false, retryAfterMs: ttl };
+    }
+
+    return { allowed: true };
+  } catch (error) {
+    console.error("[rate-limit] Redis niedostępny, licznik w pamięci:", error);
+    return wPamieci(key, limit, oknoMs);
+  }
 }
