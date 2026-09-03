@@ -2,6 +2,8 @@ export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { WERSJA_REGULAMINU } from "@/lib/legal";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/shared/AppSidebar";
 import { DashboardHeader } from "@/components/shared/DashboardHeader";
@@ -18,6 +20,32 @@ export default async function DashboardLayout({
 
   if (!session?.user) {
     redirect("/login");
+  }
+
+  /**
+   * Bramka akceptacji regulaminu.
+   *
+   * Stoi tutaj, a nie w middleware, bo middleware widzi wyłącznie token JWT.
+   * Data akceptacji zapisana w tokenie byłaby nieaktualna zaraz po jej
+   * zapisaniu, a projekt nie używa useSession, którym dałoby się token
+   * odświeżyć — użytkownik wracałby na stronę akceptacji w nieskończoność.
+   * Layout czyta stan z bazy przy każdym żądaniu, więc nie da się go ominąć
+   * ani zawiesić: obejmuje wszystkie trasy /admin, /brand i /influencer.
+   */
+  if (session.user.id) {
+    const zgody = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { tosAcceptedAt: true, privacyAcceptedAt: true, tosVersion: true },
+    });
+
+    const aktualne =
+      zgody?.tosAcceptedAt &&
+      zgody.privacyAcceptedAt &&
+      zgody.tosVersion === WERSJA_REGULAMINU;
+
+    if (!aktualne) {
+      redirect("/accept-terms");
+    }
   }
 
   const role = session.user.role ?? "INFLUENCER";

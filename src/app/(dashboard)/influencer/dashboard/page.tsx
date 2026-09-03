@@ -21,6 +21,8 @@ import { SimpleBarChart } from "@/components/charts/SimpleBarChart";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getInfluencerBalanceAction } from "@/actions/influencer.actions";
+import { SaldoCard } from "@/components/influencer/SaldoCard";
 import {
   Table,
   TableBody,
@@ -45,6 +47,7 @@ function pctTrend(current: number, previous: number): { value: number; label: st
 }
 
 export default async function InfluencerDashboardPage() {
+  const saldo = await getInfluencerBalanceAction();
   const session = await auth();
   if (session?.user?.role !== "INFLUENCER") {
     redirect("/login");
@@ -204,6 +207,8 @@ export default async function InfluencerDashboardPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8">
+      {saldo.success && saldo.data && <SaldoCard saldo={saldo.data} />}
+
       {!hasBankDetails && (
         <div className="flex items-center gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
           <AlertTriangle className="h-4 w-4 shrink-0" />

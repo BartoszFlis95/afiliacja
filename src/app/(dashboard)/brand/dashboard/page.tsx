@@ -29,6 +29,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getBrandBillingSummaryAction } from "@/actions/invoice.actions";
+import { BiezaceRozliczenieCard } from "@/components/brand/BiezaceRozliczenieCard";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +42,7 @@ const AVATAR_COLORS = [
 ];
 
 export default async function BrandDashboardPage() {
+  const rozliczenie = await getBrandBillingSummaryAction();
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "BRAND") {
     redirect("/login");
@@ -203,6 +206,10 @@ export default async function BrandDashboardPage() {
             </Link>
           </span>
         </div>
+      )}
+
+      {rozliczenie.success && rozliczenie.data && (
+        <BiezaceRozliczenieCard dane={rozliczenie.data} />
       )}
 
       {/* Hero */}

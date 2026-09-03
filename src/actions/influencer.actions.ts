@@ -10,6 +10,7 @@ import { zawezZakres } from "@/lib/zakres-dni";
 import { auth } from "@/lib/auth";
 import { BankDetailsSchema } from "@/lib/validations/bank.schema";
 import { InfluencerProfileSchema } from "@/lib/validations/profile.schema";
+import { CommissionStatus } from "@prisma/client";
 
 type ActionResult<T = unknown> = {
   success: boolean;
@@ -519,4 +520,73 @@ export async function changePasswordAction(data: {
   });
 
   return { success: true };
+}
+
+export type SaldoInfluencera = {
+  zarobioneLacznie: number;
+  doWyplaty: number;
+  zablokowane: number;
+  wyplacone: number;
+};
+
+/**
+ * Saldo z podziałem na środki dostępne i zamrożone.
+ *
+ * „Zablokowane” to prowizje zatwierdzone, których faktura nie została jeszcze
+ * opłacona przez markę — influencer widzi je jako zarobione, ale nie może ich
+ * jeszcze wypłacić. Rozdzielenie tych kwot jest istotne: bez niego saldo
+ * obiecywałoby pieniądze, których nie da się pobrać.
+ */
+export async function getInfluencerBalanceAction(): Promise<ActionResult<SaldoInfluencera>> {
+  const session = await requireInfluencer();
+  if (!session?.user?.id) return { success: false, error: "Brak autoryzacji" };
+
+  const profile = await prisma.influencerProfile.findUnique({
+    where: { userId: session.user.id },
+    select: { id: true },
+  });
+  if (!profile) return { success: false, error: "Profil nie istnieje" };
+
+  const prowizje = await prisma.commission.findMany({
+    where: {
+      influencerId: profile.id,
+      status: { in: [CommissionStatus.APPROVED, CommissionStatus.PAID] },
+    },
+    select: {
+      commissionAmount: true,
+      status: true,
+      invoice: { select: { payoutsTriggered: true } },
+    },
+  });
+
+  let zarobioneLacznie = 0;
+  let doWyplaty = 0;
+  let zablokowane = 0;
+  let wyplacone = 0;
+
+  for (const p of prowizje) {
+    const kwota = Number(p.commissionAmount);
+    zarobioneLacznie += kwota;
+
+    if (p.status === CommissionStatus.PAID) {
+      wyplacone += kwota;
+      continue;
+    }
+    if (p.invoice?.payoutsTriggered) {
+      doWyplaty += kwota;
+    } else {
+      zablokowane += kwota;
+    }
+  }
+
+  const zaokr = (v: number) => Math.round(v * 100) / 100;
+  return {
+    success: true,
+    data: {
+      zarobioneLacznie: zaokr(zarobioneLacznie),
+      doWyplaty: zaokr(doWyplaty),
+      zablokowane: zaokr(zablokowane),
+      wyplacone: zaokr(wyplacone),
+    },
+  };
 }

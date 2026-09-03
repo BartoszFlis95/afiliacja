@@ -3,6 +3,7 @@
 import { after } from "next/server";
 import { signIn, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { WERSJA_REGULAMINU } from "@/lib/legal";
 import { sendEmail, getAppUrl } from "@/lib/resend";
 import WelcomeEmail from "@/emails/WelcomeEmail";
 import VerifyEmailEmail from "@/emails/VerifyEmailEmail";
@@ -159,6 +160,9 @@ export async function registerAction(formData: FormData) {
     confirmPassword: formData.get("confirmPassword"),
     role: formData.get("role"),
     inviteCode: formData.get("inviteCode") ?? undefined,
+    // niezaznaczony checkbox w ogóle nie trafia do FormData
+    tosAccepted: formData.get("tosAccepted") === "on",
+    privacyAccepted: formData.get("privacyAccepted") === "on",
   };
 
   const parsed = RegisterSchema.safeParse(raw);
@@ -175,6 +179,15 @@ export async function registerAction(formData: FormData) {
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
+
+  // Moment akceptacji zapisujemy razem z wersją dokumentów — bez wersji nie
+  // dałoby się wykazać, na jakich warunkach zawarto umowę.
+  const teraz = new Date();
+  const akceptacja = {
+    tosAcceptedAt: teraz,
+    privacyAcceptedAt: teraz,
+    tosVersion: WERSJA_REGULAMINU,
+  };
 
   if (role === Role.BRAND) {
     // Rejestracja marek wymaga aktywnego kodu zaproszenia — admin generuje
@@ -210,6 +223,7 @@ export async function registerAction(formData: FormData) {
             email,
             passwordHash,
             role: role as Role,
+            ...akceptacja,
             // emailVerified zostaje null do czasu kliknięcia linku z maila —
             // authorize() w lib/auth.ts odrzuci logowanie do tego momentu.
           },
@@ -230,6 +244,7 @@ export async function registerAction(formData: FormData) {
         email,
         passwordHash,
         role: role as Role,
+        ...akceptacja,
         // emailVerified zostaje null do czasu kliknięcia linku z maila —
         // authorize() w lib/auth.ts odrzuci logowanie do tego momentu.
       },

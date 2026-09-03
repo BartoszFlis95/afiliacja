@@ -13,7 +13,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") {
+  const rola = session?.user?.role;
+  if (!session?.user?.id || (rola !== "ADMIN" && rola !== "BRAND")) {
     return NextResponse.json({ error: "Brak uprawnień" }, { status: 403 });
   }
 
@@ -22,6 +23,23 @@ export async function GET(
   const invoice = await prisma.invoice.findUnique({ where: { id } });
   if (!invoice) {
     return NextResponse.json({ error: "Nie znaleziono faktury" }, { status: 404 });
+  }
+
+  /**
+   * Marka pobiera WYŁĄCZNIE własne faktury. Bez tego sprawdzenia otwarcie
+   * trasy dla roli BRAND (potrzebne, by marka mogła pobrać swój dokument)
+   * dałoby każdej marce dostęp do faktur konkurencji po samym identyfikatorze.
+   * Ten sam komunikat co przy braku faktury — istnienie cudzego dokumentu
+   * nie jest informacją, którą warto potwierdzać.
+   */
+  if (rola === "BRAND") {
+    const brand = await prisma.brandProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { id: true },
+    });
+    if (!brand || invoice.brandId !== brand.id) {
+      return NextResponse.json({ error: "Nie znaleziono faktury" }, { status: 404 });
+    }
   }
 
   const invoiceData = {

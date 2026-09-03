@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 
 type Role = "BRAND" | "INFLUENCER";
@@ -63,6 +64,9 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
       confirmPassword: String(formData.get("confirmPassword") ?? ""),
       role,
       inviteCode:      role === "BRAND" ? String(formData.get("inviteCode") ?? "") : undefined,
+      // niezaznaczony checkbox nie trafia do FormData — brak klucza to brak zgody
+      tosAccepted:     formData.get("tosAccepted") === "on",
+      privacyAccepted: formData.get("privacyAccepted") === "on",
     };
 
     const parsed = RegisterSchema.safeParse(values);
@@ -221,6 +225,71 @@ export function RegisterForm({ inviteCode = "", defaultRole }: Props) {
           {errors.confirmPassword && (
             <p className="text-xs text-destructive">{errors.confirmPassword}</p>
           )}
+        </div>
+
+        {/*
+          Zgody jako osobna sekcja tuż nad przyciskiem: użytkownik widzi je
+          w chwili, w której podejmuje decyzję o założeniu konta. Linki
+          otwierają się w nowej karcie, żeby nie kasować wpisanych danych.
+        */}
+        <div className="space-y-3 rounded-lg border border-border bg-muted/40 p-4">
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id="tosAccepted"
+              name="tosAccepted"
+              disabled={isPending}
+              aria-invalid={errors.tosAccepted ? true : undefined}
+              aria-describedby={errors.tosAccepted ? "tosAccepted-error" : undefined}
+              className="mt-0.5"
+            />
+            <div className="space-y-1">
+              <Label htmlFor="tosAccepted" className="text-sm font-normal leading-snug">
+                Akceptuję{" "}
+                <Link
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary hover:underline"
+                >
+                  Regulamin platformy
+                </Link>
+              </Label>
+              {errors.tosAccepted && (
+                <p id="tosAccepted-error" role="alert" className="text-xs text-destructive">
+                  {errors.tosAccepted}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id="privacyAccepted"
+              name="privacyAccepted"
+              disabled={isPending}
+              aria-invalid={errors.privacyAccepted ? true : undefined}
+              aria-describedby={errors.privacyAccepted ? "privacyAccepted-error" : undefined}
+              className="mt-0.5"
+            />
+            <div className="space-y-1">
+              <Label htmlFor="privacyAccepted" className="text-sm font-normal leading-snug">
+                Akceptuję{" "}
+                <Link
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary hover:underline"
+                >
+                  Politykę prywatności
+                </Link>
+              </Label>
+              {errors.privacyAccepted && (
+                <p id="privacyAccepted-error" role="alert" className="text-xs text-destructive">
+                  {errors.privacyAccepted}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
 
         {formError && (

@@ -346,6 +346,8 @@ export async function requestPayoutAction(
       influencerId: true,
       status: true,
       commissionAmount: true,
+      invoiceId: true,
+      invoice: { select: { payoutsTriggered: true } },
       payout: { select: { id: true, status: true } },
     },
   });
@@ -357,6 +359,27 @@ export async function requestPayoutAction(
     return {
       success: false,
       error: "Wypłatę można zlecić tylko dla zatwierdzonej komisji.",
+    };
+  }
+
+  /**
+   * Rozliczenie miesięczne: platforma wypłaca ze środków otrzymanych od marki,
+   * więc wypłata przed opłaceniem faktury nie miałaby pokrycia. Dwa różne
+   * komunikaty, bo to dwie różne sytuacje — w pierwszej influencer czeka na
+   * koniec miesiąca, w drugiej na przelew marki.
+   */
+  if (!commission.invoiceId) {
+    return {
+      success: false,
+      error:
+        "Prowizja nie została jeszcze zafakturowana. Rozliczenie następuje " +
+        "po zakończeniu miesiąca.",
+    };
+  }
+  if (!commission.invoice?.payoutsTriggered) {
+    return {
+      success: false,
+      error: "Wypłaty zostaną odblokowane po opłaceniu faktury przez markę.",
     };
   }
   /**
@@ -398,11 +421,15 @@ export async function requestPayoutAction(
       commissionId,
       amount: commission.commissionAmount,
       bankAccount: account,
+      // wypłata dziedziczy fakturę po prowizji, żeby odblokowanie po wpłacie
+      // marki szło po jawnym powiązaniu, a nie po zakresie dat
+      invoiceId: commission.invoiceId,
       status: PayoutStatus.PENDING,
     },
     update: {
       amount: commission.commissionAmount,
       bankAccount: account,
+      invoiceId: commission.invoiceId,
       status: PayoutStatus.PENDING,
       // requestedAt przesuwa klucz idempotencji Stripe'a — bez tego ponowna
       // próba zwróciłaby poprzedni, cofnięty transfer.

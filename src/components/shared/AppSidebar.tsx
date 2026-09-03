@@ -15,6 +15,7 @@ import {
   Receipt,
   CreditCard,
   FileText,
+  Wallet,
   DollarSign,
   BookOpen,
   ShieldAlert,
@@ -49,6 +50,7 @@ const NAV_GROUPS: Record<Role, { label: string; items: NavItem[] }[]> = {
         { title: "Dashboard",  href: "/brand/dashboard",   icon: LayoutDashboard },
         { title: "Produkty",   href: "/brand/products",    icon: Package },
         { title: "Komisje",    href: "/brand/commissions", icon: Receipt },
+        { title: "Faktury",    href: "/brand/invoices",    icon: FileText },
         { title: "Statystyki", href: "/brand/stats",       icon: BarChart3 },
       ],
     },
@@ -92,6 +94,7 @@ const NAV_GROUPS: Record<Role, { label: string; items: NavItem[] }[]> = {
     {
       label: "Finanse",
       items: [
+        { title: "Rozliczenia", href: "/admin/billing", icon: Wallet },
         { title: "Wypłaty", href: "/admin/payouts", icon: CreditCard },
         { title: "Faktury", href: "/admin/invoices", icon: FileText },
         { title: "Finanse", href: "/admin/finance",  icon: DollarSign },

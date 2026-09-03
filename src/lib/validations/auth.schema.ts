@@ -21,6 +21,15 @@ export const RegisterSchema = z
     // Wymagany tylko dla marek — rejestracja influencerów zostaje otwarta.
     // Admin generuje kody i wysyła linki markom (patrz admin.actions.ts).
     inviteCode: z.string().trim().optional(),
+    // Zgody sprawdzamy też po stronie serwera: pole checkbox nie trafia do
+    // FormData, gdy nie jest zaznaczone, więc brak zgody musi być błędem
+    // walidacji, a nie cichym false.
+    tosAccepted: z
+      .boolean()
+      .refine((v) => v === true, "Musisz zaakceptować regulamin"),
+    privacyAccepted: z
+      .boolean()
+      .refine((v) => v === true, "Musisz zaakceptować politykę prywatności"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Hasła nie są zgodne",
