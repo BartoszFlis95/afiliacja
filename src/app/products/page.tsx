@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ImageIcon } from "lucide-react";
-import { ProductCategory, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { etykietaKategorii, ikonaKategorii } from "@/lib/categories";
+import { etykietaKategorii, ikonaKategorii, kategoriaZParametru } from "@/lib/categories";
 
 export const metadata: Metadata = {
   title: "Produkty w programie afiliacyjnym",
@@ -38,10 +38,9 @@ export default async function PublicProductsPage({
   const { category, minCommission } = await searchParams;
 
   const where: Prisma.ProductWhereInput = { status: "ACTIVE" };
-  // parametr pochodzi z adresu URL, więc może być czymkolwiek — wartość spoza
-  // enuma ignorujemy zamiast przekazywać ją do Prismy, która rzuciłaby błędem
-  if (category && category in ProductCategory) {
-    where.category = category as ProductCategory;
+  const kategoria = kategoriaZParametru(category);
+  if (kategoria) {
+    where.category = kategoria;
   }
   const min = minCommission ? Number(minCommission) : NaN;
   if (!Number.isNaN(min)) {

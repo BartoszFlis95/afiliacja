@@ -7,6 +7,7 @@ import {
   CATEGORY_OPTIONS,
   etykietaKategorii,
   ikonaKategorii,
+  kategoriaZParametru,
 } from "./categories";
 
 const wartosciEnuma = Object.values(ProductCategory);
@@ -68,5 +69,32 @@ describe("zapas dla wartości nieznanych", () => {
   it("wartość spoza listy wraca jako własny tekst", () => {
     expect(etykietaKategorii("COS_NOWEGO")).toBe("COS_NOWEGO");
     expect(ikonaKategorii("COS_NOWEGO")).toBe("📦");
+  });
+});
+
+describe("kategoriaZParametru", () => {
+  it("przepuszcza prawidłową wartość enuma", () => {
+    expect(kategoriaZParametru("KOMPUTERY")).toBe(ProductCategory.KOMPUTERY);
+  });
+
+  it("odrzuca wartość spoza enuma zamiast oddać ją Prismie", () => {
+    // podrobiony link psułby stronę błędem zapytania, zamiast po prostu
+    // nie filtrować
+    expect(kategoriaZParametru("Bizuteria3")).toBeUndefined();
+    expect(kategoriaZParametru("'; DROP TABLE")).toBeUndefined();
+    expect(kategoriaZParametru("komputery")).toBeUndefined(); // wielkość liter ma znaczenie
+  });
+
+  it("brak parametru to brak filtra", () => {
+    expect(kategoriaZParametru(undefined)).toBeUndefined();
+    expect(kategoriaZParametru(null)).toBeUndefined();
+    expect(kategoriaZParametru("")).toBeUndefined();
+  });
+
+  it("nie daje się nabrać na własności odziedziczone z Object", () => {
+    // operator "in" widzi łańcuch prototypów, więc "toString" przeszedłby,
+    // gdyby nie to, że Object.values(ProductCategory) go nie zawiera
+    expect(kategoriaZParametru("toString")).toBeUndefined();
+    expect(kategoriaZParametru("constructor")).toBeUndefined();
   });
 });

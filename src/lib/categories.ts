@@ -131,3 +131,20 @@ export function ikonaKategorii(value?: string | null): string {
   if (!value) return "📦";
   return CATEGORY_ICONS[value as ProductCategory] ?? "📦";
 }
+
+/**
+ * Kategoria z parametru adresu URL.
+ *
+ * Parametr może być czymkolwiek, a wartość spoza enuma podana Prismie
+ * kończy się błędem — czyli podrobiony link psułby stronę zamiast po prostu
+ * nie filtrować. Zwraca undefined dla wszystkiego, czego nie znamy.
+ */
+const WARTOSCI_KATEGORII: readonly string[] = Object.values(ProductCategory);
+
+export function kategoriaZParametru(value?: string | null): ProductCategory | undefined {
+  if (!value) return undefined;
+  // sprawdzanie przez operator "in" przechodziłoby łańcuch prototypów:
+  // "toString" i "constructor" uznawane byłyby za prawidłowe kategorie
+  // i trafiały do zapytania
+  return WARTOSCI_KATEGORII.includes(value) ? (value as ProductCategory) : undefined;
+}
