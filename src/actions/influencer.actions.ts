@@ -435,6 +435,36 @@ export async function updateBillingTypeAction(
     return { success: false, error: "Nieprawidłowy typ rozliczenia" };
   }
 
+  /**
+   * Po utworzeniu konta Stripe typu rozliczenia nie da się już bezpiecznie
+   * zmienić po naszej stronie.
+   *
+   * Konto Connect zakładane jest z business_type odpowiadającym tej deklaracji
+   * (individual albo company) i Stripe nie pozwala przestawić tego po
+   * rozpoczęciu weryfikacji. Ciche zapisanie nowej wartości u nas dałoby
+   * rozjazd: my wystawialibyśmy dokumenty jak firmie, a Stripe traktowałby
+   * konto jako osobę fizyczną — rozjazd wyszedłby dopiero przy wypłacie,
+   * odrzuconej lub zatrzymanej do wyjaśnienia.
+   */
+  const profile = await prisma.influencerProfile.findUnique({
+    where: { userId: session.user.id },
+    select: { billingType: true, stripeAccountId: true },
+  });
+
+  if (
+    profile?.stripeAccountId &&
+    profile.billingType &&
+    profile.billingType !== billingType
+  ) {
+    return {
+      success: false,
+      error:
+        "Nie można zmienić typu rozliczenia po utworzeniu konta Stripe — " +
+        "konto jest zarejestrowane pod poprzedni typ. Skontaktuj się z nami, " +
+        "żeby przejść przez tę zmianę.",
+    };
+  }
+
   await prisma.influencerProfile.update({
     where: { userId: session.user.id },
     data: { billingType },

@@ -17,7 +17,14 @@ import fs from "node:fs";
  * odtworzyć testem jednostkowym bez prawdziwego API Stripe — a brak klucza
  * jest dokładnie tym, co chcemy wykryć przy regresji.
  */
-const KOD = fs.readFileSync("src/actions/stripe.actions.ts", "utf8");
+const PELNY_KOD = fs.readFileSync("src/actions/stripe.actions.ts", "utf8");
+
+/**
+ * Zawężamy do funkcji wykonującej transfer. W pliku są DWA klucze idempotencji
+ * — drugi dotyczy tworzenia konta Connect — więc szukanie "pierwszego
+ * dopasowania w pliku" trafiało w niewłaściwy i test padał po dodaniu tamtego.
+ */
+const KOD = PELNY_KOD.slice(PELNY_KOD.indexOf("executeStripeTransferAction"));
 
 describe("wypłaty Stripe — ochrona przed podwójnym transferem", () => {
   it("transfers.create dostaje klucz idempotencji", () => {

@@ -40,7 +40,7 @@ export async function createStripeAccountAction(): Promise<
 
   const profile = await prisma.influencerProfile.findUnique({
     where: { userId: session.user.id },
-    select: { id: true, stripeAccountId: true },
+    select: { id: true, stripeAccountId: true, billingType: true },
   });
   if (!profile) return { success: false, error: "Profil nie istnieje" };
 
@@ -48,19 +48,43 @@ export async function createStripeAccountAction(): Promise<
     return { success: true, data: { accountId: profile.stripeAccountId } };
   }
 
+  /**
+   * Typ konta MUSI odpowiadać zadeklarowanemu typowi rozliczenia.
+   *
+   * Wcześniej było tu zahardkodowane "individual", niezależnie od wyboru
+   * influencera. Influencer rozliczający się jako firma (faktura VAT, B2B)
+   * dostawał konto Stripe zarejestrowane jako osoba fizyczna — przy weryfikacji
+   * KYC Stripe prosił go o dokumenty osobiste zamiast danych firmy, a wypłata
+   * na firmowy rachunek z konta typu individual bywa odrzucana lub zatrzymywana
+   * do wyjaśnienia. Rozjazd wychodził dopiero przy pierwszej wypłacie.
+   *
+   * Brak zadeklarowanego typu traktujemy jako individual — to domyślny
+   * i najczęstszy przypadek, a influencer może zmienić deklarację przed
+   * rozpoczęciem onboardingu.
+   */
+  const businessType = profile.billingType === "COMPANY" ? "company" : "individual";
+
   try {
-    const account = await stripe.accounts.create({
-      type: "express",
-      country: "PL",
-      email: session.user.email ?? undefined,
-      capabilities: {
-        transfers: { requested: true },
+    const account = await stripe.accounts.create(
+      {
+        type: "express",
+        country: "PL",
+        email: session.user.email ?? undefined,
+        capabilities: {
+          transfers: { requested: true },
+        },
+        business_type: businessType,
+        settings: {
+          payouts: { schedule: { interval: "manual" } },
+        },
       },
-      business_type: "individual",
-      settings: {
-        payouts: { schedule: { interval: "manual" } },
-      },
-    });
+      /**
+       * Klucz idempotencji na profil: bez niego nieudany zapis do bazy PO
+       * utworzeniu konta zostawiał osierocone konto Connect w Stripe, a kolejna
+       * próba tworzyła następne — bo w bazie nadal nie było stripeAccountId.
+       */
+      { idempotencyKey: `connect_account_${profile.id}` },
+    );
 
     await prisma.influencerProfile.update({
       where: { id: profile.id },
