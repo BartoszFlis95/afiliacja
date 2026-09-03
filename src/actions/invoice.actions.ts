@@ -14,7 +14,13 @@ import { executeStripeTransferAction } from "@/actions/stripe.actions";
 import { InvoiceStatus, PayoutStatus } from "@prisma/client";
 import type { InvoiceItem } from "@/types";
 import { CommissionStatus } from "@prisma/client";
-import { granceMiesiaca, nazwaMiesiaca, rozbicieFaktury, doGroszy } from "@/lib/rozliczenia";
+import {
+  granceMiesiaca,
+  nazwaMiesiaca,
+  rozbicieFaktury,
+  doGroszy,
+  pierwszyWgKlucza,
+} from "@/lib/rozliczenia";
 import { OPLATA_PLATFORMY, TERMIN_PLATNOSCI_DNI } from "@/lib/legal";
 import PayoutsUnlockedEmail from "@/emails/PayoutsUnlockedEmail";
 
@@ -585,7 +591,10 @@ export async function getBillingOverviewAction(
     sumy.set(p.brandId, biezace);
   }
 
-  const fakturaMarki = new Map(faktury.map((f) => [f.brandId, f]));
+  // Marka może mieć w okresie więcej niż jedną fakturę (np. dogenerowaną po
+  // dopisaniu prowizji). Lista jest posortowana malejąco po dacie, więc
+  // pierwsza na markę to najnowsza — patrz pierwszyWgKlucza.
+  const fakturaMarki = pierwszyWgKlucza(faktury, (f) => f.brandId);
 
   const pozycje: PozycjaRozliczenia[] = marki.map((m) => {
     const agregat = sumy.get(m.id) ?? { suma: 0, liczba: 0 };
@@ -898,68 +907,38 @@ export async function updateInvoiceStatusAction(
 
   const invoice = await prisma.invoice.findUnique({
     where: { id: invoiceId },
-    select: { status: true, brandId: true, periodFrom: true, periodTo: true },
+    select: { status: true, payoutsTriggered: true },
   });
   if (!invoice) return { success: false, error: "Nie znaleziono faktury." };
+
+  // Odblokowanie wysyła maile do influencerów, więc musi zajść dokładnie raz.
+  // Bez tego ponowne ustawienie statusu PAID rozsyłałoby duplikaty.
+  const juzOdblokowane = invoice.payoutsTriggered;
 
   await prisma.invoice.update({
     where: { id: invoiceId },
     data: {
       status,
-      ...(status === InvoiceStatus.PAID ? { paidAt: new Date() } : {}),
+      ...(status === InvoiceStatus.PAID
+        ? { paidAt: new Date(), payoutsTriggered: true }
+        : {}),
     },
   });
 
   revalidatePath("/admin/invoices");
   revalidatePath(`/admin/invoices/${invoiceId}`);
+  revalidatePath("/admin/billing");
 
-  if (status === InvoiceStatus.PAID) {
+  if (status === InvoiceStatus.PAID && !juzOdblokowane) {
     // Nie blokuj oznaczenia faktury jako opłaconej, jeśli wypłaty zawiodą —
     // każda próba transferu loguje własne błędy i nie rzuca wyjątku.
-    await triggerPayoutsForInvoice(invoiceId, invoice.brandId, invoice.periodFrom, invoice.periodTo);
+    // Ta sama ścieżka co markInvoicePaidAction — inaczej oznaczenie faktury
+    // jako opłaconej dawałoby inny skutek zależnie od tego, z którego ekranu
+    // admin je kliknął: bez maili i bez podniesienia wypłat z PENDING.
+    await odblokujWyplatyFaktury(invoiceId);
   }
 
   return { success: true };
-}
-
-/**
- * Po opłaceniu faktury przez markę zwalnia wypłaty influencerów, których
- * komisje mieszczą się w okresie i marce tej faktury. Konta ze skończonym
- * onboardingiem Stripe dostają automatyczny transfer; reszta zostaje w
- * statusie PROCESSING do ręcznego przelewu (executeStripeTransferAction
- * sam to rozróżnia i nigdy nie rzuca wyjątku).
- */
-async function triggerPayoutsForInvoice(
-  invoiceId: string,
-  brandId: string,
-  periodFrom: Date,
-  periodTo: Date
-): Promise<void> {
-  const payouts = await prisma.payout.findMany({
-    where: {
-      status: PayoutStatus.PROCESSING,
-      commission: {
-        brandId,
-        createdAt: { gte: periodFrom, lte: periodTo },
-      },
-    },
-    select: { id: true },
-  });
-
-  for (const payout of payouts) {
-    const result = await executeStripeTransferAction(payout.id);
-    if (!result.success) {
-      console.error(
-        `[invoice] auto payout trigger left payout ${payout.id} for manual transfer:`,
-        result.error
-      );
-    }
-  }
-
-  await prisma.invoice.update({
-    where: { id: invoiceId },
-    data: { payoutsTriggered: true, paidViaStripe: payouts.length > 0 },
-  });
 }
 
 export async function deleteInvoiceAction(invoiceId: string): Promise<ActionResult> {

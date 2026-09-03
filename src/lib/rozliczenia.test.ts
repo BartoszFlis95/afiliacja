@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { doGroszy, granceMiesiaca, nazwaMiesiaca, rozbicieFaktury } from "./rozliczenia";
+import {
+  doGroszy,
+  granceMiesiaca,
+  nazwaMiesiaca,
+  pierwszyWgKlucza,
+  rozbicieFaktury,
+} from "./rozliczenia";
 
 describe("granceMiesiaca", () => {
   it("obejmuje cały miesiąc, do ostatniej milisekundy", () => {
@@ -49,5 +55,30 @@ describe("nazwaMiesiaca", () => {
   it("zwraca polskie nazwy", () => {
     expect(nazwaMiesiaca(1)).toBe("styczeń");
     expect(nazwaMiesiaca(12)).toBe("grudzień");
+  });
+});
+
+describe("pierwszyWgKlucza", () => {
+  const faktury = [
+    { id: "nowa", brandId: "a", wystawiona: "2026-08-20" },
+    { id: "stara", brandId: "a", wystawiona: "2026-08-02" },
+    { id: "inna", brandId: "b", wystawiona: "2026-08-10" },
+  ];
+
+  it("przy powtórzonym kluczu zostawia PIERWSZY, nie ostatni", () => {
+    // regresja: new Map(...) zostawiał ostatni wpis, czyli przy sortowaniu
+    // malejącym po dacie — najstarszą fakturę
+    const mapa = pierwszyWgKlucza(faktury, (f) => f.brandId);
+    expect(mapa.get("a")?.id).toBe("nowa");
+    expect(mapa.get("b")?.id).toBe("inna");
+  });
+
+  it("dla porównania: new Map zostawiłby najstarszą", () => {
+    const zla = new Map(faktury.map((f) => [f.brandId, f]));
+    expect(zla.get("a")?.id).toBe("stara");
+  });
+
+  it("radzi sobie z pustą listą", () => {
+    expect(pierwszyWgKlucza([], (x) => x).size).toBe(0);
   });
 });

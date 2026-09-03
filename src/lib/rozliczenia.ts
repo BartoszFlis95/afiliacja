@@ -33,3 +33,20 @@ export function rozbicieFaktury(sumaProwizji: number) {
   const oplata = doGroszy(prowizje * OPLATA_PLATFORMY);
   return { prowizje, oplata, netto: doGroszy(prowizje + oplata) };
 }
+
+/**
+ * Pierwszy element na każdy klucz, w kolejności wejściowej.
+ *
+ * Zamiennik `new Map(items.map(i => [klucz(i), i]))`, który przy powtórzonym
+ * kluczu zostawia OSTATNI wpis. Przy liście posortowanej malejąco po dacie
+ * dawało to najstarszy rekord zamiast najnowszego — a na nim działały
+ * przyciski w panelu.
+ */
+export function pierwszyWgKlucza<T, K>(items: T[], klucz: (item: T) => K): Map<K, T> {
+  const wynik = new Map<K, T>();
+  for (const item of items) {
+    const k = klucz(item);
+    if (!wynik.has(k)) wynik.set(k, item);
+  }
+  return wynik;
+}
