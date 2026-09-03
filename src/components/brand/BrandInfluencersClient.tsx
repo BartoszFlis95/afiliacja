@@ -67,7 +67,7 @@ export function BrandInfluencersClient({ rows }: { rows: InfluencerRow[] }) {
               onClick={() => setSort(opt)}
               className={cn(
                 "h-7 px-3 text-xs font-medium hover:bg-muted",
-                sort === opt && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+                sort === opt && "bg-foreground text-background hover:bg-foreground hover:text-background"
               )}
             >
               {opt === "earnings" ? "Przychód" : "Konwersje"}

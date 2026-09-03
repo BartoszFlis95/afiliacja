@@ -72,7 +72,7 @@ function PayoutStepper({ status }: { status: string }) {
                 i < currentIndex
                   ? "bg-success text-success-foreground"
                   : i === currentIndex
-                  ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+                  ? "bg-foreground text-background hover:bg-foreground hover:text-background"
                   : "bg-muted text-muted-foreground"
               )}
             >

@@ -80,7 +80,7 @@ export default async function InfluencerLinksPage({
               className={cn(
                 "h-7 px-3 text-xs font-medium hover:bg-muted",
                 sort === opt.value &&
-                  "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+                  "bg-foreground text-background hover:bg-foreground hover:text-background"
               )}
             >
               <Link href={`/influencer/links?sort=${opt.value}`}>{opt.label}</Link>

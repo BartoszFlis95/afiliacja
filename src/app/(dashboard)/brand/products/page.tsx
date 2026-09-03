@@ -123,7 +123,7 @@ export default async function BrandProductsPage({
               className={cn(
                 "h-7 px-3 text-xs font-medium hover:bg-muted",
                 statusFilter === f.value &&
-                  "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+                  "bg-foreground text-background hover:bg-foreground hover:text-background"
               )}
             >
               <Link href={`/brand/products?status=${f.value}&sort=${sort}`}>{f.label}</Link>
@@ -142,7 +142,7 @@ export default async function BrandProductsPage({
               className={cn(
                 "h-7 px-3 text-xs font-medium hover:bg-muted",
                 sort === opt.value &&
-                  "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+                  "bg-foreground text-background hover:bg-foreground hover:text-background"
               )}
             >
               <Link href={`/brand/products?status=${statusFilter}&sort=${opt.value}`}>

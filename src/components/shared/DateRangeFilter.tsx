@@ -37,7 +37,13 @@ export function DateRangeFilter({
           className={cn(
             "h-7 px-3 text-xs font-medium hover:bg-muted",
             value === opt.value &&
-              "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+              // Aktywna pigułka jest neutralna, nie niebieska — niebieski jest
+              // zarezerwowany dla akcji (przyciski, linki), a filtr to stan, nie
+              // akcja. Para foreground/background zamiast dosłownego slate-900:
+              // w jasnym motywie daje ciemną pigułkę z jasnym tekstem, w ciemnym
+              // odwraca się na jasną. Dosłowny slate-900 byłby na granacie
+              // niewidoczny.
+              "bg-foreground text-background hover:bg-foreground hover:text-background"
           )}
         >
           {opt.label}
