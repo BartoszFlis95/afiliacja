@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { zawezZakres } from "@/lib/zakres-dni";
 import { BrandProfileSchema } from "@/lib/validations/profile.schema";
 import { redirect } from "next/navigation";
 
@@ -185,8 +186,12 @@ export async function getBrandRangeStatsAction(
       return { success: false, error: "Brak profilu marki" };
     }
 
+    // ograniczamy raz i dalej używamy wyłącznie tej wartości — typ days
+    // znika w runtime, a akcja serwerowa jest publicznym endpointem
+    const zakres = zawezZakres(days);
+
     const from = new Date();
-    from.setDate(from.getDate() - (days - 1));
+    from.setDate(from.getDate() - (zakres - 1));
     from.setHours(0, 0, 0, 0);
 
     const [clicks, conversions] = await Promise.all([
@@ -217,7 +222,7 @@ export async function getBrandRangeStatsAction(
     ]);
 
     const dailyMap = new Map<string, { date: string; clicks: number; conversions: number }>();
-    for (let i = 0; i < days; i++) {
+    for (let i = 0; i < zakres; i++) {
       const d = new Date(from);
       d.setDate(d.getDate() + i);
       const key = d.toISOString().slice(0, 10);

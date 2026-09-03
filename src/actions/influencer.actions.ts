@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
+import { zawezZakres } from "@/lib/zakres-dni";
 import { auth } from "@/lib/auth";
 import { BankDetailsSchema } from "@/lib/validations/bank.schema";
 import { InfluencerProfileSchema } from "@/lib/validations/profile.schema";
@@ -167,8 +168,12 @@ export async function getInfluencerRangeStatsAction(
     return { success: false, error: "Profil nie istnieje" };
   }
 
+  // ograniczamy raz i dalej używamy wyłącznie tej wartości — inaczej data
+  // byłaby bezpieczna, a pętla budująca kubełki poniżej nadal nieograniczona
+  const zakres = zawezZakres(days);
+
   const from = new Date();
-  from.setDate(from.getDate() - (days - 1));
+  from.setDate(from.getDate() - (zakres - 1));
   from.setHours(0, 0, 0, 0);
 
   const [links, clicks, commissions] = await Promise.all([
@@ -191,7 +196,7 @@ export async function getInfluencerRangeStatsAction(
   ]);
 
   const dailyMap = new Map<string, number>();
-  for (let i = 0; i < days; i++) {
+  for (let i = 0; i < zakres; i++) {
     const d = new Date(from);
     d.setDate(d.getDate() + i);
     dailyMap.set(d.toISOString().slice(0, 10), 0);
