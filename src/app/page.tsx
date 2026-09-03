@@ -369,7 +369,7 @@ export default async function LandingPage() {
         className="relative mx-4 my-12 max-w-5xl overflow-hidden rounded-3xl px-6 py-10 text-center shadow-lg sm:px-8 lg:mx-auto lg:my-20 lg:py-16"
       >
         <Image
-          src="/hero-bg.png"
+          src="/hero-bg.jpg"
           alt=""
           fill
           sizes="(min-width: 1024px) 1024px, 100vw"
