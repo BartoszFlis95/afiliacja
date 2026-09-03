@@ -3,6 +3,7 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { KOLEJNOSC_DOKUMENTOW, formatujNumerDokumentu } from "@/lib/numer-dokumentu";
 
 type ActionResult<T = unknown> = {
   success: boolean;
@@ -56,7 +57,7 @@ export async function getMyDocumentsAction(): Promise<ActionResult<InfluencerDoc
     include: {
       commission: { include: { product: { select: { name: true } } } },
     },
-    orderBy: { requestedAt: "asc" },
+    orderBy: KOLEJNOSC_DOKUMENTOW,
   });
 
   const yearSeq = new Map<number, number>();
@@ -67,7 +68,7 @@ export async function getMyDocumentsAction(): Promise<ActionResult<InfluencerDoc
 
     return {
       id: payout.id,
-      number: `RC/${year}/${String(seq).padStart(4, "0")}`,
+      number: formatujNumerDokumentu(year, seq),
       type: "RECEIPT",
       period: payout.commission.createdAt,
       netAmount: Number(payout.amount),

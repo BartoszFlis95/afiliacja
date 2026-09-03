@@ -5,6 +5,7 @@ import React from "react";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DocumentPDF } from "@/components/influencer/DocumentPDF";
+import { formatujNumerDokumentu } from "@/lib/numer-dokumentu";
 
 export const dynamic = "force-dynamic";
 
@@ -39,18 +40,21 @@ export async function GET(
   }
 
   const year = payout.requestedAt.getFullYear();
+  // remis po requestedAt rozstrzygamy po id — inaczej dwie wypłaty z tym
+  // samym znacznikiem czasu dostawały ten sam numer, a lista dokumentów
+  // (orderBy) numerowała je inaczej niż ten PDF
   const seq = await prisma.payout.count({
     where: {
       influencerId: payout.influencerId,
-      requestedAt: {
-        gte: new Date(year, 0, 1),
-        lte: payout.requestedAt,
-      },
+      OR: [
+        { requestedAt: { gte: new Date(year, 0, 1), lt: payout.requestedAt } },
+        { requestedAt: payout.requestedAt, id: { lte: payout.id } },
+      ],
     },
   });
 
   const documentData = {
-    number: `RC/${year}/${String(seq).padStart(4, "0")}`,
+    number: formatujNumerDokumentu(year, seq),
     issuedAt: payout.processedAt ?? payout.requestedAt,
     sellerName: payout.influencer.displayName,
     sellerCity: payout.influencer.city,
