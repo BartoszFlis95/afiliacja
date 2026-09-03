@@ -5,6 +5,7 @@ import { after } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getAppUrl, sendEmail } from "@/lib/resend";
+import { ISSUER, issuerSkonfigurowany } from "@/lib/site";
 import { formatEmailAmount, formatEmailDate } from "@/emails/utils";
 import InvoiceEmail from "@/emails/InvoiceEmail";
 import { generateInvoiceNumber } from "@/lib/invoice-number";
@@ -95,6 +96,40 @@ export async function generateInvoiceAction(
   const vatAmount = Math.round(netAmount * vatRate) / 100;
   const grossAmount = Math.round((netAmount + vatAmount) * 100) / 100;
 
+  /**
+   * Bez danych wystawcy faktura byłaby nieważna (fikcyjny NIP). Lepiej nie
+   * wystawić jej wcale i powiedzieć adminowi czego brakuje, niż wystawić
+   * dokument, który księgowa marki odrzuci — a numer faktury zostanie zużyty.
+   */
+  /**
+   * Faktura VAT wystawiona firmie musi zawierać NIP nabywcy (art. 106e ust. 1
+   * pkt 5 ustawy o VAT). Wcześniej te dane w ogóle nie istniały w systemie —
+   * BrandProfile miał tylko companyName — więc każda faktura wychodziła bez
+   * NIP-u nabywcy i marka nie mogła odliczyć z niej podatku.
+   *
+   * Odmawiamy zamiast wystawiać wadliwy dokument: numer faktury jest zasobem
+   * jednorazowym i sekwencyjnym, więc zużycie go na dokument do korekty jest
+   * gorsze niż jasny komunikat dla admina.
+   */
+  if (!brand.nip) {
+    return {
+      success: false,
+      error:
+        `Marka ${brand.companyName} nie ma uzupełnionego NIP-u. ` +
+        "Faktura VAT bez NIP-u nabywcy jest nieważna — poproś markę " +
+        "o uzupełnienie danych w ustawieniach profilu.",
+    };
+  }
+
+  if (!issuerSkonfigurowany()) {
+    return {
+      success: false,
+      error:
+        "Brak danych wystawcy. Ustaw zmienne DENEEU_ISSUER_NAME, _NIP, " +
+        "_ADDRESS, _CITY i _POSTAL_CODE przed wystawianiem faktur.",
+    };
+  }
+
   const invoiceNumber = await generateInvoiceNumber();
 
   const dueDateValue = dueDate
@@ -113,6 +148,17 @@ export async function generateInvoiceAction(
       grossAmount,
       brandCompanyName: brand.companyName,
       brandEmail: brand.user.email,
+      // Migawka danych nabywcy — faktura nie może się zmienić, gdy marka
+      // później zaktualizuje profil.
+      brandNip: brand.nip,
+      brandAddress: brand.address,
+      brandCity: brand.city,
+      brandPostalCode: brand.postalCode,
+      issuerName: ISSUER.name,
+      issuerNip: ISSUER.nip,
+      issuerAddress: ISSUER.address,
+      issuerCity: ISSUER.city,
+      issuerPostalCode: ISSUER.postalCode,
       status: InvoiceStatus.ISSUED,
       issuedAt: new Date(),
       dueDate: dueDateValue,

@@ -38,6 +38,13 @@ export async function createBrandProfileAction(formData: unknown) {
         industry: parsed.data.industry,
         website: parsed.data.website || null,
         description: parsed.data.description,
+        // Dane do faktury — puste pole zapisujemy jako null, nie "",
+        // żeby "brak danych" był jednoznaczny przy sprawdzaniu przed
+        // wystawieniem faktury.
+        nip: parsed.data.nip || null,
+        address: parsed.data.address || null,
+        city: parsed.data.city || null,
+        postalCode: parsed.data.postalCode || null,
       },
     });
 
@@ -63,6 +70,13 @@ export async function updateBrandProfileAction(formData: unknown) {
         industry: parsed.data.industry,
         website: parsed.data.website || null,
         description: parsed.data.description,
+        // Dane do faktury — puste pole zapisujemy jako null, nie "",
+        // żeby "brak danych" był jednoznaczny przy sprawdzaniu przed
+        // wystawieniem faktury.
+        nip: parsed.data.nip || null,
+        address: parsed.data.address || null,
+        city: parsed.data.city || null,
+        postalCode: parsed.data.postalCode || null,
       },
     });
 

@@ -4,7 +4,10 @@ import path from "node:path";
 export default defineConfig({
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts"],
+    // .tsx też — inaczej testy komponentów (np. dokumentów PDF) byłyby
+    // po cichu pomijane: vitest zgłasza "no test files found" tylko przy
+    // uruchomieniu z filtrem, a w pełnym przebiegu po prostu ich nie widzi.
+    include: ["src/**/*.test.{ts,tsx}"],
   },
   resolve: {
     // import.meta.dirname zamiast __dirname — plik jest ESM (.mts),

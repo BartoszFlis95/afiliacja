@@ -18,11 +18,37 @@ const URL_MSG = "Nieprawidłowy URL";
 /** Pole URL opcjonalne — puste pole w formularzu to "", nie undefined. */
 const optionalUrl = z.string().trim().url(URL_MSG).optional().or(z.literal(""));
 
+/**
+ * NIP: 10 cyfr, dopuszczamy myślniki i spacje w zapisie (123-456-32-18),
+ * normalizujemy do samych cyfr. Puste pole zostaje puste — profil da się
+ * założyć bez NIP-u, ale wtedy nie da się wystawić faktury (sprawdzane
+ * w generateInvoiceAction).
+ */
+const optionalNip = z
+  .string()
+  .trim()
+  .transform((v) => v.replace(/[\s-]/g, ""))
+  .refine((v) => v === "" || /^\d{10}$/.test(v), "NIP musi mieć 10 cyfr")
+  .optional()
+  .or(z.literal(""));
+
+/** Kod pocztowy w formacie XX-XXX. */
+const optionalPostalCode = z
+  .string()
+  .trim()
+  .refine((v) => v === "" || /^\d{2}-\d{3}$/.test(v), "Kod pocztowy w formacie 00-000")
+  .optional()
+  .or(z.literal(""));
+
 export const BrandProfileSchema = z.object({
   companyName: z.string().min(2, "Nazwa firmy musi mieć co najmniej 2 znaki"),
   industry: z.string().optional(),
   website: optionalUrl,
   description: z.string().optional(),
+  nip: optionalNip,
+  address: z.string().trim().optional(),
+  city: z.string().trim().optional(),
+  postalCode: optionalPostalCode,
 });
 
 export const InfluencerProfileSchema = z.object({

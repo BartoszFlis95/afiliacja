@@ -1,8 +1,12 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
+import { registerPdfFonts } from "@/lib/pdf-fonts";
+
+registerPdfFonts();
+
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Helvetica",
+    fontFamily: "Roboto",
     fontSize: 10,
     color: "#3f3f46",
     padding: 48,
@@ -10,7 +14,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto", fontWeight: "bold",
     color: "#18181b",
     marginBottom: 4,
   },
@@ -34,7 +38,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 9,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto", fontWeight: "bold",
     color: "#71717a",
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -49,14 +53,14 @@ const styles = StyleSheet.create({
   },
   partyTitle: {
     fontSize: 9,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto", fontWeight: "bold",
     color: "#71717a",
     textTransform: "uppercase",
     marginBottom: 6,
   },
   partyName: {
     fontSize: 11,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto", fontWeight: "bold",
     color: "#18181b",
     marginBottom: 4,
   },
@@ -72,7 +76,7 @@ const styles = StyleSheet.create({
   },
   tableHeaderCell: {
     color: "#ffffff",
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto", fontWeight: "bold",
     fontSize: 9,
   },
   tableRow: {
@@ -92,14 +96,14 @@ const styles = StyleSheet.create({
   summaryGrossLabel: {
     width: 120,
     textAlign: "right",
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto", fontWeight: "bold",
     color: "#18181b",
     marginRight: 8,
   },
   summaryGrossValue: {
     width: 90,
     textAlign: "right",
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto", fontWeight: "bold",
     color: "#18181b",
   },
   divider: {

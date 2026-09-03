@@ -126,9 +126,19 @@ model User {
 }
 
 model BrandProfile {
-  id            String   @id @default(cuid())
-  userId        String   @unique
-  companyName   String
+  id          String @id @default(cuid())
+  userId      String @unique
+  companyName String
+
+  // Dane do faktury. Faktura VAT wystawiona firmie MUSI zawierać NIP nabywcy
+  // (art. 106e ust. 1 pkt 5 ustawy o VAT) — bez niego marka nie odliczy
+  // podatku. Opcjonalne, bo istniejące profile powstały przed wprowadzeniem
+  // tych pól; generowanie faktury sprawdza ich obecność osobno i odmawia,
+  // zamiast wystawić dokument bez wymaganych danych.
+  nip           String?
+  address       String?
+  city          String?
+  postalCode    String?
   industry      String?
   website       String?
   logoUrl       String?

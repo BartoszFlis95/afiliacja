@@ -27,6 +27,10 @@ type BrandProfileFormProps = {
     website: string | null;
     logoUrl: string | null;
     isVerified: boolean;
+    nip: string | null;
+    address: string | null;
+    city: string | null;
+    postalCode: string | null;
   } | null;
 }
 
@@ -47,6 +51,10 @@ export function BrandProfileForm({ profile }: BrandProfileFormProps) {
       industry: profile?.industry ?? "",
       website: profile?.website ?? "",
       description: profile?.description ?? "",
+      nip: profile?.nip ?? "",
+      address: profile?.address ?? "",
+      city: profile?.city ?? "",
+      postalCode: profile?.postalCode ?? "",
     },
   });
 
@@ -102,6 +110,52 @@ export function BrandProfileForm({ profile }: BrandProfileFormProps) {
               />
             )}
           </FormField>
+
+          {/*
+            Dane do faktury. Bez NIP-u nie da się wystawić marce faktury VAT
+            (art. 106e ust. 1 pkt 5 ustawy o VAT), a generowanie faktury
+            odmawia z jasnym komunikatem — więc lepiej zebrać je tutaj niż
+            zderzać admina z blokadą przy rozliczeniu.
+          */}
+          <fieldset className="space-y-5 rounded-xl border border-border/60 p-4">
+            <legend className="px-1 text-sm font-medium text-foreground">
+              Dane do faktury
+            </legend>
+
+            <FormField
+              label="NIP"
+              hint="10 cyfr. Bez NIP-u nie wystawimy faktury VAT."
+              error={errors.nip?.message}
+            >
+              {(field) => (
+                <Input
+                  {...field}
+                  {...register("nip")}
+                  inputMode="numeric"
+                  placeholder="1234563218"
+                />
+              )}
+            </FormField>
+
+            <FormField label="Adres" error={errors.address?.message}>
+              {(field) => (
+                <Input {...field} {...register("address")} placeholder="ul. Prosta 51" />
+              )}
+            </FormField>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField label="Kod pocztowy" error={errors.postalCode?.message}>
+                {(field) => (
+                  <Input {...field} {...register("postalCode")} placeholder="00-838" />
+                )}
+              </FormField>
+              <FormField label="Miasto" error={errors.city?.message}>
+                {(field) => (
+                  <Input {...field} {...register("city")} placeholder="Warszawa" />
+                )}
+              </FormField>
+            </div>
+          </fieldset>
 
           <FormField label="Opis" error={errors.description?.message}>
             {(field) => (
