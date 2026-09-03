@@ -15,7 +15,8 @@
     "postinstall": "prisma generate",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check:env": "tsx scripts/check-env.mjs"
+    "check:env": "tsx scripts/check-env.mjs",
+    "db:backfill-numery": "tsx scripts/backfill-numery-dokumentow.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

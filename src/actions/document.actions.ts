@@ -68,7 +68,9 @@ export async function getMyDocumentsAction(): Promise<ActionResult<InfluencerDoc
 
     return {
       id: payout.id,
-      number: formatujNumerDokumentu(year, seq),
+      // zapisany numer jest wiążący; wyliczenie to już tylko zapas
+      // dla wierszy sprzed migracji
+      number: payout.documentNumber ?? formatujNumerDokumentu(year, seq),
       type: "RECEIPT",
       period: payout.commission.createdAt,
       netAmount: Number(payout.amount),

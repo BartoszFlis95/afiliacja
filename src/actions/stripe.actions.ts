@@ -11,6 +11,7 @@ import { getAppUrl, sendEmail } from "@/lib/resend";
 import { formatEmailAmount } from "@/emails/utils";
 import PayoutCompletedEmail from "@/emails/PayoutCompletedEmail";
 import { syncConversionStatus } from "@/lib/conversions";
+import { nadajNumerDokumentu } from "@/lib/nadaj-numer";
 import { CommissionStatus, ConversionStatus, PayoutStatus } from "@prisma/client";
 import type { StripeAccountStatus, StripeConnectStatus } from "@/types";
 
@@ -357,6 +358,10 @@ export async function executeStripeTransferAction(
       data: { status: CommissionStatus.PAID },
     }),
   ]);
+
+  // numer rachunku nadajemy po zatwierdzeniu transakcji — od tej chwili jest
+  // trwały i nie zmieni się przy ponownym renderze dokumentu
+  await nadajNumerDokumentu(payoutId);
 
   // Ten sam krok co w adminMarkPayoutPaidAction (wypłata ręczna) — bez tego
   // Conversion zostaje na CONFIRMED, mimo że Commission ma już status PAID.

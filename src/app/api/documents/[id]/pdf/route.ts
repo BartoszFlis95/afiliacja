@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DocumentPDF } from "@/components/influencer/DocumentPDF";
 import { formatujNumerDokumentu } from "@/lib/numer-dokumentu";
+import { nadajNumerDokumentu } from "@/lib/nadaj-numer";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,10 @@ export async function GET(
   }
 
   const year = payout.requestedAt.getFullYear();
+
+  // trwały numer z bazy; gdy go jeszcze nie ma (wiersz sprzed migracji),
+  // nadajemy go teraz — pobranie dokumentu to moment jego wystawienia
+  const numerTrwaly = payout.documentNumber ?? (await nadajNumerDokumentu(payout.id));
   // remis po requestedAt rozstrzygamy po id — inaczej dwie wypłaty z tym
   // samym znacznikiem czasu dostawały ten sam numer, a lista dokumentów
   // (orderBy) numerowała je inaczej niż ten PDF
@@ -54,7 +59,7 @@ export async function GET(
   });
 
   const documentData = {
-    number: formatujNumerDokumentu(year, seq),
+    number: numerTrwaly ?? formatujNumerDokumentu(year, seq),
     issuedAt: payout.processedAt ?? payout.requestedAt,
     sellerName: payout.influencer.displayName,
     sellerCity: payout.influencer.city,

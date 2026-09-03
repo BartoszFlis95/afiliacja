@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { poprawneKontoWyplaty } from "@/lib/iban";
+import { nadajNumerDokumentu } from "@/lib/nadaj-numer";
 import { syncConversionStatus } from "@/lib/conversions";
 import { sendEmail } from "@/lib/resend";
 import { formatEmailAmount } from "@/emails/utils";
@@ -511,6 +512,10 @@ export async function adminMarkPayoutPaidAction(
       data: { status: CommissionStatus.PAID },
     }),
   ]);
+
+  // numer rachunku nadajemy po zatwierdzeniu transakcji — od tej chwili jest
+  // trwały i nie zmieni się przy ponownym renderze dokumentu
+  await nadajNumerDokumentu(payoutId);
 
   await syncConversionStatus(
     payout.commission.affiliateLinkId,
