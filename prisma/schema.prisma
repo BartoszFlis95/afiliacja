@@ -206,7 +206,7 @@ model Product {
   name                     String
   description              String?
   imageUrl                 String?
-  category                 String?
+  category                 ProductCategory?
   price                    Decimal?
   commissionRate           Float
   influencerCommissionRate Float         @default(0)
@@ -460,4 +460,58 @@ model Invoice {
 
   @@index([brandId, periodFrom])
   @@index([status])
+}
+
+enum ProductCategory {
+  ELEKTRONIKA
+  KOMPUTERY
+  TELEFONY
+  AGD
+  RTV
+  MODA_DAMSKA
+  MODA_MESKA
+  MODA_DZIECIECA
+  OBUWIE
+  TOREBKI
+  BIZUTERIA
+  ZEGARKI
+  URODA
+  PERFUMY
+  PIELEGNACJA
+  ZDROWIE
+  SUPLEMENTY
+  SPORT
+  FITNESS
+  OUTDOOR
+  ROWERY
+  DOM
+  OGROD
+  MEBLE
+  DEKORACJE
+  KUCHNIA
+  LAZIENKA
+  POSCIEL
+  ZABAWKI
+  GRY_PLANSZOWE
+  KSIAZKI
+  MUZYKA
+  FILMY
+  GAMING
+  OPROGRAMOWANIE
+  JEDZENIE
+  NAPOJE
+  ALKOHOL
+  SUCHE_PRODUKTY
+  ZWIERZETA
+  MOTORYZACJA
+  CZESCI_SAMOCHODOWE
+  AKCESORIA_AUTO
+  BIURO
+  SZKOLA
+  BUDOWNICTWO
+  NARZEDZIA
+  FOTOGRAFIA
+  MUZYCZNE_INSTRUMENTY
+  PODROZE
+  INNE
 }

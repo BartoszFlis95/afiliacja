@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ToggleProductButton } from "@/components/admin/ToggleProductButton";
+import { etykietaKategorii, ikonaKategorii } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
 
@@ -74,7 +75,7 @@ export default async function AdminProductsPage() {
                   </TableCell>
                   <TableCell>
                     {product.category ? (
-                      <Badge variant="outline">{product.category}</Badge>
+                      <Badge variant="outline">{etykietaKategorii(product.category)}</Badge>
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}

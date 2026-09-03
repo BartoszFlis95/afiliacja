@@ -1,4 +1,4 @@
-import { PrismaClient, Role, ProductStatus } from "@prisma/client";
+import { ProductCategory, PrismaClient, Role, ProductStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -83,7 +83,7 @@ async function main() {
       brandProfileId: brandProfile.id,
       name: "Laptop Dell XPS 15",
       description: "Wydajny laptop do pracy i rozrywki.",
-      category: "Laptopy",
+      category: ProductCategory.KOMPUTERY,
       price: 6999.00,
       commissionRate: 10,
       influencerCommissionRate: 5,
@@ -104,7 +104,7 @@ async function main() {
       brandProfileId: brandProfile.id,
       name: "Słuchawki Sony WH-1000XM5",
       description: "Bezprzewodowe słuchawki z ANC.",
-      category: "Audio",
+      category: ProductCategory.RTV,
       price: 1499.00,
       commissionRate: 10,
       influencerCommissionRate: 5,

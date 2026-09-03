@@ -15,6 +15,7 @@ import {
 import { CopyLinkButton } from "@/components/influencer/CopyLinkButton";
 import { GenerateLinkButton } from "@/components/influencer/GenerateLinkButton";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { etykietaKategorii } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
 
@@ -125,7 +126,7 @@ export default async function InfluencerProductsPage() {
                 <CardContent className="flex items-center justify-between pb-2">
                   {product.category ? (
                     <Badge variant="outline" className="text-xs">
-                      {product.category}
+                      {etykietaKategorii(product.category)}
                     </Badge>
                   ) : (
                     <span className="text-xs text-muted-foreground">—</span>

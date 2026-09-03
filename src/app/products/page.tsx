@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ImageIcon } from "lucide-react";
-import { Prisma } from "@prisma/client";
+import { ProductCategory, Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { etykietaKategorii, ikonaKategorii } from "@/lib/categories";
 
 export const metadata: Metadata = {
   title: "Produkty w programie afiliacyjnym",
@@ -37,8 +38,10 @@ export default async function PublicProductsPage({
   const { category, minCommission } = await searchParams;
 
   const where: Prisma.ProductWhereInput = { status: "ACTIVE" };
-  if (category) {
-    where.category = category;
+  // parametr pochodzi z adresu URL, więc może być czymkolwiek — wartość spoza
+  // enuma ignorujemy zamiast przekazywać ją do Prismy, która rzuciłaby błędem
+  if (category && category in ProductCategory) {
+    where.category = category as ProductCategory;
   }
   const min = minCommission ? Number(minCommission) : NaN;
   if (!Number.isNaN(min)) {
@@ -154,7 +157,9 @@ export default async function PublicProductsPage({
                   </CardHeader>
                   <CardContent className="pb-2">
                     {product.category && (
-                      <Badge variant="outline">{product.category}</Badge>
+                      <Badge variant="outline">
+                        {ikonaKategorii(product.category)} {etykietaKategorii(product.category)}
+                      </Badge>
                     )}
                   </CardContent>
                   <CardFooter className="flex items-center justify-between">

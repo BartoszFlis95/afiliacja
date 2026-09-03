@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GenerateLinkButton } from "@/components/influencer/GenerateLinkButton";
 import { CopyLinkButton } from "@/components/influencer/CopyLinkButton";
+import { etykietaKategorii, ikonaKategorii } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
 
@@ -186,7 +187,9 @@ export default async function PublicProductDetailPage({
 
         <div className="mb-4 flex flex-wrap items-center gap-2">
           {product.category && (
-            <Badge variant="outline">{product.category}</Badge>
+            <Badge variant="outline">
+              {ikonaKategorii(product.category)} {etykietaKategorii(product.category)}
+            </Badge>
           )}
           <Badge variant="secondary">
             Prowizja {Number(product.commissionRate).toFixed(1).replace(/\.0$/, "")}%

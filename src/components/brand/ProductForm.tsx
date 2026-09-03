@@ -19,9 +19,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CATEGORY_OPTIONS } from "@/lib/categories";
+import { cn } from "@/lib/utils";
+import { fieldBase } from "@/components/ui/field-styles";
 
 interface ProductFormProps {
-  initialData?: ProductFormData & { id?: string };
+  /**
+   * category jest opcjonalna, choć schemat jej wymaga: produkt sprzed
+   * migracji kategorii może jej nie mieć, a formularz ma wtedy wystartować
+   * z pustym polem i wymusić wybór, zamiast podstawiać zmyśloną wartość.
+   */
+  initialData?: Omit<ProductFormData, "category"> & {
+    category?: ProductFormData["category"];
+    id?: string;
+  };
   mode?: "create" | "edit";
 }
 
@@ -50,7 +61,7 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
     defaultValues: initialData ?? {
       name: "",
       description: "",
-      category: "",
+      category: undefined,
       commissionRate: 10,
       influencerCommissionRate: 5,
       productUrl: "",
@@ -118,13 +129,31 @@ export function ProductForm({ initialData, mode = "create" }: ProductFormProps) 
             )}
           </FormField>
 
+          {/*
+            Lista zamiast pola tekstowego: kategoria wpisywana ręcznie
+            rozjeżdżała się przy każdym produkcie ("Bizuteria3", "L"), więc
+            filtrowanie po kategorii nie mogło działać.
+          */}
           <FormField label="Kategoria" required error={errors.category?.message}>
             {(field) => (
-              <Input
+              <select
                 {...field}
                 {...register("category")}
-                placeholder="np. Elektronika, Moda, Sport"
-              />
+                defaultValue=""
+                className={cn(
+                  fieldBase,
+                  "appearance-none bg-[length:1rem] bg-[right_0.75rem_center] bg-no-repeat pr-9"
+                )}
+              >
+                <option value="" disabled>
+                  Wybierz kategorię…
+                </option>
+                {CATEGORY_OPTIONS.map((k) => (
+                  <option key={k.value} value={k.value}>
+                    {k.icon} {k.label}
+                  </option>
+                ))}
+              </select>
             )}
           </FormField>
 

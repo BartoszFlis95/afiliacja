@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { ProductSchema } from "@/lib/validations/product.schema";
+import { ProductCategory } from "@prisma/client";
 
 const poprawny = {
   name: "Koszulka",
-  category: "Odzież",
+  category: ProductCategory.MODA_DAMSKA,
   price: 99.99,
   commissionRate: 15,
   influencerCommissionRate: 10,
@@ -84,5 +85,20 @@ describe("ProductSchema", () => {
     expect(
       ProductSchema.safeParse({ ...poprawny, productUrl: "sklep.pl/koszulka" }).success,
     ).toBe(false);
+  });
+});
+
+describe("kategoria jako enum", () => {
+  it("odrzuca kategorię wpisaną z ręki", () => {
+    // regresja: kolumna była wolnym tekstem, więc w bazie wylądowały
+    // wartości "Bizuteria3" i "L", przez co filtrowanie nie mogło działać
+    const wynik = ProductSchema.safeParse({ ...poprawny, category: "Bizuteria3" });
+    expect(wynik.success).toBe(false);
+  });
+
+  it("przyjmuje każdą wartość z enuma", () => {
+    for (const kategoria of Object.values(ProductCategory)) {
+      expect(ProductSchema.safeParse({ ...poprawny, category: kategoria }).success).toBe(true);
+    }
   });
 });

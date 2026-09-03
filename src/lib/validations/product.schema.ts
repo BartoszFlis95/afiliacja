@@ -1,11 +1,16 @@
 import { z } from "zod";
+import { ProductCategory } from "@prisma/client";
 import { dozwolonyUrlObrazu } from "@/lib/image-hosts";
 
 export const ProductSchema = z
   .object({
     name: z.string().min(2, "Nazwa musi mieć co najmniej 2 znaki"),
     description: z.string().optional(),
-    category: z.string().min(1, "Kategoria jest wymagana"),
+    // enum z Prismy, nie dowolny tekst: wcześniej kategorie wpisywano ręcznie,
+    // przez co w bazie wylądowały wartości w rodzaju "Bizuteria3" i "L"
+    category: z.nativeEnum(ProductCategory, {
+      errorMap: () => ({ message: "Wybierz kategorię z listy" }),
+    }),
     price: z.number().positive("Cena musi być dodatnia").optional(),
     commissionRate: z
       .number()

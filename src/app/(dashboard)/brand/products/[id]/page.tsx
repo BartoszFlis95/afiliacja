@@ -52,7 +52,9 @@ export default async function BrandProductEditPage({
     id: product.id,
     name: product.name,
     description: product.description ?? "",
-    category: product.category ?? "",
+    // produkt sprzed migracji kategorii może nie mieć żadnej — wtedy pole
+    // startuje puste i formularz wymusi wybór z listy
+    category: product.category ?? undefined,
     price: product.price ? Number(product.price) : undefined,
     commissionRate: Number(product.commissionRate),
     influencerCommissionRate: Number(product.influencerCommissionRate),
