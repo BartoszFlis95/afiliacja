@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse, after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logFraud } from "@/lib/fraud-logger";
+import { oznaczPodejrzanaKonwersje } from "@/lib/fraud-detection";
 import { calculateCommissionSplit } from "@/lib/commission";
 import { sendEmail } from "@/lib/resend";
 import { formatEmailAmount } from "@/emails/utils";
@@ -150,37 +151,14 @@ export async function POST(request: NextRequest) {
     const { totalCommission, influencerCommission, platformCommission } =
       calculateCommissionSplit(orderAmount, totalCommissionRate, influencerRate);
 
-    // FRAUD 5 — suspicious conversion detection: nie blokujemy, tylko oznaczamy
-    // flagą do ręcznej weryfikacji przez admina/markę. Identyczna logika jak w /api/track.
-    const suspiciousReasons: string[] = [];
-
-    const avgConversion = await prisma.conversion.aggregate({
-      where: { affiliateLinkId: link.id },
-      _avg: { amount: true },
-    });
-    if (
-      avgConversion._avg.amount &&
-      orderAmount > Number(avgConversion._avg.amount) * 100
-    ) {
-      suspiciousReasons.push("orderValue 100x powyżej średniej");
-    }
-
+    // FRAUD 5 — oznaczanie podejrzanych konwersji, wspólne z /api/track.
     const clickIp = recentClick.ip;
-    if (clickIp) {
-      const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      const conversionsFromIp = await prisma.commission.count({
-        where: {
-          ipAddress: clickIp,
-          createdAt: { gte: last24h },
-        },
-      });
-      if (conversionsFromIp >= 5) {
-        suspiciousReasons.push("Więcej niż 5 konwersji z tego samego IP w ciągu 24h");
-      }
-    }
-
-    const isSuspicious = suspiciousReasons.length > 0;
-    const suspiciousReason = isSuspicious ? suspiciousReasons.join("; ") : null;
+    const { isSuspicious, suspiciousReason } = await oznaczPodejrzanaKonwersje({
+      affiliateLinkId: link.id,
+      orderValue: orderAmount,
+      productPrice: link.product.price != null ? Number(link.product.price) : null,
+      clickIp,
+    });
 
     const [, createdCommission] = await prisma.$transaction([
       prisma.conversion.create({

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { logFraud } from "@/lib/fraud-logger";
+import { oznaczPodejrzanaKonwersje } from "@/lib/fraud-detection";
 import { verifyHmacSignature } from "@/lib/hmac";
 import { calculateCommissionSplit } from "@/lib/commission";
 import { sendEmail } from "@/lib/resend";
@@ -189,39 +190,16 @@ export async function POST(request: NextRequest) {
     product.influencerCommissionRate
   );
 
-  // FRAUD 5 — suspicious conversion detection: nie blokujemy, tylko oznaczamy
-  // flagą do ręcznej weryfikacji przez admina/markę.
-  const suspiciousReasons: string[] = [];
-
-  const avgConversion = await prisma.conversion.aggregate({
-    where: { affiliateLinkId: affiliateLink.id },
-    _avg: { amount: true },
-  });
-  if (
-    avgConversion._avg.amount &&
-    orderValue > Number(avgConversion._avg.amount) * 100
-  ) {
-    suspiciousReasons.push("orderValue 100x powyżej średniej");
-  }
-
-  // IP klika, który zainicjował tę konwersję — zapisywane na Commission, żeby
-  // móc wykryć wiele konwersji z tego samego IP w krótkim czasie.
+  // FRAUD 5 — oznaczanie podejrzanych konwersji. Logika w @/lib/fraud-detection,
+  // wspólna z /api/conversion: wcześniej obie trasy miały własną kopię, więc
+  // poprawka w jednej nie trafiała do drugiej.
   const clickIp = recentClick.ip;
-  if (clickIp) {
-    const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const conversionsFromIp = await prisma.commission.count({
-      where: {
-        ipAddress: clickIp,
-        createdAt: { gte: last24h },
-      },
-    });
-    if (conversionsFromIp >= 5) {
-      suspiciousReasons.push("Więcej niż 5 konwersji z tego samego IP w ciągu 24h");
-    }
-  }
-
-  const isSuspicious = suspiciousReasons.length > 0;
-  const suspiciousReason = isSuspicious ? suspiciousReasons.join("; ") : null;
+  const { isSuspicious, suspiciousReason } = await oznaczPodejrzanaKonwersje({
+    affiliateLinkId: affiliateLink.id,
+    orderValue,
+    productPrice: product.price != null ? Number(product.price) : null,
+    clickIp,
+  });
 
   let commission;
   try {
