@@ -82,6 +82,9 @@ export const GRUPY: Grupa[] = [
   },
 ];
 
+/** Czytamy wyłącznie wartości, więc nie wymuszamy pełnego ProcessEnv (z NODE_ENV). */
+export type Zmienne = Record<string, string | undefined>;
+
 export type RaportGrupy = {
   nazwa: string;
   konsekwencja: string;
@@ -90,7 +93,7 @@ export type RaportGrupy = {
 };
 
 export function sprawdzKonfiguracje(
-  env: NodeJS.ProcessEnv = process.env,
+  env: Zmienne = process.env,
 ): RaportGrupy[] {
   return GRUPY.map((g) => {
     const brakujace = g.zmienne.filter((v) => !env[v]?.trim());
@@ -106,7 +109,7 @@ export function sprawdzKonfiguracje(
 /** Czy dana grupa jest w pełni skonfigurowana — do bramek w kodzie funkcji. */
 export function grupaSkonfigurowana(
   nazwa: string,
-  env: NodeJS.ProcessEnv = process.env,
+  env: Zmienne = process.env,
 ): boolean {
   const g = GRUPY.find((x) => x.nazwa === nazwa);
   if (!g) throw new Error(`Nieznana grupa konfiguracji: ${nazwa}`);

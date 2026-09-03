@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import type { Zmienne } from "@/lib/env";
 import { GRUPY, grupaSkonfigurowana, sprawdzKonfiguracje } from "@/lib/env";
 
-const KOMPLET: NodeJS.ProcessEnv = Object.fromEntries(
+const KOMPLET: Zmienne = Object.fromEntries(
   GRUPY.flatMap((g) => g.zmienne.map((v) => [v, "wartosc"])),
 );
 
