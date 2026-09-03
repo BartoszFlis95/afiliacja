@@ -19,7 +19,7 @@ const templates: { name: string; subject: string; element: React.ReactElement }[
     subject: "Potwierdź swój email w Deneeu",
     element: VerifyEmailEmail({
       name: "Kasia",
-      verifyUrl: "https://deneeu.pl/verify-email?token=example-token",
+      verifyUrl: "https://www.deneeu.pl/verify-email?token=example-token",
     }),
   },
   {
@@ -27,7 +27,7 @@ const templates: { name: string; subject: string; element: React.ReactElement }[
     subject: "Zresetuj hasło w Deneeu",
     element: PasswordResetEmail({
       name: "Kasia",
-      resetUrl: "https://deneeu.pl/reset-password?token=example-token",
+      resetUrl: "https://www.deneeu.pl/reset-password?token=example-token",
     }),
   },
   {
@@ -103,7 +103,7 @@ const templates: { name: string; subject: string; element: React.ReactElement }[
       dueDate: "19.07.2026",
       periodFrom: "01.06.2026",
       periodTo: "30.06.2026",
-      invoiceUrl: "https://deneeu.pl/api/invoices/example/pdf",
+      invoiceUrl: "https://www.deneeu.pl/api/invoices/example/pdf",
       bankAccount: "PL00 0000 0000 0000 0000 0000 0000",
     }),
   },

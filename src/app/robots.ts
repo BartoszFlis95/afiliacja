@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 
+import { CANONICAL_URL } from "@/lib/site";
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
@@ -23,7 +25,7 @@ export default function robots(): MetadataRoute.Robots {
         "/email-preview",
       ],
     },
-    sitemap: "https://www.deneeu.pl/sitemap.xml",
-    host: "https://www.deneeu.pl",
+    sitemap: `${CANONICAL_URL}/sitemap.xml`,
+    host: CANONICAL_URL,
   };
 }

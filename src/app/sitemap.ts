@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
 
 import { prisma } from "@/lib/prisma";
+import { CANONICAL_URL } from "@/lib/site";
 
-const BASE = "https://www.deneeu.pl";
+const BASE = CANONICAL_URL;
 
 /**
  * Sitemap był statyczną listą sześciu stron i nie zawierał ANI JEDNEGO

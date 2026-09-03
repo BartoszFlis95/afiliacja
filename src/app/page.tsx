@@ -3,6 +3,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
+import { CANONICAL_URL } from "@/lib/site";
+
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
@@ -18,7 +20,7 @@ export const metadata: Metadata = {
     title: "Deneeu — Affiliate Marketing dla Marek i Influencerów",
     description:
       "Platforma CPS łącząca marki z influencerami. Płacisz tylko za wyniki.",
-    url: "https://www.deneeu.pl",
+    url: CANONICAL_URL,
     siteName: "Deneeu",
     locale: "pl_PL",
     type: "website",

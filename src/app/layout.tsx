@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ThemeScript } from "@/components/shared/ThemeScript";
 import { SkipLink } from "@/components/shared/SkipLink";
+import { CANONICAL_URL } from "@/lib/site";
 import "./globals.css";
 
 // Playfair i Lato były tu ładowane „na później", ale żaden komponent ani
@@ -14,7 +15,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.deneeu.pl"),
+  metadataBase: new URL(CANONICAL_URL),
   title: {
     default: "Deneeu — Platforma Affiliate Marketing CPS",
     template: "%s | Deneeu",
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "pl_PL",
-    url: "https://www.deneeu.pl",
+    url: CANONICAL_URL,
     siteName: "Deneeu",
     title: "Deneeu — Affiliate Marketing dla Marek i Influencerów",
     description: "Platforma CPS łącząca marki z influencerami.",
