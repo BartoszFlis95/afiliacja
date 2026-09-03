@@ -5,6 +5,7 @@ import { after } from "next/server";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { grupaSkonfigurowana } from "@/lib/env";
 import { stripe } from "@/lib/stripe";
 import { getAppUrl, sendEmail } from "@/lib/resend";
 import { formatEmailAmount } from "@/emails/utils";
@@ -212,6 +213,24 @@ export async function executeStripeTransferAction(
 ): Promise<ActionResult<{ transferId: string }>> {
   const session = await requireAdmin();
   if (!session?.user?.id) return { success: false, error: "Brak uprawnień." };
+
+  /**
+   * Bramka konfiguracji PRZED dotknięciem wypłaty.
+   *
+   * Klient Stripe ma fallback "sk_missing_key" (patrz lib/stripe.ts), żeby brak
+   * klucza nie wywalał builda. Skutek uboczny: bez klucza transfer nie padał
+   * przy starcie, tylko tutaj — komunikatem od Stripe o nieprawidłowym kluczu,
+   * po tym jak wypłata przeszła już część zmian stanu. Lepiej odmówić od razu
+   * i powiedzieć adminowi, czego brakuje.
+   */
+  if (!grupaSkonfigurowana("wypłaty (Stripe)")) {
+    return {
+      success: false,
+      error:
+        "Stripe nie jest skonfigurowany (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET). " +
+        "Wypłata nie została ruszona.",
+    };
+  }
 
   const payout = await prisma.payout.findUnique({
     where: { id: payoutId },
