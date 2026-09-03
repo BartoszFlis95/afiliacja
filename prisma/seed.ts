@@ -1,5 +1,6 @@
-import { ProductCategory, PrismaClient, Role, ProductStatus } from "@prisma/client";
+import { BillingType, ProductCategory, PrismaClient, Role, ProductStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { WERSJA_REGULAMINU } from "../src/lib/legal";
 
 const prisma = new PrismaClient();
 
@@ -8,27 +9,44 @@ const PLAIN_PASSWORD = "Password123!";
 async function main() {
   const passwordHash = await bcrypt.hash(PLAIN_PASSWORD, 10);
 
+  /**
+   * Konta testowe mają od razu zaakceptowany regulamin. Bez tego bramka
+   * w layoucie panelu odsyłałaby je na /accept-terms przy pierwszym wejściu,
+   * co przy koncie służącym do testów jest tylko przeszkodą.
+   */
+  const akceptacja = {
+    tosAcceptedAt: new Date(),
+    privacyAcceptedAt: new Date(),
+    tosVersion: WERSJA_REGULAMINU,
+  };
+
   // Admin
   await prisma.user.upsert({
     where: { email: "admin@deneeu.com" },
-    update: {},
+    // update, nie {}: seed uruchomiony na istniejącej bazie ma też
+    // uzupełnić akceptację kontom założonym przed jej wprowadzeniem
+    update: akceptacja,
     create: {
       email: "admin@deneeu.com",
       emailVerified: new Date(),
       passwordHash,
       role: Role.ADMIN,
+      ...akceptacja,
     },
   });
 
   // Brand user
   const brandUser = await prisma.user.upsert({
     where: { email: "brand@deneeu.com" },
-    update: {},
+    // update, nie {}: seed uruchomiony na istniejącej bazie ma też
+    // uzupełnić akceptację kontom założonym przed jej wprowadzeniem
+    update: akceptacja,
     create: {
       email: "brand@deneeu.com",
       emailVerified: new Date(),
       passwordHash,
       role: Role.BRAND,
+      ...akceptacja,
     },
   });
 
@@ -42,18 +60,28 @@ async function main() {
       website: "https://techstore.example.com",
       description: "Sklep z elektroniką i gadżetami.",
       isVerified: true,
+      // Bez NIP-u i adresu generateMonthlyInvoiceAction odmawia wystawienia
+      // faktury (art. 106e ust. 1 pkt 5 ustawy o VAT), więc cały cykl
+      // rozliczeniowy byłby na świeżej bazie nie do przetestowania.
+      nip: "5252248481",
+      address: "ul. Testowa 12/3",
+      city: "Warszawa",
+      postalCode: "00-001",
     },
   });
 
   // Influencer user
   const influencerUser = await prisma.user.upsert({
     where: { email: "influencer@deneeu.com" },
-    update: {},
+    // update, nie {}: seed uruchomiony na istniejącej bazie ma też
+    // uzupełnić akceptację kontom założonym przed jej wprowadzeniem
+    update: akceptacja,
     create: {
       email: "influencer@deneeu.com",
       emailVerified: new Date(),
       passwordHash,
       role: Role.INFLUENCER,
+      ...akceptacja,
     },
   });
 
@@ -68,6 +96,15 @@ async function main() {
       instagramUrl: "https://instagram.com/anna",
       youtubeUrl: "https://youtube.com/anna",
       isVerified: true,
+      // Bez danych wypłaty requestPayoutAction odrzuca wniosek, więc
+      // ścieżki wypłat nie dałoby się przejść na świeżej bazie.
+      billingType: BillingType.INDIVIDUAL,
+      preferredPayout: "bank",
+      bankAccountName: "Anna Kowalska",
+      bankAccountIban: "PL61109010140000071219812874",
+      bankAccountBank: "Bank Testowy",
+      city: "Kraków",
+      country: "PL",
     },
   });
 

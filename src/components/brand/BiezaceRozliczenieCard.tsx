@@ -46,7 +46,9 @@ export function BiezaceRozliczenieCard({ dane }: { dane: BiezaceRozliczenie }) {
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground">Prowizje</dt>
+            <dt className="text-xs text-muted-foreground">
+              {dane.status === "OCZEKUJE" ? "Prowizje" : "Prowizje (poza fakturą)"}
+            </dt>
             <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
               {formatCurrency(dane.prowizje)}
             </dd>
@@ -58,7 +60,14 @@ export function BiezaceRozliczenieCard({ dane }: { dane: BiezaceRozliczenie }) {
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground">Do zapłaty brutto</dt>
+            {/*
+              Przed wystawieniem faktury to prognoza z narastających prowizji,
+              nie należność — nazwanie tego „do zapłaty” sugerowałoby, że jest
+              już co płacić.
+            */}
+            <dt className="text-xs text-muted-foreground">
+              {dane.status === "OCZEKUJE" ? "Szacowana kwota brutto" : "Do zapłaty brutto"}
+            </dt>
             <dd className="mt-0.5 text-lg font-bold tabular-nums text-foreground">
               {formatCurrency(dane.doZaplaty)}
             </dd>

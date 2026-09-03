@@ -672,17 +672,27 @@ export async function getBrandBillingSummaryAction(): Promise<
         status: { in: [CommissionStatus.APPROVED, CommissionStatus.PAID] },
         createdAt: { gte: od, lte: doDaty },
       },
-      select: { commissionAmount: true, orderValue: true },
+      select: { commissionAmount: true, orderValue: true, invoiceId: true },
     }),
     prisma.invoice.findFirst({
       where: { brandId: brand.id, periodFrom: { gte: od }, periodTo: { lte: doDaty } },
-      select: { id: true, invoiceNumber: true, status: true },
+      select: { id: true, invoiceNumber: true, status: true, grossAmount: true },
       orderBy: { issuedAt: "desc" },
     }),
   ]);
 
+  // Sprzedaż to całość obrotu w miesiącu — informacja, nie zobowiązanie.
   const sprzedaz = doGroszy(prowizje.reduce((s, p) => s + Number(p.orderValue), 0));
-  const suma = prowizje.reduce((s, p) => s + Number(p.commissionAmount), 0);
+
+  /**
+   * Kwota do zapłaty liczona TYLKO z prowizji jeszcze niezafakturowanych —
+   * dokładnie tym samym warunkiem co generateMonthlyInvoiceAction. Wcześniej
+   * karta sumowała wszystkie prowizje miesiąca, więc po wystawieniu faktury
+   * marka widziała pełną kwotę jako wciąż do zapłaty, a po jej opłaceniu
+   * status mówił „Opłacone” obok niezerowej należności.
+   */
+  const niezafakturowane = prowizje.filter((p) => p.invoiceId === null);
+  const suma = niezafakturowane.reduce((s, p) => s + Number(p.commissionAmount), 0);
   const { prowizje: kwota, oplata, netto } = rozbicieFaktury(suma);
 
   const status: BiezaceRozliczenie["status"] = !faktura
@@ -698,7 +708,9 @@ export async function getBrandBillingSummaryAction(): Promise<
       sprzedaz,
       prowizje: kwota,
       oplata,
-      doZaplaty: doGroszy(netto * 1.23),
+      // faktura wystawiona -> wiążąca jest jej kwota; przed wystawieniem
+      // pokazujemy prognozę z narastających prowizji
+      doZaplaty: faktura ? Number(faktura.grossAmount) : doGroszy(netto * 1.23),
       status,
       invoiceId: faktura?.id ?? null,
       invoiceNumber: faktura?.invoiceNumber ?? null,
