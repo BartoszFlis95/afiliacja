@@ -35,22 +35,29 @@ export function ClicksChart({ data }: ClicksChartProps) {
             <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#F4F4F5" />
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
         <XAxis
           dataKey="date"
-          tick={{ fontSize: 11, fill: "#A1A1AA" }}
+          tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
           tickFormatter={(v: string) => v.slice(5)}
         />
         <YAxis
-          tick={{ fontSize: 11, fill: "#A1A1AA" }}
+          tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
           allowDecimals={false}
           width={28}
         />
+        {/* Style tooltipa muszą być inline (Recharts nie przyjmuje className),
+            ale zmienne CSS działają w stylach inline — przeglądarka rozwiązuje
+            je względem elementu, a tokeny dziedziczą się z :root/.dark.
+            Wcześniej było tu białe tło i niemal czarny tekst, czyli w ciemnym
+            motywie biały prostokąt na ciemnym wykresie. */}
         <Tooltip
           contentStyle={{
             fontSize: 12,
             borderRadius: 12,
-            border: "1px solid #F4F4F5",
+            backgroundColor: "hsl(var(--popover))",
+            color: "hsl(var(--popover-foreground))",
+            border: "1px solid hsl(var(--border))",
             boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
           }}
           labelFormatter={(label) => `Data: ${label}`}

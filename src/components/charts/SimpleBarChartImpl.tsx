@@ -44,27 +44,33 @@ export function SimpleBarChart({
             <stop offset="100%" stopColor={color} stopOpacity={0.7} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#F4F4F5" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 12, fill: "#A1A1AA" }}
+          tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
           tickLine={false}
-          axisLine={{ stroke: "#F4F4F5" }}
+          axisLine={{ stroke: "hsl(var(--border))" }}
         />
         <YAxis
-          tick={{ fontSize: 12, fill: "#A1A1AA" }}
+          tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
           tickLine={false}
           axisLine={false}
           width={48}
         />
+        {/* Style tooltipa muszą być inline (Recharts nie przyjmuje className),
+            ale zmienne CSS działają w stylach inline — przeglądarka rozwiązuje
+            je względem elementu, a tokeny dziedziczą się z :root/.dark.
+            Wcześniej było tu białe tło i niemal czarny tekst, czyli w ciemnym
+            motywie biały prostokąt na ciemnym wykresie. */}
         <Tooltip
-          cursor={{ fill: "#FAFAFA" }}
+          cursor={{ fill: "hsl(var(--muted))" }}
           formatter={(value) => [formatValue(Number(value)), ""]}
-          labelStyle={{ color: "#18181B", fontWeight: 600 }}
+          labelStyle={{ color: "hsl(var(--popover-foreground))", fontWeight: 600 }}
+          itemStyle={{ color: "hsl(var(--popover-foreground))" }}
           contentStyle={{
             borderRadius: 12,
-            border: "1px solid #F4F4F5",
-            backgroundColor: "#fff",
+            border: "1px solid hsl(var(--border))",
+            backgroundColor: "hsl(var(--popover))",
             fontSize: 13,
             boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
           }}

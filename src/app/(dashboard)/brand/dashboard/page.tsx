@@ -225,7 +225,8 @@ export default async function BrandDashboardPage() {
           </div>
           <Button
             asChild
-            className="w-full bg-card font-semibold text-primary shadow-lg hover:bg-primary/10 md:w-auto"
+            // Powierzchnia pod spodem jest STAŁA (niebieski gradient), więc kolory na niej też muszą być stałe — token przełączyłby się z motywem i rozjechał kontrast.
+            className="w-full bg-white font-semibold text-blue-700 shadow-lg hover:bg-blue-50 md:w-auto"
           >
             <Link href="/brand/products/new">
               <PlusCircle className="mr-2 h-4 w-4" />

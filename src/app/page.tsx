@@ -389,7 +389,8 @@ export default async function LandingPage() {
           <Button
             asChild
             size="lg"
-            className="mt-8 h-12 w-full rounded-xl bg-card px-8 text-base font-semibold text-primary shadow-sm transition-all duration-200 hover:bg-primary/10 hover:shadow-md sm:h-auto sm:w-auto sm:py-4 sm:text-lg"
+            // Powierzchnia pod spodem jest STAŁA (niebieski gradient), więc kolory na niej też muszą być stałe — token przełączyłby się z motywem i rozjechał kontrast.
+            className="mt-8 h-12 w-full rounded-xl bg-white px-8 text-base font-semibold text-blue-700 shadow-sm transition-all duration-200 hover:bg-blue-50 hover:shadow-md sm:h-auto sm:w-auto sm:py-4 sm:text-lg"
           >
             <Link href="/register">Utwórz konto za darmo →</Link>
           </Button>

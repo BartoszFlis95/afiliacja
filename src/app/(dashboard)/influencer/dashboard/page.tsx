@@ -236,16 +236,16 @@ export default async function InfluencerDashboardPage() {
         <div className="absolute inset-0 bg-blue-500/5" />
         <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">Łączne zarobki</p>
+            <p className="text-sm text-blue-200">Łączne zarobki</p>
             <p className="mt-1 text-4xl font-bold md:text-5xl">{formatCurrency(totalEarnings)} PLN</p>
-            <p className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
+            <p className="mt-2 flex items-center gap-4 text-sm text-blue-200">
               <span>{totalConversions.toLocaleString("pl-PL")} konwersji</span>
               <span>•</span>
               <span>{totalClicks.toLocaleString("pl-PL")} kliknięć</span>
             </p>
           </div>
           <div className="rounded-xl bg-white/10 p-4 backdrop-blur">
-            <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-muted-foreground">
+            <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-blue-200">
               <PiggyBank className="h-3.5 w-3.5" /> Dostępne do wypłaty
             </p>
             <p className="mt-1 text-2xl font-bold">{formatCurrency(availableBalance)}</p>
