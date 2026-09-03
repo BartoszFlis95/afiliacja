@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { checkRateLimit } from "@/lib/rate-limit";
+import { PROGI, checkRateLimit } from "@/lib/rate-limit";
 
 /**
  * Limiter chroni akcje wysyłające maile przez Resend. Błąd tutaj to albo
@@ -90,5 +90,24 @@ describe("checkRateLimit", () => {
     expect(checkRateLimit(swiezy).allowed).toBe(true);
     expect(checkRateLimit(swiezy).allowed).toBe(true);
     expect(checkRateLimit(swiezy).allowed).toBe(false);
+  });
+
+  it("przyjmuje własne progi, nie tylko domyślne", () => {
+    const k = klucz("wlasny-prog");
+    for (let i = 0; i < 10; i++) {
+      expect(checkRateLimit(k, 10, 60_000).allowed).toBe(true);
+    }
+    expect(checkRateLimit(k, 10, 60_000).allowed).toBe(false);
+  });
+
+  /**
+   * Progi per akcja nie mogą się rozjechać z tym, co jest sensowne:
+   * logowanie musi być luźniejsze niż wysyłka maila (ludzie mylą hasła),
+   * a okno logowania krótsze (blokada na godzinę za literówkę to zbyt dużo).
+   */
+  it("ma progi dobrane pod charakter akcji", () => {
+    expect(PROGI.logowanie.limit).toBeGreaterThan(PROGI.email.limit);
+    expect(PROGI.logowanie.oknoMs).toBeLessThan(PROGI.email.oknoMs);
+    expect(PROGI.rejestracja.limit).toBeGreaterThanOrEqual(PROGI.email.limit);
   });
 });

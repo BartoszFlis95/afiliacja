@@ -16,7 +16,7 @@ import {
 import { Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { PROGI, checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const VERIFICATION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -48,6 +48,23 @@ async function sendVerificationEmail(email: string) {
 }
 
 export async function loginAction(formData: FormData): Promise<LoginResult> {
+  // Limit PRZED bcryptem — porównanie hasha kosztuje ok. 250 ms, więc bez tego
+  // każde odrzucone żądanie i tak zajmowałoby procesor. Próg jest luźniejszy
+  // niż przy mailach (10 / 15 min): ludzie mylą hasła, a bcrypt sam w sobie
+  // spowalnia zgadywanie. Limit ma uciąć automat, nie ukarać za literówkę.
+  const ip = await getClientIp();
+  const limit = checkRateLimit(
+    `login:${ip}`,
+    PROGI.logowanie.limit,
+    PROGI.logowanie.oknoMs,
+  );
+  if (!limit.allowed) {
+    return {
+      success: false,
+      error: `Zbyt wiele prób logowania. Spróbuj ponownie za ${Math.ceil(limit.retryAfterMs / 60000)} min.`,
+    };
+  }
+
   const raw = {
     email: formData.get("email"),
     password: formData.get("password"),
@@ -121,6 +138,21 @@ export async function loginAction(formData: FormData): Promise<LoginResult> {
 }
 
 export async function registerAction(formData: FormData) {
+  // Rejestracja też wysyła maila (weryfikacyjnego), więc ma ten sam problem
+  // kosztowy co reset hasła — plus zakładanie kont śmieciowych.
+  const ip = await getClientIp();
+  const limit = checkRateLimit(
+    `register:${ip}`,
+    PROGI.rejestracja.limit,
+    PROGI.rejestracja.oknoMs,
+  );
+  if (!limit.allowed) {
+    return {
+      success: false,
+      error: "Zbyt wiele prób rejestracji z tego adresu. Spróbuj ponownie później.",
+    };
+  }
+
   const raw = {
     email: formData.get("email"),
     password: formData.get("password"),
@@ -273,7 +305,7 @@ export async function resendVerificationEmailAction(
   email: string
 ): Promise<{ success: boolean; error?: string }> {
   const ip = await getClientIp();
-  const rateLimit = checkRateLimit(`resend-verification:${ip}`);
+  const rateLimit = checkRateLimit(`resend-verification:${ip}`, PROGI.email.limit, PROGI.email.oknoMs);
   if (!rateLimit.allowed) {
     return {
       success: false,
@@ -322,7 +354,7 @@ export async function forgotPasswordAction(
   email: string
 ): Promise<{ success: boolean; error?: string }> {
   const ip = await getClientIp();
-  const rateLimit = checkRateLimit(`forgot-password:${ip}`);
+  const rateLimit = checkRateLimit(`forgot-password:${ip}`, PROGI.email.limit, PROGI.email.oknoMs);
   if (!rateLimit.allowed) {
     return {
       success: false,

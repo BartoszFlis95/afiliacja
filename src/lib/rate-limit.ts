@@ -1,7 +1,24 @@
 import { headers } from "next/headers";
 
+/**
+ * Domyślne okno: akcje wysyłające maile (reset hasła, ponowna weryfikacja).
+ * Tam koszt nadużycia ponosimy my — każde wywołanie to mail przez Resend.
+ */
 const WINDOW_MS = 60 * 60 * 1000;
 const MAX_ATTEMPTS = 3;
+
+/**
+ * Progi per akcja. Logowanie ma inne wymagania niż wysyłka maila: ludzie
+ * mylą hasła, więc 3 próby na godzinę zablokowałyby prawdziwych użytkowników.
+ * Dodatkowo każda próba kosztuje atakującego ok. 250 ms (bcrypt, 12 rund),
+ * więc samo zgadywanie jest już spowolnione — limit ma uciąć automat, nie
+ * ukarać kogoś, kto pomylił się trzy razy.
+ */
+export const PROGI = {
+  email:    { limit: 3,  oknoMs: 60 * 60 * 1000 },
+  logowanie:{ limit: 10, oknoMs: 15 * 60 * 1000 },
+  rejestracja: { limit: 5, oknoMs: 60 * 60 * 1000 },
+} as const;
 
 type Bucket = { count: number; resetAt: number };
 
@@ -55,18 +72,20 @@ export async function getClientIp(): Promise<string> {
 }
 
 export function checkRateLimit(
-  key: string
+  key: string,
+  limit: number = MAX_ATTEMPTS,
+  oknoMs: number = WINDOW_MS
 ): { allowed: true } | { allowed: false; retryAfterMs: number } {
   const now = Date.now();
   pruneExpired(now);
 
   const bucket = buckets.get(key);
   if (!bucket || bucket.resetAt <= now) {
-    buckets.set(key, { count: 1, resetAt: now + WINDOW_MS });
+    buckets.set(key, { count: 1, resetAt: now + oknoMs });
     return { allowed: true };
   }
 
-  if (bucket.count >= MAX_ATTEMPTS) {
+  if (bucket.count >= limit) {
     return { allowed: false, retryAfterMs: bucket.resetAt - now };
   }
 
