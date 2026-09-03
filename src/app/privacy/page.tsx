@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
+import { DATA_AKTUALIZACJI } from "@/lib/legal";
 
 export const metadata: Metadata = {
   title: "Polityka prywatności",
@@ -11,19 +12,28 @@ export const metadata: Metadata = {
 
 const SECTIONS = [
   {
-    title: "1. Jakie dane zbieramy",
+    title: "1. Administrator danych",
     paragraphs: [
-      "Podczas rejestracji i korzystania z Platformy zbieramy w szczególności: adres e-mail oraz hasło (przechowywane w formie zahaszowanej), numer rachunku bankowego (IBAN) i dane do wypłat podawane przez influencerów, adres IP oraz dane techniczne przeglądarki, a także informacje zapisywane w plikach cookie wykorzystywanych do śledzenia linków afiliacyjnych.",
+      "Administratorem danych osobowych użytkowników Platformy jest Deneeu Sp. z o.o. z siedzibą w Warszawie, będąca operatorem serwisu deneeu.pl.",
+      "We wszystkich sprawach dotyczących przetwarzania danych osobowych można kontaktować się z administratorem pod adresem kontakt@deneeu.pl.",
     ],
   },
   {
-    title: "2. Cel przetwarzania (RODO art. 6)",
+    title: "2. Jakie dane zbieramy",
+    paragraphs: [
+      "Podczas rejestracji i korzystania z Platformy zbieramy w szczególności: adres e-mail oraz hasło (przechowywane w formie zahaszowanej), numer rachunku bankowego (IBAN) lub adres e-mail PayPal podawany przez influencerów do wypłat, adres IP oraz dane techniczne przeglądarki, a także informacje zapisywane w plikach cookie wykorzystywanych do śledzenia linków afiliacyjnych.",
+      "Od marek rozliczających się jako przedsiębiorcy zbieramy dane niezbędne do wystawienia faktury VAT: nazwę firmy, numer NIP oraz adres siedziby. Przechowujemy również dane rozliczeniowe wynikające z działania Platformy — historię prowizji, wypłat i wystawionych faktur.",
+      "Odnotowujemy datę akceptacji regulaminu i polityki prywatności wraz z wersją zaakceptowanych dokumentów. Jest to niezbędne do wykazania, na jakich warunkach zawarto umowę.",
+    ],
+  },
+  {
+    title: "3. Cel przetwarzania (RODO art. 6)",
     paragraphs: [
       "Dane przetwarzamy na podstawie: art. 6 ust. 1 lit. b RODO — w celu zawarcia i wykonania umowy o świadczenie usług drogą elektroniczną (założenie konta, naliczanie i wypłata prowizji); art. 6 ust. 1 lit. c RODO — w celu wypełnienia obowiązków prawnych, w tym podatkowo-księgowych związanych z wystawianiem faktur; art. 6 ust. 1 lit. f RODO — w celach wynikających z prawnie uzasadnionego interesu administratora, takich jak zapewnienie bezpieczeństwa Platformy i przeciwdziałanie nadużyciom.",
     ],
   },
   {
-    title: "3. Cookies",
+    title: "4. Cookies",
     paragraphs: [
       "Platforma wykorzystuje pliki cookie niezbędne do prawidłowego działania mechanizmu śledzenia linków afiliacyjnych:",
     ],
@@ -33,7 +43,7 @@ const SECTIONS = [
     ],
   },
   {
-    title: "4. Udostępnianie danych",
+    title: "5. Udostępnianie danych",
     paragraphs: [
       "Dane osobowe mogą być udostępniane zaufanym podmiotom przetwarzającym dane w imieniu administratora, wyłącznie w zakresie niezbędnym do świadczenia usług Platformy:",
     ],
@@ -46,14 +56,21 @@ const SECTIONS = [
     ],
   },
   {
-    title: "5. Prawa użytkownika",
+    title: "6. Prawa użytkownika",
     paragraphs: [
       "Zgodnie z RODO użytkownikowi przysługuje prawo do: dostępu do swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania oraz przenoszenia danych do innego administratora, a także prawo wniesienia sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie administratora.",
       "Użytkownikowi przysługuje również prawo wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych, jeśli uzna, że przetwarzanie jego danych narusza przepisy RODO.",
     ],
   },
   {
-    title: "6. Kontakt",
+    title: "7. Okres przechowywania",
+    paragraphs: [
+      "Dane konta przetwarzamy przez czas korzystania z Platformy. Po usunięciu konta dane niezbędne do wypełnienia obowiązków podatkowych i księgowych — w szczególności dokumenty rozliczeniowe, faktury i historia wypłat — przechowujemy przez okres wymagany przepisami prawa, wynoszący co do zasady 5 lat od końca roku podatkowego, którego dotyczą.",
+      "Dane zapisywane w plikach cookie przechowywane są przez okres wskazany w sekcji 4. Logi techniczne wykorzystywane do zapewnienia bezpieczeństwa Platformy i przeciwdziałania nadużyciom usuwamy po 12 miesiącach.",
+    ],
+  },
+  {
+    title: "8. Kontakt",
     paragraphs: [
       "W celu realizacji powyższych praw lub w innych sprawach dotyczących przetwarzania danych osobowych prosimy o kontakt na adres kontakt@deneeu.pl.",
     ],
@@ -72,7 +89,7 @@ export default function PrivacyPage() {
               Polityka prywatności Deneeu
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Ostatnia aktualizacja: 9 lipca 2026
+              Ostatnia aktualizacja: {DATA_AKTUALIZACJI}
             </p>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground">
               Administratorem danych osobowych przetwarzanych w związku z
