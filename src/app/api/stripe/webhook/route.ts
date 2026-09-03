@@ -8,7 +8,8 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/resend";
 import { formatEmailAmount } from "@/emails/utils";
 import AdminTransferFailedEmail from "@/emails/AdminTransferFailedEmail";
-import { PayoutStatus } from "@prisma/client";
+import { CommissionStatus, ConversionStatus, PayoutStatus } from "@prisma/client";
+import { syncConversionStatus } from "@/lib/conversions";
 import type { StripeAccountStatus } from "@/types";
 
 export async function POST(request: NextRequest) {
@@ -84,6 +85,8 @@ export async function POST(request: NextRequest) {
             id: true,
             amount: true,
             status: true,
+            commissionId: true,
+            commission: { select: { affiliateLinkId: true, orderId: true } },
             influencer: { select: { displayName: true } },
           },
         });
@@ -93,10 +96,36 @@ export async function POST(request: NextRequest) {
         // maili już nie — bez tego warunku każde ponowienie zasypywało adminów
         // kolejnym alertem o tym samym transferze.
         if (payout && payout.status !== PayoutStatus.REJECTED) {
-          await prisma.payout.update({
-            where: { id: payout.id },
-            data: { status: PayoutStatus.REJECTED },
-          });
+          /**
+           * Cofnięcie transferu musi cofnąć CAŁY łańcuch statusów.
+           *
+           * Wcześniej zmieniał się tylko Payout, a Commission i Conversion
+           * zostawały na PAID — system twierdził, że pieniądze zostały
+           * wypłacone, choć Stripe je odzyskał. Skutki były dwa: influencer
+           * widział prowizję jako wypłaconą, a raporty finansowe liczyły ją
+           * jako koszt.
+           *
+           * Wszystko w jednej transakcji: rozjazd między tymi trzema statusami
+           * jest gorszy niż nieudany zapis, bo nic go nie zgłosi.
+           */
+          await prisma.$transaction([
+            prisma.payout.update({
+              where: { id: payout.id },
+              data: { status: PayoutStatus.REJECTED },
+            }),
+            prisma.commission.update({
+              where: { id: payout.commissionId },
+              data: { status: CommissionStatus.APPROVED },
+            }),
+          ]);
+
+          // Conversion wraca do CONFIRMED — prowizja jest znów zatwierdzona,
+          // ale niewypłacona.
+          await syncConversionStatus(
+            payout.commission.affiliateLinkId,
+            payout.commission.orderId,
+            ConversionStatus.CONFIRMED,
+          );
 
           const admins = await prisma.user.findMany({
             where: { role: "ADMIN" },

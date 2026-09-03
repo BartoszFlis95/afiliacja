@@ -339,7 +339,7 @@ export async function requestPayoutAction(
       influencerId: true,
       status: true,
       commissionAmount: true,
-      payout: { select: { id: true } },
+      payout: { select: { id: true, status: true } },
     },
   });
 
@@ -352,7 +352,20 @@ export async function requestPayoutAction(
       error: "Wypłatę można zlecić tylko dla zatwierdzonej komisji.",
     };
   }
-  if (commission.payout) {
+  /**
+   * Ponowienie po cofniętym transferze.
+   *
+   * Payout.commissionId jest @unique, więc drugiej wypłaty dla tej samej
+   * prowizji nie da się utworzyć. Bez tej gałęzi cofnięty transfer był
+   * pułapką bez wyjścia: Payout REJECTED blokował nowy wniosek, a prowizja
+   * wracała do APPROVED i nie dawało się jej już wypłacić żadną drogą.
+   *
+   * Zamiast tworzyć nowy wiersz, otwieramy istniejący ponownie i przesuwamy
+   * requestedAt. To przesunięcie jest istotne: klucz idempotencji Stripe'a
+   * jest z niego wyprowadzony, więc bez tego ponowna próba zwróciłaby TEN SAM,
+   * cofnięty transfer zamiast wykonać nowy — i wypłata po cichu by nie doszła.
+   */
+  if (commission.payout && commission.payout.status !== PayoutStatus.REJECTED) {
     return { success: false, error: "Wniosek o wypłatę już istnieje." };
   }
 
@@ -368,13 +381,28 @@ export async function requestPayoutAction(
     };
   }
 
-  await prisma.payout.create({
-    data: {
+  // upsert, nie create: przy ponowieniu po cofniętym transferze wiersz już
+  // istnieje (commissionId jest @unique), więc trzeba go otworzyć na nowo,
+  // a nie próbować wstawić drugi.
+  await prisma.payout.upsert({
+    where: { commissionId },
+    create: {
       influencerId,
       commissionId,
       amount: commission.commissionAmount,
       bankAccount: account,
       status: PayoutStatus.PENDING,
+    },
+    update: {
+      amount: commission.commissionAmount,
+      bankAccount: account,
+      status: PayoutStatus.PENDING,
+      // requestedAt przesuwa klucz idempotencji Stripe'a — bez tego ponowna
+      // próba zwróciłaby poprzedni, cofnięty transfer.
+      requestedAt: new Date(),
+      processedAt: null,
+      stripeTransferId: null,
+      payoutMethod: null,
     },
   });
 

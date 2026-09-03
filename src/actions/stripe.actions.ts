@@ -241,6 +241,7 @@ export async function executeStripeTransferAction(
       commissionId: true,
       stripeTransferId: true,
       influencerId: true,
+      requestedAt: true,
       commission: { select: { affiliateLinkId: true, orderId: true } },
       influencer: {
         select: {
@@ -255,7 +256,10 @@ export async function executeStripeTransferAction(
 
   if (!payout) return { success: false, error: "Nie znaleziono wypłaty." };
 
-  // Idempotencja — jeśli transfer już wykonany, nie próbuj ponownie.
+  // Szybkie wyjście, gdy transfer już się odbył. UWAGA: to sprawdzenie samo
+  // w sobie NIE chroni przed podwójną wypłatą — jest oddzielone od wywołania
+  // Stripe'a, więc dwa równoległe kliknięcia mogą je oba przejść. Właściwym
+  // zabezpieczeniem jest klucz idempotencji przekazany do Stripe niżej.
   if (payout.stripeTransferId) {
     return { success: true, data: { transferId: payout.stripeTransferId } };
   }
@@ -274,13 +278,38 @@ export async function executeStripeTransferAction(
   const amount = Number(payout.amount);
   let transferId: string;
   try {
-    const transfer = await stripe.transfers.create({
-      amount: Math.round(amount * 100),
-      currency: "pln",
-      destination: payout.influencer.stripeAccountId,
-      transfer_group: `payout_${payoutId}`,
-      metadata: { payoutId, influencerId: payout.influencerId },
-    });
+    /**
+     * KLUCZ IDEMPOTENCJI — to on chroni przed podwójną wypłatą.
+     *
+     * Sprawdzenie stripeTransferId wyżej jest odczytem oddzielonym od zapisu:
+     * dwóch adminów klikających "wypłać" w tej samej chwili odczyta null,
+     * przejdzie kontrolę statusu i utworzy DWA transfery. Influencer dostaje
+     * pieniądze dwa razy, a systemu nic o tym nie informuje.
+     *
+     * Ten sam scenariusz powstaje bez żadnej równoległości: gdy Stripe wykona
+     * transfer, ale poniższa transakcja bazodanowa padnie, wypłata zostaje
+     * w PROCESSING bez stripeTransferId — a ponowne kliknięcie utworzy drugi
+     * transfer.
+     *
+     * Klucz sprawia, że Stripe zwraca TEN SAM transfer zamiast tworzyć nowy.
+     * transfer_group nie daje tej gwarancji — to tylko etykieta grupująca.
+     *
+     * requestedAt jest częścią klucza CELOWO: po cofniętym transferze wypłata
+     * jest otwierana ponownie z nowym requestedAt, więc ponowna próba dostaje
+     * inny klucz i faktycznie wykonuje nowy transfer. Sam payoutId zwróciłby
+     * w tej sytuacji poprzedni, cofnięty transfer i wypłata po cichu by nie
+     * doszła.
+     */
+    const transfer = await stripe.transfers.create(
+      {
+        amount: Math.round(amount * 100),
+        currency: "pln",
+        destination: payout.influencer.stripeAccountId,
+        transfer_group: `payout_${payoutId}`,
+        metadata: { payoutId, influencerId: payout.influencerId },
+      },
+      { idempotencyKey: `payout_${payoutId}_${payout.requestedAt.getTime()}` },
+    );
     transferId = transfer.id;
   } catch (err) {
     console.error("[stripe] transfer failed:", err);
