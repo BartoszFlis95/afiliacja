@@ -34,9 +34,9 @@ export const dynamic = "force-dynamic";
 
 const AVATAR_COLORS = [
   "bg-primary/15 text-primary",
-  "bg-purple-100 text-purple-700",
+  "bg-purple-100 dark:bg-purple-400/15 text-purple-700 dark:text-purple-300",
   "bg-success/15 text-success",
-  "bg-orange-100 text-orange-700",
+  "bg-orange-100 dark:bg-orange-400/15 text-orange-700 dark:text-orange-300",
 ];
 
 export default async function BrandDashboardPage() {

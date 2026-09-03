@@ -22,8 +22,8 @@ interface StatsCardProps {
 const COLOR_CLASSES: Record<StatsCardColor, string> = {
   blue:   "bg-primary/10 text-primary",
   green:  "bg-success/10 text-success",
-  purple: "bg-purple-50 text-purple-600",
-  orange: "bg-orange-50 text-orange-600",
+  purple: "bg-purple-50 dark:bg-purple-400/15 text-purple-700 dark:text-purple-300",
+  orange: "bg-orange-50 dark:bg-orange-400/15 text-orange-700 dark:text-orange-300",
   zinc:   "bg-muted text-muted-foreground",
   red:    "bg-destructive/10 text-destructive",
 };

@@ -44,7 +44,7 @@ const TYPE_LABEL: Record<(typeof TYPE_OPTIONS)[number], string> = {
 
 const TYPE_BADGE_CLASS: Record<string, string> = {
   SELF_CLICK: "bg-destructive/15 text-destructive",
-  IP_RATE_LIMIT: "bg-orange-100 text-orange-800",
+  IP_RATE_LIMIT: "bg-orange-100 dark:bg-orange-400/15 text-orange-800",
   SUSPICIOUS_CONVERSION: "bg-warning/15 text-warning",
   COOLING_PERIOD: "bg-muted text-foreground",
 };
