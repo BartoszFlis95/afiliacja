@@ -26,17 +26,65 @@ import {
 import { ProductCategory } from "@prisma/client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { dozwolonyUrlObrazu } from "@/lib/image-hosts";
+import { adresProduktow } from "@/lib/filtry-produktow";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Logo marki w pigułce filtra.
+ *
+ * next/image na hoście spoza images.remotePatterns nie degraduje się po cichu,
+ * tylko rzuca wyjątkiem — a logotypy zapisane zanim wprowadzono walidację
+ * adresów mogą wskazywać dowolne miejsce. Sprawdzamy je tą samą funkcją co
+ * przy zapisie i w razie czego pokazujemy inicjał, zamiast wywalić stronę.
+ */
+function LogoMarki({
+  logoUrl,
+  companyName,
+  aktywna,
+}: {
+  logoUrl: string | null;
+  companyName: string;
+  aktywna: boolean;
+}) {
+  if (logoUrl && dozwolonyUrlObrazu(logoUrl)) {
+    return (
+      <Image
+        src={logoUrl}
+        alt=""
+        width={16}
+        height={16}
+        className="h-4 w-4 shrink-0 rounded-full object-cover"
+      />
+    );
+  }
+
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        "flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold",
+        aktywna ? "bg-background/25 text-background" : "bg-muted-foreground/15 text-muted-foreground"
+      )}
+    >
+      {companyName.slice(0, 1).toUpperCase()}
+    </span>
+  );
+}
 
 export default async function InfluencerProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; brandId?: string }>;
 }) {
-  const { category: kategoriaZUrl } = await searchParams;
+  const { category: kategoriaZUrl, brandId } = await searchParams;
 
   const category = kategoriaZParametru(kategoriaZUrl);
+
+  // undefined zachowuje bieżący filtr, null go czyści — patrz adresProduktow
+  const adresFiltru = (zmiany: { category?: ProductCategory | null; brandId?: string | null }) =>
+    adresProduktow({ category, brandId }, zmiany);
 
   const session = await auth();
   if (session?.user?.role !== "INFLUENCER") {
@@ -52,9 +100,13 @@ export default async function InfluencerProductsPage({
     redirect("/influencer/onboarding");
   }
 
-  const [products, existingLinks, kategorieWBazie] = await Promise.all([
+  const [products, existingLinks, kategorieWBazie, dostepneMarki] = await Promise.all([
     prisma.product.findMany({
-      where: { status: "ACTIVE", ...(category ? { category } : {}) },
+      where: {
+        status: "ACTIVE",
+        ...(category ? { category } : {}),
+        ...(brandId ? { brandProfileId: brandId } : {}),
+      },
       include: { brandProfile: true },
       orderBy: { createdAt: "desc" },
     }),
@@ -72,7 +124,18 @@ export default async function InfluencerProductsPage({
       select: { category: true },
       distinct: ["category"],
     }),
+    // Marki liczone bez aktywnych filtrów, z tego samego powodu co kategorie:
+    // inaczej po wybraniu marki reszta zniknęłaby z listy.
+    prisma.brandProfile.findMany({
+      where: { products: { some: { status: "ACTIVE" } } },
+      select: { id: true, companyName: true, logoUrl: true },
+      orderBy: { companyName: "asc" },
+    }),
   ]);
+
+  const nazwaAktywnejMarki = brandId
+    ? (dostepneMarki.find((m) => m.id === brandId)?.companyName ?? null)
+    : null;
 
   // produkt bez kategorii nie tworzy pigułki; sortujemy po etykiecie po polsku
   const dostepneKategorie = kategorieWBazie
@@ -130,7 +193,7 @@ export default async function InfluencerProductsPage({
               )}
             >
               <Link
-                href="/influencer/products"
+                href={adresFiltru({ category: null })}
                 aria-current={!category ? "true" : undefined}
               >
                 🛍️ Wszystkie
@@ -151,7 +214,7 @@ export default async function InfluencerProductsPage({
                 )}
               >
                 <Link
-                  href={`/influencer/products?category=${kat}`}
+                  href={adresFiltru({ category: kat })}
                   aria-current={category === kat ? "true" : undefined}
                 >
                   {CATEGORY_ICONS[kat]} {CATEGORY_LABELS[kat]}
@@ -162,30 +225,129 @@ export default async function InfluencerProductsPage({
         </div>
       )}
 
-      {category && (
-        <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <span>
-            Filtr: {ikonaKategorii(category)} {etykietaKategorii(category)} —{" "}
+      {dostepneMarki.length > 1 && (
+        <div className="-mx-1 overflow-x-auto px-1 pb-2 no-scrollbar">
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Marka
+          </p>
+          <div
+            className="flex w-max gap-2"
+            role="group"
+            aria-label="Filtruj produkty po marce"
+          >
+            <Button
+              asChild
+              type="button"
+              size="sm"
+              variant="ghost"
+              className={cn(
+                "h-8 shrink-0 rounded-full px-3.5 text-xs font-medium hover:bg-muted",
+                !brandId &&
+                  "bg-foreground text-background hover:bg-foreground hover:text-background"
+              )}
+            >
+              <Link
+                href={adresFiltru({ brandId: null })}
+                aria-current={!brandId ? "true" : undefined}
+              >
+                Wszystkie marki
+              </Link>
+            </Button>
+
+            {dostepneMarki.map((marka) => (
+              <Button
+                key={marka.id}
+                asChild
+                type="button"
+                size="sm"
+                variant="ghost"
+                className={cn(
+                  "h-8 shrink-0 gap-1.5 rounded-full px-3.5 text-xs font-medium hover:bg-muted",
+                  brandId === marka.id &&
+                    "bg-foreground text-background hover:bg-foreground hover:text-background"
+                )}
+              >
+                <Link
+                  href={adresFiltru({ brandId: marka.id })}
+                  aria-current={brandId === marka.id ? "true" : undefined}
+                >
+                  <LogoMarki
+                    logoUrl={marka.logoUrl}
+                    companyName={marka.companyName}
+                    aktywna={brandId === marka.id}
+                  />
+                  {marka.companyName}
+                </Link>
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {(category || brandId) && (
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Aktywne filtry
+          </span>
+
+          {category && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-foreground">
+              {ikonaKategorii(category)} {etykietaKategorii(category)}
+              <Link
+                href={adresFiltru({ category: null })}
+                aria-label={`Usuń filtr kategorii ${etykietaKategorii(category)}`}
+                className="rounded-full px-0.5 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                ×
+              </Link>
+            </span>
+          )}
+
+          {brandId && nazwaAktywnejMarki && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-foreground">
+              {nazwaAktywnejMarki}
+              <Link
+                href={adresFiltru({ brandId: null })}
+                aria-label={`Usuń filtr marki ${nazwaAktywnejMarki}`}
+                className="rounded-full px-0.5 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                ×
+              </Link>
+            </span>
+          )}
+
+          <span className="text-xs text-muted-foreground">
             {serializedProducts.length.toLocaleString("pl-PL")}{" "}
             {serializedProducts.length === 1 ? "produkt" : "produktów"}
           </span>
-          <Link href="/influencer/products" className="text-primary hover:underline">
-            Usuń filtr
-          </Link>
-        </p>
+
+          {category && brandId && (
+            <Link href="/influencer/products" className="text-xs text-primary hover:underline">
+              Usuń wszystkie filtry
+            </Link>
+          )}
+        </div>
       )}
 
       {serializedProducts.length === 0 ? (
         <EmptyState
           icon={ImageIcon}
-          title={category ? "Brak produktów w tej kategorii" : "Brak dostępnych produktów"}
+          title={
+            category || brandId ? "Brak produktów dla tych filtrów" : "Brak dostępnych produktów"
+          }
           description={
-            category
-              ? `W kategorii ${etykietaKategorii(category)} nie ma na razie aktywnych produktów. Sprawdź pozostałe kategorie.`
-              : "Marki nie dodały jeszcze żadnego aktywnego produktu do promocji."
+            // opisujemy filtr, który akurat zawęża — inaczej komunikat mówiłby
+            // o kategorii także wtedy, gdy pusty wynik daje wybór marki
+            category && nazwaAktywnejMarki
+              ? `Marka ${nazwaAktywnejMarki} nie ma aktywnych produktów w kategorii ${etykietaKategorii(category)}.`
+              : category
+                ? `W kategorii ${etykietaKategorii(category)} nie ma na razie aktywnych produktów.`
+                : nazwaAktywnejMarki
+                  ? `Marka ${nazwaAktywnejMarki} nie ma teraz aktywnych produktów.`
+                  : "Marki nie dodały jeszcze żadnego aktywnego produktu do promocji."
           }
           action={
-            category ? (
+            category || brandId ? (
               <Button asChild size="sm" variant="outline">
                 <Link href="/influencer/products">Zobacz wszystkie produkty</Link>
               </Button>
