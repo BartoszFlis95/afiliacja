@@ -4,6 +4,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { logFraud } from "@/lib/fraud-logger";
+import { verifyHmacSignature } from "@/lib/hmac";
 import { calculateCommissionSplit } from "@/lib/commission";
 import { sendEmail } from "@/lib/resend";
 import { formatEmailAmount } from "@/emails/utils";
@@ -38,9 +39,50 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  /**
+   * Podpis HMAC — na razie OPCJONALNY, celowo.
+   *
+   * /api/conversion wymaga go bezwzględnie, bo tworzy prowizję (pieniądze).
+   * Tutaj stawka jest niższa (licznik kliknięć), ale argument jest ten sam,
+   * co przy konwersji: apiKey nie jest realnym sekretem, bo marka widzi go
+   * w konfiguracji integracji i wysyła w każdym żądaniu. Ktoś z cudzym
+   * kluczem może zawyżać kliknięcia, co zaburza statystyki i wykrywanie fraudu.
+   *
+   * Wymuszenie podpisu OD RAZU zepsułoby każdą działającą integrację marki,
+   * dlatego etap przejściowy: podpis jest weryfikowany, gdy przyjdzie, a jego
+   * brak trafia do logów. Dzięki temu da się zmierzyć, ile integracji już go
+   * wysyła, zanim `WYMAGAJ_PODPISU` przestawi się na true.
+   *
+   * Body czytamy jako tekst, bo HMAC liczy się z surowych bajtów — JSON.parse
+   * i ponowne stringify dałyby inny ciąg przy innej kolejności kluczy.
+   */
+  const WYMAGAJ_PODPISU = false;
+
+  const rawBody = await request.text();
+  const signature = request.headers.get("x-signature");
+
+  if (signature) {
+    if (!verifyHmacSignature(rawBody, signature, brand.webhookSecret)) {
+      return NextResponse.json(
+        { success: false, error: "Nieprawidłowy podpis HMAC." },
+        { status: 401 }
+      );
+    }
+  } else if (WYMAGAJ_PODPISU) {
+    return NextResponse.json(
+      { success: false, error: "Brak nagłówka x-signature." },
+      { status: 401 }
+    );
+  } else {
+    console.warn(
+      `[track] żądanie bez podpisu HMAC od marki ${brand.id} (${brand.companyName}) — ` +
+        "podpis stanie się wymagany; policz te wpisy przed przestawieniem WYMAGAJ_PODPISU"
+    );
+  }
+
   let body: TrackBody;
   try {
-    body = await request.json();
+    body = JSON.parse(rawBody);
   } catch {
     return NextResponse.json(
       { success: false, error: "Nieprawidłowy format JSON." },
