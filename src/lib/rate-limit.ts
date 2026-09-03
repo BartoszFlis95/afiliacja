@@ -71,11 +71,26 @@ export async function getClientIp(): Promise<string> {
   return headersList.get("x-real-ip") ?? "unknown";
 }
 
-export function checkRateLimit(
+export type RateLimitResult =
+  | { allowed: true }
+  | { allowed: false; retryAfterMs: number };
+
+/**
+ * Funkcja jest `async` mimo że obecna implementacja niczego nie czeka.
+ *
+ * To celowe: docelowy backend (Redis/Upstash) jest z natury asynchroniczny,
+ * a zmiana sygnatury z synchronicznej na asynchroniczną dotknęłaby KAŻDEGO
+ * miejsca wywołania. Dziś to cztery miejsca, wszystkie i tak w funkcjach
+ * async — więc koszt jest zerowy. Później byłby to refaktor przez cały kod
+ * autoryzacji, robiony pod presją.
+ *
+ * Dzięki temu podmiana wnętrza na Redis to zmiana w JEDNYM pliku.
+ */
+export async function checkRateLimit(
   key: string,
   limit: number = MAX_ATTEMPTS,
   oknoMs: number = WINDOW_MS
-): { allowed: true } | { allowed: false; retryAfterMs: number } {
+): Promise<RateLimitResult> {
   const now = Date.now();
   pruneExpired(now);
 

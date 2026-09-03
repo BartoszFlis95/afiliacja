@@ -53,7 +53,7 @@ export async function loginAction(formData: FormData): Promise<LoginResult> {
   // niż przy mailach (10 / 15 min): ludzie mylą hasła, a bcrypt sam w sobie
   // spowalnia zgadywanie. Limit ma uciąć automat, nie ukarać za literówkę.
   const ip = await getClientIp();
-  const limit = checkRateLimit(
+  const limit = await checkRateLimit(
     `login:${ip}`,
     PROGI.logowanie.limit,
     PROGI.logowanie.oknoMs,
@@ -141,7 +141,7 @@ export async function registerAction(formData: FormData) {
   // Rejestracja też wysyła maila (weryfikacyjnego), więc ma ten sam problem
   // kosztowy co reset hasła — plus zakładanie kont śmieciowych.
   const ip = await getClientIp();
-  const limit = checkRateLimit(
+  const limit = await checkRateLimit(
     `register:${ip}`,
     PROGI.rejestracja.limit,
     PROGI.rejestracja.oknoMs,
@@ -305,7 +305,7 @@ export async function resendVerificationEmailAction(
   email: string
 ): Promise<{ success: boolean; error?: string }> {
   const ip = await getClientIp();
-  const rateLimit = checkRateLimit(`resend-verification:${ip}`, PROGI.email.limit, PROGI.email.oknoMs);
+  const rateLimit = await checkRateLimit(`resend-verification:${ip}`, PROGI.email.limit, PROGI.email.oknoMs);
   if (!rateLimit.allowed) {
     return {
       success: false,
@@ -354,7 +354,7 @@ export async function forgotPasswordAction(
   email: string
 ): Promise<{ success: boolean; error?: string }> {
   const ip = await getClientIp();
-  const rateLimit = checkRateLimit(`forgot-password:${ip}`, PROGI.email.limit, PROGI.email.oknoMs);
+  const rateLimit = await checkRateLimit(`forgot-password:${ip}`, PROGI.email.limit, PROGI.email.oknoMs);
   if (!rateLimit.allowed) {
     return {
       success: false,
