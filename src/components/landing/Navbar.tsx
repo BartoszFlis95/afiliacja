@@ -30,11 +30,11 @@ export function Navbar() {
     <header className="fixed top-0 z-50 w-full border-b border-border/60 bg-card/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-6 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center">
-          {/* logo.png to poziomy lockup 2172x724 (3:1) z przezroczystym tłem.
+          {/* logo.webp to poziomy lockup 2172x724 (3:1) z przezroczystym tłem.
               Renderujemy w naturalnych proporcjach — wymuszanie `aspect-square`
               wpisywało pasek w kwadrat i zostawiało puste pola po bokach. */}
           <Image
-            src="/logo.png"
+            src="/logo.webp"
             alt="Deneeu"
             width={2172}
             height={724}
@@ -87,7 +87,7 @@ export function Navbar() {
               <SheetHeader>
                 <SheetTitle className="text-left normal-case tracking-normal">
                   <Image
-                    src="/logo.png"
+                    src="/logo.webp"
                     alt="Deneeu"
                     width={2172}
                     height={724}

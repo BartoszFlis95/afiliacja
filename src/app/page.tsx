@@ -22,6 +22,19 @@ export const metadata: Metadata = {
     siteName: "Deneeu",
     locale: "pl_PL",
     type: "website",
+    // images MUSI być tutaj powtórzone. Next NIE scala zagnieżdżonych obiektów
+    // metadanych — openGraph zdefiniowany na stronie ZASTĘPUJE ten z layoutu
+    // w całości. Bez tej linii landing, czyli najczęściej udostępniany adres
+    // w serwisie, nie miał żadnego obrazu podglądu: każdy link na Slacku,
+    // LinkedInie czy X pokazywał samą ramkę z tekstem.
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Deneeu — platforma affiliate marketing",
+      },
+    ],
   },
 };
 
@@ -146,7 +159,7 @@ export default async function LandingPage() {
               propozycja wartości i CTA lądowały poniżej zgięcia. Od lg: wraca
               na swoje miejsce w lewej kolumnie. */}
           <Image
-            src="/logo.png"
+            src="/logo.webp"
             alt="Deneeu"
             width={2172}
             height={724}

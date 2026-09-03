@@ -39,12 +39,16 @@ export const metadata: Metadata = {
     siteName: "Deneeu",
     title: "Deneeu — Affiliate Marketing dla Marek i Influencerów",
     description: "Platforma CPS łącząca marki z influencerami.",
+    // Osobny obraz OG, nie logo. Logo ma proporcje 3:1, a Slack, LinkedIn,
+    // X i Facebook oczekują 1200x630 (1.91:1) — logo było w podglądach
+    // przycinane albo pokazywane z pasami. PNG, nie WebP: starsze scrapery
+    // społecznościowe bywają wybredne co do formatu.
     images: [
       {
-        url: "/logo.png",
-        width: 2172,
-        height: 724,
-        alt: "Deneeu — Affiliate Marketing Platform",
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Deneeu — platforma affiliate marketing",
       },
     ],
   },
@@ -52,7 +56,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Deneeu — Affiliate Marketing CPS",
     description: "Platforma CPS łącząca marki z influencerami.",
-    images: ["/logo.png"],
+    images: ["/og-image.png"],
   },
 };
 

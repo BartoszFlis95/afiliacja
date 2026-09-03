@@ -17,7 +17,7 @@ export default function AuthLayout({
 
         <Link href="/" className="relative flex items-center z-10">
           <Image
-            src="/logo.png"
+            src="/logo.webp"
             alt="Deneeu"
             width={2172}
             height={724}
@@ -66,7 +66,7 @@ export default function AuthLayout({
           <Link href="/" className="mb-8 flex justify-center lg:hidden">
             <div className="relative">
               <Image
-                src="/logo.png"
+                src="/logo.webp"
                 alt="Deneeu"
                 width={2172}
                 height={724}

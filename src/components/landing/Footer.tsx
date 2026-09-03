@@ -33,7 +33,7 @@ export function Footer() {
           <div className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center">
               <Image
-                src="/logo.png"
+                src="/logo.webp"
                 alt="Deneeu"
                 width={2172}
                 height={724}

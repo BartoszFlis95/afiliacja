@@ -133,7 +133,7 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
 
   return (
     <Sidebar collapsible="offcanvas" className="border-r-0">
-      {/* Logo — kontener na białym/jasnoniebieskim tle, bo logo.png ma
+      {/* Logo — kontener na białym/jasnoniebieskim tle, bo logo ma
           nieprzezroczyste szare tło i "invert" zniekształciłby jego
           niebieskie gradienty na sidebarze. Subtelny glow pod spodem
           odwołuje się do niebieskiego akcentu marki bez zmiany tła sidebaru. */}
@@ -144,7 +144,7 @@ export function AppSidebar({ role, email }: AppSidebarProps) {
               Zostaje sam niebieski glow jako akcent marki. */}
           <div className="relative inline-block rounded-xl shadow-[0_0_28px_rgba(59,130,246,0.25)]">
             <Image
-              src="/logo.png"
+              src="/logo.webp"
               alt="Deneeu"
               width={2172}
               height={724}
