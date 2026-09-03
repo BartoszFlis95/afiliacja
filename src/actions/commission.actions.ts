@@ -6,6 +6,7 @@ import { after } from "next/server";
 import { auth } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { poprawneKontoWyplaty } from "@/lib/iban";
 import { syncConversionStatus } from "@/lib/conversions";
 import { sendEmail } from "@/lib/resend";
 import { formatEmailAmount } from "@/emails/utils";
@@ -327,6 +328,11 @@ export async function requestPayoutAction(
   const account = bankAccount?.trim();
   if (!account) {
     return { success: false, error: "Numer konta jest wymagany." };
+  }
+  // akcja serwerowa jest publicznym endpointem — walidacja z formularza
+  // nic tu nie gwarantuje, a ta wartość trafia do panelu admina i maila
+  if (!poprawneKontoWyplaty(account)) {
+    return { success: false, error: "Podaj prawidłowy IBAN lub e-mail PayPal." };
   }
 
   const influencerId = await getInfluencerProfileId(guard.userId);

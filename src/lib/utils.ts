@@ -23,6 +23,8 @@ export function formatDate(date: Date | string): string {
 export function maskIban(iban?: string | null): string {
   if (!iban) return "—";
   const clean = iban.replace(/\s+/g, "");
-  if (clean.length < 6) return clean;
+  // zamykamy się, nie otwieramy: funkcja od maskowania nie może przy
+  // nietypowym wejściu zwrócić wartości w całości
+  if (clean.length < 6) return "****";
   return `${clean.slice(0, 2)}**...${clean.slice(-4)}`;
 }

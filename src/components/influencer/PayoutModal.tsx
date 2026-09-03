@@ -19,17 +19,10 @@ import {
 } from "@/components/ui/dialog";
 import { requestPayoutAction } from "@/actions/commission.actions";
 import { MINIMUM_PAYOUT } from "@/lib/constants";
+import { maskIban } from "@/lib/utils";
 
 const formatPLN = (value: number) =>
   new Intl.NumberFormat("pl-PL", { style: "currency", currency: "PLN" }).format(value);
-
-function maskIban(iban: string): string {
-  const clean = iban.replace(/\s/g, "");
-  if (clean.length < 6) return "****";
-  const country = clean.slice(0, 2);
-  const last4 = clean.slice(-4);
-  return `${country}** **** **** **** **** **** ${last4}`;
-}
 
 interface BankDetails {
   hasBankDetails: boolean;

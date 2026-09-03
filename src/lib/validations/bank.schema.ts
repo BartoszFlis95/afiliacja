@@ -1,6 +1,5 @@
 import { z } from "zod";
-
-const ibanRegex = /^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/;
+import { poprawnyIban } from "@/lib/iban";
 
 const commonFields = {
   phone: z.string().optional(),
@@ -15,10 +14,7 @@ export const BankDetailsSchema = z.discriminatedUnion("preferredPayout", [
     bankAccountIban: z
       .string()
       .min(15, "Nieprawidłowy IBAN")
-      .refine(
-        (val) => ibanRegex.test(val.replace(/\s/g, "").toUpperCase()),
-        "Nieprawidłowy format IBAN (np. PL12345678901234567890123456)"
-      ),
+      .refine(poprawnyIban, "Nieprawidłowy format IBAN (np. PL12345678901234567890123456)"),
     bankAccountBank: z.string().min(2, "Podaj nazwę banku"),
     bankSwift: z.string().optional(),
     ...commonFields,
