@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { dozwolonyUrlObrazu } from "@/lib/image-hosts";
 
 export const ProductSchema = z
   .object({
@@ -15,7 +16,14 @@ export const ProductSchema = z
       .min(0, "Prowizja influencera nie może być ujemna")
       .max(100, "Prowizja nie może przekraczać 100%"),
     productUrl: z.string().url("Podaj prawidłowy URL produktu (np. https://sklep.pl/produkt)").or(z.literal("")),
-    imageUrl: z.string().url().or(z.literal("")).optional(),
+    // sam z.string().url() nie wystarcza: <Image> renderuje tylko hosty
+    // z listy w next.config, a adres spoza niej wywraca stronę katalogu
+    imageUrl: z
+      .string()
+      .url()
+      .refine(dozwolonyUrlObrazu, "Zdjęcie musi pochodzić z uploadu w serwisie")
+      .or(z.literal(""))
+      .optional(),
     slug: z
       .string()
       .min(2, "Slug musi mieć co najmniej 2 znaki")

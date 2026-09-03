@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { dozwolonyUrlObrazu } from "@/lib/image-hosts";
 
 export async function updateProductImageAction(productId: string, imageUrl: string) {
   try {
@@ -26,6 +27,14 @@ export async function updateProductImageAction(productId: string, imageUrl: stri
       }
     }
 
+
+    // pusty string = usunięcie zdjęcia; każdy inny adres musi pochodzić
+    // z hosta obsługiwanego przez next/image, inaczej <Image> rzuci
+    // wyjątkiem przy renderowaniu
+    if (imageUrl && !dozwolonyUrlObrazu(imageUrl)) {
+      return { success: false as const, error: "Niedozwolony adres zdjęcia" };
+    }
+
     const updated = await prisma.product.update({
       where: { id: productId },
       data: { imageUrl: imageUrl || null },
@@ -45,6 +54,14 @@ export async function updateUserAvatarAction(avatarUrl: string) {
     }
 
     const role = session.user.role as string;
+
+    // pusty string = usunięcie zdjęcia; każdy inny adres musi pochodzić
+    // z hosta obsługiwanego przez next/image, inaczej <Image> rzuci
+    // wyjątkiem przy renderowaniu
+    if (avatarUrl && !dozwolonyUrlObrazu(avatarUrl)) {
+      return { success: false as const, error: "Niedozwolony adres zdjęcia" };
+    }
+
 
     if (role === "BRAND") {
       await prisma.brandProfile.update({
