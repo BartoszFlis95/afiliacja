@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ToggleProductButton } from "@/components/admin/ToggleProductButton";
-import { etykietaKategorii, ikonaKategorii } from "@/lib/categories";
+import { etykietaKategorii } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
 

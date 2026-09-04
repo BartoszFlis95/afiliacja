@@ -22,6 +22,7 @@ import {
 } from "@/lib/rozliczenia";
 import { OPLATA_PLATFORMY, TERMIN_PLATNOSCI_DNI } from "@/lib/legal";
 import PayoutsUnlockedEmail from "@/emails/PayoutsUnlockedEmail";
+import PaymentReminderEmail from "@/emails/PaymentReminderEmail";
 
 type ActionResult<T = undefined> =
   | { success: true; data?: T }
@@ -358,6 +359,11 @@ async function odblokujWyplatyFaktury(invoiceId: string): Promise<void> {
   }
 }
 
+/** Ile pełnych dni minęło od podanej daty; ujemne, gdy jest w przyszłości. */
+function dniOd(data: Date): number {
+  return Math.floor((Date.now() - data.getTime()) / 86_400_000);
+}
+
 export type PozycjaRozliczenia = {
   brandId: string;
   companyName: string;
@@ -371,9 +377,20 @@ export type PozycjaRozliczenia = {
     id: string;
     invoiceNumber: string;
     status: InvoiceStatus;
+    /** Rozbicie z chwili wystawienia — nie przeliczamy go z bieżących prowizji. */
+    netAmount: number;
     grossAmount: number;
     payoutsTriggered: boolean;
+    issuedAt: string;
     dueDate: string;
+    paidAt: string | null;
+    periodFrom: string;
+    periodTo: string;
+    /** Ile dni po terminie; ujemne = jeszcze przed terminem. */
+    dniPoTerminie: number;
+    /** Wypłaty odblokowane tą fakturą — wypełnione tylko dla opłaconych. */
+    odblokowaneWyplaty: number;
+    kwotaWyplat: number;
   } | null;
 };
 
@@ -413,9 +430,17 @@ export async function getBillingOverviewAction(
         brandId: true,
         invoiceNumber: true,
         status: true,
+        netAmount: true,
         grossAmount: true,
         payoutsTriggered: true,
+        issuedAt: true,
         dueDate: true,
+        paidAt: true,
+        periodFrom: true,
+        periodTo: true,
+        // wypłaty powiązane z fakturą — liczymy tu, a nie osobnym zapytaniem
+        // na każdy wiersz, żeby lista marek nie robiła N+1
+        payouts: { select: { amount: true, status: true } },
       },
       orderBy: { issuedAt: "desc" },
     }),
@@ -452,9 +477,19 @@ export async function getBillingOverviewAction(
             id: f.id,
             invoiceNumber: f.invoiceNumber,
             status: f.status,
+            netAmount: Number(f.netAmount),
             grossAmount: Number(f.grossAmount),
             payoutsTriggered: f.payoutsTriggered,
+            issuedAt: f.issuedAt.toISOString(),
             dueDate: f.dueDate.toISOString(),
+            paidAt: f.paidAt?.toISOString() ?? null,
+            periodFrom: f.periodFrom.toISOString(),
+            periodTo: f.periodTo.toISOString(),
+            dniPoTerminie: dniOd(f.dueDate),
+            odblokowaneWyplaty: f.payouts.length,
+            kwotaWyplat: doGroszy(
+              f.payouts.reduce((s, p) => s + Number(p.amount), 0),
+            ),
           }
         : null,
     };
@@ -568,6 +603,11 @@ export async function getMyBrandInvoicesAction(): Promise<
       status: InvoiceStatus;
       dueDate: string;
       paidAt: string | null;
+      /** Do baneru z danymi przelewu — musi zgadzać się z fakturą PDF. */
+      brandCompanyName: string;
+      issuerName: string;
+      /** Liczone tutaj, nie w renderze: Date.now() w komponencie jest nieczyste. */
+      dniPoTerminie: number;
     }[]
   >
 > {
@@ -594,6 +634,8 @@ export async function getMyBrandInvoicesAction(): Promise<
       status: true,
       dueDate: true,
       paidAt: true,
+      brandCompanyName: true,
+      issuerName: true,
     },
   });
 
@@ -608,8 +650,65 @@ export async function getMyBrandInvoicesAction(): Promise<
       status: f.status,
       dueDate: f.dueDate.toISOString(),
       paidAt: f.paidAt?.toISOString() ?? null,
+      brandCompanyName: f.brandCompanyName,
+      issuerName: f.issuerName,
+      dniPoTerminie: dniOd(f.dueDate),
     })),
   };
+}
+
+/**
+ * Przypomnienie o nieopłaconej fakturze — wysyłane do ADMINA.
+ *
+ * W procesie ręcznym platforma nie wie, czy przelew wpłynął; wie to tylko
+ * osoba patrząca na konto bankowe. Mail ma skłonić ją do sprawdzenia, a nie
+ * ponaglić markę — ta mogła już zapłacić, a wpłata czeka na zaksięgowanie.
+ */
+export async function sendPaymentReminderAction(
+  invoiceId: string
+): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Brak uprawnień administratora." };
+
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: invoiceId },
+    select: {
+      invoiceNumber: true,
+      brandCompanyName: true,
+      grossAmount: true,
+      issuedAt: true,
+      dueDate: true,
+      status: true,
+      payoutsTriggered: true,
+    },
+  });
+  if (!invoice) return { success: false, error: "Nie znaleziono faktury." };
+
+  if (invoice.status === InvoiceStatus.PAID || invoice.payoutsTriggered) {
+    return { success: false, error: "Ta faktura jest już opłacona." };
+  }
+  if (invoice.status === InvoiceStatus.CANCELLED) {
+    return { success: false, error: "Faktura została anulowana." };
+  }
+
+  const adres = session.user?.email;
+  if (!adres) return { success: false, error: "Konto administratora nie ma adresu e-mail." };
+
+  await sendEmail({
+    to: adres,
+    subject: `Nieopłacona faktura ${invoice.invoiceNumber} — ${formatEmailAmount(Number(invoice.grossAmount))}`,
+    react: PaymentReminderEmail({
+      brandName: invoice.brandCompanyName,
+      invoiceNumber: invoice.invoiceNumber,
+      grossAmount: Number(invoice.grossAmount),
+      issuedAt: formatEmailDate(invoice.issuedAt),
+      dueDate: formatEmailDate(invoice.dueDate),
+      dniPoTerminie: dniOd(invoice.dueDate),
+      billingUrl: `${getAppUrl()}/admin/billing`,
+    }),
+  });
+
+  return { success: true };
 }
 
 export async function getInvoicesAction(filters?: {

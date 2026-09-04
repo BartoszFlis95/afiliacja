@@ -16,11 +16,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { DaneDoPrzelewu } from "@/components/brand/DaneDoPrzelewu";
 
+// Opis zamiast jednego słowa: „Opłacona” nie mówi marce, co się przez to
+// stało, a najważniejszy skutek wpłaty to odblokowanie wypłat influencerów.
 const ETYKIETY: Record<string, { tekst: string; klasa: string }> = {
   DRAFT: { tekst: "Szkic", klasa: "border-border text-muted-foreground" },
-  ISSUED: { tekst: "Do zapłaty", klasa: "border-warning/30 bg-warning/10 text-warning" },
-  PAID: { tekst: "Opłacona", klasa: "border-success/30 bg-success/10 text-success" },
+  ISSUED: {
+    tekst: "⏳ Oczekuje na płatność",
+    klasa: "border-warning/30 bg-warning/10 text-warning",
+  },
+  PAID: {
+    tekst: "✅ Opłacona — wypłaty odblokowane",
+    klasa: "border-success/30 bg-success/10 text-success",
+  },
   CANCELLED: { tekst: "Anulowana", klasa: "border-border text-muted-foreground" },
 };
 
@@ -31,6 +40,16 @@ export default async function BrandInvoicesPage() {
   const wynik = await getMyBrandInvoicesAction();
   const faktury = wynik.success ? (wynik.data ?? []) : [];
 
+  // Numer konta czytamy na serwerze — zmienna bez prefiksu NEXT_PUBLIC_ nie
+  // dociera do przeglądarki, więc w komponencie klienckim byłaby pusta.
+  const numerKonta = process.env.DENEEU_BANK_ACCOUNT ?? "— nie skonfigurowano";
+
+  // Baner pokazujemy dla najstarszej nieopłaconej: to ona ma najbliższy termin
+  // i to nią marka powinna zająć się najpierw.
+  const doZaplaty = faktury
+    .filter((f) => f.status === "ISSUED")
+    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
+
   return (
     <div className="space-y-8">
       <header>
@@ -40,6 +59,18 @@ export default async function BrandInvoicesPage() {
           Opłacenie faktury odblokowuje wypłaty influencerów z danego okresu.
         </p>
       </header>
+
+      {doZaplaty && (
+        <DaneDoPrzelewu
+          invoiceNumber={doZaplaty.invoiceNumber}
+          brandCompanyName={doZaplaty.brandCompanyName}
+          issuerName={doZaplaty.issuerName}
+          grossAmount={doZaplaty.grossAmount}
+          dueDate={doZaplaty.dueDate}
+          numerKonta={numerKonta}
+          poTerminie={doZaplaty.dniPoTerminie > 0}
+        />
+      )}
 
       {!wynik.success ? (
         <p
@@ -88,10 +119,15 @@ export default async function BrandInvoicesPage() {
                         </TableCell>
                         <TableCell>
                           <span
-                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${etykieta.klasa}`}
+                            className={`inline-flex items-center whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium ${etykieta.klasa}`}
                           >
                             {etykieta.tekst}
                           </span>
+                          {f.paidAt && (
+                            <span className="mt-0.5 block text-xs text-muted-foreground">
+                              {formatDate(new Date(f.paidAt))}
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell className="text-right">
                           <a

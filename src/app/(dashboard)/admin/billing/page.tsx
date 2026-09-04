@@ -36,7 +36,14 @@ export default async function AdminBillingPage({
       </header>
 
       {wynik.success ? (
-        <AdminBillingClient pozycje={wynik.data ?? []} month={month} year={year} />
+        <AdminBillingClient
+          pozycje={wynik.data ?? []}
+          month={month}
+          year={year}
+          // z serwera, nie z komponentu klienckiego: process.env po stronie
+          // przeglądarki jest puste dla zmiennych bez prefiksu NEXT_PUBLIC_
+          numerKonta={process.env.DENEEU_BANK_ACCOUNT ?? "— nie skonfigurowano"}
+        />
       ) : (
         <p
           role="alert"

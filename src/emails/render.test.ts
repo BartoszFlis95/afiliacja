@@ -6,6 +6,7 @@ import AdminTransferFailedEmail from "@/emails/AdminTransferFailedEmail";
 import CommissionApprovedEmail from "@/emails/CommissionApprovedEmail";
 import CommissionPendingBrandEmail from "@/emails/CommissionPendingBrandEmail";
 import InvoiceEmail from "@/emails/InvoiceEmail";
+import PaymentReminderEmail from "@/emails/PaymentReminderEmail";
 import NewCommissionEmail from "@/emails/NewCommissionEmail";
 import PasswordResetEmail from "@/emails/PasswordResetEmail";
 import PayoutApprovedEmail from "@/emails/PayoutApprovedEmail";
@@ -158,5 +159,40 @@ describe("InvoiceEmail — dane do przelewu", () => {
   it("mówi wprost, że wypłaty odblokowują się po wpłacie", async () => {
     const html = await render(InvoiceEmail(dane));
     expect(html).toMatch(/odblokowane po zaksięgowaniu/i);
+  });
+});
+
+describe("PaymentReminderEmail", () => {
+  const baza = {
+    brandName: "Żółć Śląska",
+    invoiceNumber: "FV/2026/02/0001",
+    grossAmount: 1230,
+    issuedAt: "01.02.2026",
+    dueDate: "08.02.2026",
+    billingUrl: "https://www.deneeu.pl/admin/billing",
+  };
+
+  it("kieruje admina do sprawdzenia konta, nie ponagla marki", async () => {
+    // adresatem jest admin — mail do marki brzmiałby jak windykacja,
+    // a ta mogła już zapłacić i wpłata czeka na zaksięgowanie
+    const html = await render(PaymentReminderEmail({ ...baza, dniPoTerminie: 3 }));
+    expect(html).toMatch(/Sprawdź konto bankowe/i);
+    expect(html).not.toMatch(/zapłać|ureguluj|wezwanie/i);
+  });
+
+  it("podaje liczbę dni po terminie w poprawnej odmianie", async () => {
+    expect(await render(PaymentReminderEmail({ ...baza, dniPoTerminie: 1 }))).toContain("1 dzień");
+    expect(await render(PaymentReminderEmail({ ...baza, dniPoTerminie: 5 }))).toContain("5 dni");
+  });
+
+  it("przed terminem nie twierdzi, że jest po terminie", async () => {
+    const html = await render(PaymentReminderEmail({ ...baza, dniPoTerminie: -2 }));
+    expect(html).not.toMatch(/termin płatności minął/i);
+  });
+
+  it("zawiera markę, numer faktury i kwotę", async () => {
+    const html = await render(PaymentReminderEmail({ ...baza, dniPoTerminie: 3 }));
+    expect(html).toContain("Żółć Śląska");
+    expect(html).toContain("FV/2026/02/0001");
   });
 });
