@@ -33,7 +33,7 @@ const KOMPLETNE: Przypadek[] = [
   ["CommissionPendingBrandEmail", () => CommissionPendingBrandEmail({ brandName: "TechStore", influencerName: "Kasia", productName: "Koszulka", orderValue: 199.99, commissionAmount: 29.99, orderId: "ORD-1" })],
   ["PayoutApprovedEmail", () => PayoutApprovedEmail({ influencerName: "Kasia", amount: 250, bankAccount: "PL61109010140000071219812874", preferredPayout: "bank" })],
   ["PayoutCompletedEmail", () => PayoutCompletedEmail({ influencerName: "Kasia", amount: 250, referenceNumber: "REF-1" })],
-  ["InvoiceEmail", () => InvoiceEmail({ brandName: "TechStore", invoiceNumber: "FV/2026/01", grossAmount: 1230, dueDate: "01.03.2026", periodFrom: "01.02.2026", periodTo: "28.02.2026", invoiceUrl: "https://www.deneeu.pl/api/invoices/x/pdf", bankAccount: "PL61 1090 1014 0000 0712 1981 2874" })],
+  ["InvoiceEmail", () => InvoiceEmail({ brandName: "TechStore", invoiceNumber: "FV/2026/01", grossAmount: 1230, dueDate: "01.03.2026", periodFrom: "01.02.2026", periodTo: "28.02.2026", invoiceUrl: "https://www.deneeu.pl/api/invoices/x/pdf", bankAccount: "PL61 1090 1014 0000 0712 1981 2874", issuerName: "Deneeu Sp. z o.o." })],
   ["AdminTransferFailedEmail", () => AdminTransferFailedEmail({ influencerName: "Kasia", amount: 250, transferId: "tr_123" })],
 ];
 
@@ -117,5 +117,46 @@ describe("wersja tekstowa maili", () => {
       const text = await render(buduj(), { plainText: true });
       expect(text, nazwa).toMatch(/https:\/\/www\.deneeu\.pl/);
     }
+  });
+});
+
+/**
+ * Dane do przelewu w mailu muszą zgadzać się z fakturą PDF. Wcześniej odbiorca
+ * był tu zaszyty na sztywno, a tytuł przelewu to był sam numer faktury —
+ * marka dostawała dwa różne polecenia dla jednego przelewu.
+ */
+describe("InvoiceEmail — dane do przelewu", () => {
+  const dane = {
+    brandName: "Żółć Śląska",
+    invoiceNumber: "FV/2026/02/0001",
+    grossAmount: 1230,
+    dueDate: "15.02.2026",
+    periodFrom: "01.01.2026",
+    periodTo: "31.01.2026",
+    invoiceUrl: "https://www.deneeu.pl/api/invoices/x/pdf",
+    bankAccount: "PL61 1090 1014 0000 0712 1981 2874",
+    issuerName: "Deneeu Sp. z o.o.",
+  };
+
+  it("tytuł przelewu składa numer faktury z nazwą marki — tak jak PDF", async () => {
+    const html = await render(InvoiceEmail(dane));
+    expect(html).toContain("Faktura FV/2026/02/0001 / Żółć Śląska");
+  });
+
+  it("odbiorca pochodzi z faktury, nie jest zaszyty w szablonie", async () => {
+    const html = await render(InvoiceEmail({ ...dane, issuerName: "Inna Firma S.A." }));
+    expect(html).toContain("Inna Firma S.A.");
+    expect(html).not.toContain("Deneeu Sp. z o.o.");
+  });
+
+  it("podaje numer konta i kwotę", async () => {
+    const html = await render(InvoiceEmail(dane));
+    expect(html).toContain("PL61 1090 1014 0000 0712 1981 2874");
+    expect(html).toContain("15.02.2026");
+  });
+
+  it("mówi wprost, że wypłaty odblokowują się po wpłacie", async () => {
+    const html = await render(InvoiceEmail(dane));
+    expect(html).toMatch(/odblokowane po zaksięgowaniu/i);
   });
 });

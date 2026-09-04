@@ -139,6 +139,38 @@ const styles = StyleSheet.create({
     fontSize: 9,
     marginBottom: 2,
   },
+  paymentBox: {
+    marginTop: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#18181b",
+    borderRadius: 3,
+  },
+  paymentTitle: {
+    fontSize: 10,
+    fontFamily: "Roboto",
+    fontWeight: "bold",
+    marginBottom: 7,
+  },
+  paymentRow: {
+    flexDirection: "row",
+    marginBottom: 3,
+  },
+  paymentLabel: {
+    width: 110,
+    fontSize: 9,
+    color: "#52525b",
+  },
+  paymentValue: {
+    fontSize: 9,
+    flex: 1,
+  },
+  paymentValueStrong: {
+    fontSize: 10,
+    fontFamily: "Roboto",
+    fontWeight: "bold",
+    flex: 1,
+  },
   notesBox: {
     marginTop: 16,
     padding: 10,
@@ -177,6 +209,7 @@ interface InvoiceData {
   issuerAddress: string;
   issuerCity: string;
   issuerPostalCode: string;
+  bankAccount: string;
   netAmount: number;
   vatRate: number;
   vatAmount: number;
@@ -184,6 +217,14 @@ interface InvoiceData {
   items: InvoiceItem[];
   notes?: string | null;
 }
+
+/**
+ * Numer konta podajemy z konfiguracji, a nie z migawki na fakturze — reszta
+ * danych wystawcy jest zamrożona w chwili wystawienia (żeby dokument się nie
+ * zmieniał), ale rachunek do wpłaty musi wskazywać konto AKTUALNE. Przedruk
+ * starej, nieopłaconej faktury ma prowadzić tam, gdzie pieniądze mają trafić
+ * dziś, a nie tam, gdzie miały trafić kiedyś.
+ */
 
 export function InvoicePDF({ invoice }: { invoice: InvoiceData }) {
   return (
@@ -279,12 +320,48 @@ export function InvoicePDF({ invoice }: { invoice: InvoiceData }) {
 
         <View style={styles.divider} />
 
-        {/* Payment info */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Forma płatności: przelew bankowy</Text>
-          <Text style={styles.footerText}>
-            Termin płatności: {formatDate(invoice.dueDate)}
-          </Text>
+        {/* Dane do przelewu */}
+        <View style={styles.paymentBox}>
+          <Text style={styles.paymentTitle}>Dane do przelewu</Text>
+
+          <View style={styles.paymentRow}>
+            <Text style={styles.paymentLabel}>Odbiorca:</Text>
+            <Text style={styles.paymentValue}>{invoice.issuerName}</Text>
+          </View>
+
+          <View style={styles.paymentRow}>
+            <Text style={styles.paymentLabel}>Numer konta:</Text>
+            <Text style={styles.paymentValueStrong}>{invoice.bankAccount}</Text>
+          </View>
+
+          {/*
+            Tytuł przelewu z nazwą marki, nie samym numerem: przy ręcznym
+            księgowaniu to po nim rozpoznaje się, od kogo przyszła wpłata,
+            gdy nazwa nadawcy w banku różni się od nazwy firmy.
+          */}
+          <View style={styles.paymentRow}>
+            <Text style={styles.paymentLabel}>Tytuł przelewu:</Text>
+            <Text style={styles.paymentValueStrong}>
+              Faktura {invoice.invoiceNumber} / {invoice.brandCompanyName}
+            </Text>
+          </View>
+
+          <View style={styles.paymentRow}>
+            <Text style={styles.paymentLabel}>Kwota:</Text>
+            <Text style={styles.paymentValueStrong}>{formatPLN(invoice.grossAmount)}</Text>
+          </View>
+
+          <View style={styles.paymentRow}>
+            <Text style={styles.paymentLabel}>Termin płatności:</Text>
+            <Text style={styles.paymentValue}>
+              {formatDate(invoice.dueDate)} (7 dni od wystawienia)
+            </Text>
+          </View>
+
+          <View style={styles.paymentRow}>
+            <Text style={styles.paymentLabel}>Forma płatności:</Text>
+            <Text style={styles.paymentValue}>przelew bankowy</Text>
+          </View>
         </View>
 
         {/* Notes */}

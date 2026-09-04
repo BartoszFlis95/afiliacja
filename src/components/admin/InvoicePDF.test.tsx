@@ -16,6 +16,7 @@ const FAKTURA = {
   issuerName: "Deneeu Sp. z o.o.", issuerNip: "5252445719",
   issuerAddress: "ul. Prosta 51", issuerCity: "Warszawa", issuerPostalCode: "00-838",
   status: "ISSUED", notes: "Zapłać w terminie — dziękujemy!",
+  bankAccount: "PL61 1090 1014 0000 0712 1981 2874",
   items: [
     { description: "Prowizje afiliacyjne – Koszulka bawełniana", quantity: 3, unitPrice: 200, totalPrice: 600 },
   ],
@@ -67,4 +68,36 @@ describe("dokumenty PDF", () => {
       expect(deskryptory, `${nazwa}: oczekiwano dwóch osadzonych krojów`).toBeGreaterThanOrEqual(2);
     });
   }
+});
+
+/**
+ * Sekcja "Dane do przelewu" jest jedynym miejscem, z którego marka odczytuje,
+ * dokąd i z jakim tytułem ma zapłacić. Testy wyżej sprawdzają tylko poprawność
+ * pliku i osadzenie fontu — przeszłyby także wtedy, gdyby tej sekcji w ogóle
+ * nie było, więc jej obecność wymaga osobnej asercji.
+ */
+describe("InvoicePDF — dane do przelewu", () => {
+  it("dokument urósł po dodaniu sekcji przelewu", async () => {
+    const zSekcja = await renderToBuffer(InvoicePDF({ invoice: FAKTURA }) as never);
+    const bezKonta = await renderToBuffer(
+      InvoicePDF({ invoice: { ...(FAKTURA as object), bankAccount: "" } as never }) as never,
+    );
+    // ta sama faktura bez numeru konta rysuje mniej tekstu
+    expect(zSekcja.length).toBeGreaterThan(bezKonta.length);
+  });
+
+  it("renderuje się z polskimi znakami w nazwie marki w tytule przelewu", async () => {
+    // tytuł przelewu skleja numer faktury z nazwą marki ("Żółć Śląska"),
+    // więc trafiają tam diakrytyki — a to one rozjeżdżały się na foncie WinAnsi
+    const buf = await renderToBuffer(InvoicePDF({ invoice: FAKTURA }) as never);
+    expect(buf.subarray(0, 5).toString()).toBe("%PDF-");
+    expect(/FontFile2|FontFile3/.test(buf.toString("latin1"))).toBe(true);
+  });
+
+  it("brak skonfigurowanego konta nie wywala generowania faktury", async () => {
+    const buf = await renderToBuffer(
+      InvoicePDF({ invoice: { ...(FAKTURA as object), bankAccount: "—" } as never }) as never,
+    );
+    expect(buf.subarray(0, 5).toString()).toBe("%PDF-");
+  });
 });

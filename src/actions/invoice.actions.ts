@@ -212,6 +212,9 @@ export async function generateMonthlyInvoiceAction(
           periodTo: formatEmailDate(invoice.periodTo),
           invoiceUrl: `${getAppUrl()}/api/invoices/${invoice.id}/pdf`,
           bankAccount: process.env.DENEEU_BANK_ACCOUNT ?? "—",
+          // z faktury, nie ze zmiennej: mail i PDF muszą podawać tego samego
+          // odbiorcę przelewu, a faktura trzyma migawkę z chwili wystawienia
+          issuerName: invoice.issuerName,
         }),
       }).catch((err) => console.error("[email] monthly invoice failed:", err))
     );

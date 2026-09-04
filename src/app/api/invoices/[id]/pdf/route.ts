@@ -44,6 +44,8 @@ export async function GET(
 
   const invoiceData = {
     ...invoice,
+    // aktualny rachunek, nie migawka — patrz komentarz w InvoicePDF
+    bankAccount: process.env.DENEEU_BANK_ACCOUNT ?? "—",
     netAmount: Number(invoice.netAmount),
     vatRate: Number(invoice.vatRate),
     vatAmount: Number(invoice.vatAmount),

@@ -104,7 +104,7 @@ const templates: { name: string; subject: string; element: React.ReactElement }[
       periodFrom: "01.06.2026",
       periodTo: "30.06.2026",
       invoiceUrl: "https://www.deneeu.pl/api/invoices/example/pdf",
-      bankAccount: "PL00 0000 0000 0000 0000 0000 0000",
+      bankAccount: "PL00 0000 0000 0000 0000 0000 0000", issuerName: "Deneeu Sp. z o.o.",
     }),
   },
 ];
