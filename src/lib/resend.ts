@@ -80,7 +80,6 @@ export async function sendEmail({
       console.error("[resend] error:", error);
       return { success: false, error: error.message };
     }
-    console.log("[resend] sent:", data?.id);
     return { success: true, id: data?.id };
   } catch (err) {
     console.error("[resend] catch:", err);

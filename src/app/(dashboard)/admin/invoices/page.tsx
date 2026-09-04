@@ -3,8 +3,7 @@ import { redirect } from "next/navigation";
 import { FileText, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
 
 import { auth } from "@/lib/auth";
-import { getInvoicesAction, getBrandsListAction } from "@/actions/invoice.actions";
-import { GenerateInvoiceModal } from "@/components/admin/GenerateInvoiceModal";
+import { getInvoicesAction } from "@/actions/invoice.actions";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,13 +36,8 @@ export default async function AdminInvoicesPage() {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") redirect("/");
 
-  const [invoicesResult, brandsResult] = await Promise.all([
-    getInvoicesAction(),
-    getBrandsListAction(),
-  ]);
-
-  const invoices = invoicesResult.success ? invoicesResult.data : [];
-  const brands = brandsResult.success ? brandsResult.data : [];
+  const invoicesResult = await getInvoicesAction();
+  const invoices = invoicesResult.success ? (invoicesResult.data ?? []) : [];
 
   const totalGross = invoices.reduce((s, i) => s + i.grossAmount, 0);
   const issuedCount = invoices.filter((i) => i.status === "ISSUED").length;
@@ -66,7 +60,18 @@ export default async function AdminInvoicesPage() {
             Historia faktur VAT wystawianych dla marek.
           </p>
         </div>
-        <GenerateInvoiceModal brands={brands} />
+        {/*
+          Faktury wystawia się w Rozliczeniach, a nie tutaj: tam widać, ile
+          prowizji czeka na zafakturowanie za dany miesiąc. Poprzedni modal
+          fakturował markę za samą prowizję platformy — kwota, z której nie
+          dałoby się sfinansować wypłat influencerów.
+        */}
+        <Button asChild>
+          <Link href="/admin/billing">
+            <FileText className="mr-1.5 h-4 w-4" />
+            Wystaw fakturę
+          </Link>
+        </Button>
       </div>
 
       {/* Summary cards */}

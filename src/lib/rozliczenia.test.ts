@@ -8,23 +8,48 @@ import {
 } from "./rozliczenia";
 
 describe("granceMiesiaca", () => {
-  it("obejmuje cały miesiąc, do ostatniej milisekundy", () => {
-    const { od, do: koniec } = granceMiesiaca(2026, 2);
-    expect(od.getDate()).toBe(1);
-    expect(od.getMonth()).toBe(1);
-    expect(koniec.getDate()).toBe(28); // 2026 nie jest przestępny
-    expect(koniec.getMilliseconds()).toBe(999);
+  // Asercje na czasie UNIWERSALNYM (toISOString), nie na getDate()/getMonth() —
+  // te ostatnie czytają strefę procesu, więc test przechodziłby lub nie
+  // zależnie od maszyny, czyli sprawdzałby coś innego niż zamierzone.
+
+  it("czas letni: sierpień zaczyna się o 22:00 UTC dnia poprzedniego (UTC+2)", () => {
+    const { od, do: koniec } = granceMiesiaca(2026, 8);
+    expect(od.toISOString()).toBe("2026-07-31T22:00:00.000Z");
+    expect(koniec.toISOString()).toBe("2026-08-31T21:59:59.999Z");
   });
 
-  it("radzi sobie z grudniem, nie przechodząc na kolejny rok", () => {
+  it("czas zimowy: styczeń zaczyna się o 23:00 UTC dnia poprzedniego (UTC+1)", () => {
+    const { od, do: koniec } = granceMiesiaca(2026, 1);
+    expect(od.toISOString()).toBe("2025-12-31T23:00:00.000Z");
+    expect(koniec.toISOString()).toBe("2026-01-31T22:59:59.999Z");
+  });
+
+  it("marzec: zaczyna się w czasie zimowym, kończy w letnim", () => {
+    const { od, do: koniec } = granceMiesiaca(2026, 3);
+    expect(od.toISOString()).toBe("2026-02-28T23:00:00.000Z");   // UTC+1
+    expect(koniec.toISOString()).toBe("2026-03-31T21:59:59.999Z"); // UTC+2
+  });
+
+  it("październik: zaczyna się w czasie letnim, kończy w zimowym", () => {
+    const { od, do: koniec } = granceMiesiaca(2026, 10);
+    expect(od.toISOString()).toBe("2026-09-30T22:00:00.000Z");   // UTC+2
+    expect(koniec.toISOString()).toBe("2026-10-31T22:59:59.999Z"); // UTC+1
+  });
+
+  it("grudzień nie przechodzi na kolejny rok", () => {
     const { od, do: koniec } = granceMiesiaca(2026, 12);
-    expect(od.getFullYear()).toBe(2026);
-    expect(koniec.getFullYear()).toBe(2026);
-    expect(koniec.getDate()).toBe(31);
+    expect(od.toISOString()).toBe("2026-11-30T23:00:00.000Z");
+    expect(koniec.toISOString()).toBe("2026-12-31T22:59:59.999Z");
   });
 
-  it("łapie rok przestępny", () => {
-    expect(granceMiesiaca(2028, 2).do.getDate()).toBe(29);
+  it("łapie rok przestępny — luty 2028 ma 29 dni", () => {
+    expect(granceMiesiaca(2028, 2).do.toISOString()).toBe("2028-02-29T22:59:59.999Z");
+  });
+
+  it("kolejne miesiące stykają się bez luki i bez zakładki", () => {
+    const lipiec = granceMiesiaca(2026, 7);
+    const sierpien = granceMiesiaca(2026, 8);
+    expect(sierpien.od.getTime() - lipiec.do.getTime()).toBe(1);
   });
 });
 

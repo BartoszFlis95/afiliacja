@@ -62,13 +62,9 @@ export async function POST(request: NextRequest) {
       }
 
       case "transfer.created": {
-        const transfer = event.data.object as Stripe.Transfer;
-        console.log(
-          "[stripe webhook] transfer.created:",
-          transfer.id,
-          transfer.amount,
-          transfer.destination
-        );
+        // Zdarzenie potwierdzające, że transfer ruszył. Stan wypłaty zmienia
+        // dopiero transfer.paid / transfer.failed, więc tu nie ma czego robić —
+        // gałąź istnieje po to, by zdarzenie nie trafiło do "nieobsłużone".
         break;
       }
 

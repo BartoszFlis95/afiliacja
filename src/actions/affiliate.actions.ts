@@ -107,46 +107,6 @@ export async function getAffiliateLinkStatsAction(linkId: string) {
   }
 }
 
-export async function trackClickAction(
-  code: string,
-  ip?: string,
-  userAgent?: string,
-  referer?: string
-) {
-  try {
-    const link = await prisma.affiliateLink.findUnique({
-      where: { code },
-      include: { product: { select: { slug: true } } },
-    });
-
-    if (!link) {
-      return { success: false as const, error: "Nieprawidłowy kod" };
-    }
-
-    await prisma.$transaction([
-      prisma.click.create({
-        data: {
-          affiliateLinkId: link.id,
-          ip: ip ?? null,
-          userAgent: userAgent ?? null,
-          referer: referer ?? null,
-        },
-      }),
-      prisma.affiliateLink.update({
-        where: { id: link.id },
-        data: { totalClicks: { increment: 1 } },
-      }),
-    ]);
-
-    return { success: true as const, data: { productSlug: link.product.slug } };
-  } catch (error) {
-    return {
-      success: false as const,
-      error: error instanceof Error ? error.message : "Błąd śledzenia kliknięcia",
-    };
-  }
-}
-
 export async function getInfluencerStatsAction() {
   try {
     const influencerProfile = await requireInfluencerProfile();

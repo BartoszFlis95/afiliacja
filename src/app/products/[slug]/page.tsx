@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { GenerateLinkButton } from "@/components/influencer/GenerateLinkButton";
 import { CopyLinkButton } from "@/components/influencer/CopyLinkButton";
 import { etykietaKategorii, ikonaKategorii } from "@/lib/categories";
+import { bezpieczneJsonLd } from "@/lib/json-ld";
 
 export const dynamic = "force-dynamic";
 
@@ -137,9 +138,8 @@ export default async function PublicProductDetailPage({
     <>
       <script
         type="application/ld+json"
-        // JSON.stringify na obiekcie zbudowanym z danych z bazy — nie ma tu
-        // stringów sklejanych ręcznie, więc nie ma czego wstrzyknąć.
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        // escape "<" jest konieczny, nie ostrożnościowy — patrz lib/json-ld.ts
+        dangerouslySetInnerHTML={{ __html: bezpieczneJsonLd(jsonLd) }}
       />
       <div className="min-h-screen bg-card">
       <nav className="border-b border-border/60">
