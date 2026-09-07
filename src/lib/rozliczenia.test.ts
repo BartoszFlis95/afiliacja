@@ -3,7 +3,6 @@ import {
   doGroszy,
   granceMiesiaca,
   nazwaMiesiaca,
-  pierwszyWgKlucza,
   rozbicieFaktury,
 } from "./rozliczenia";
 
@@ -83,27 +82,40 @@ describe("nazwaMiesiaca", () => {
   });
 });
 
-describe("pierwszyWgKlucza", () => {
-  const faktury = [
-    { id: "nowa", brandId: "a", wystawiona: "2026-08-20" },
-    { id: "stara", brandId: "a", wystawiona: "2026-08-02" },
-    { id: "inna", brandId: "b", wystawiona: "2026-08-10" },
-  ];
 
-  it("przy powtórzonym kluczu zostawia PIERWSZY, nie ostatni", () => {
-    // regresja: new Map(...) zostawiał ostatni wpis, czyli przy sortowaniu
-    // malejącym po dacie — najstarszą fakturę
-    const mapa = pierwszyWgKlucza(faktury, (f) => f.brandId);
-    expect(mapa.get("a")?.id).toBe("nowa");
-    expect(mapa.get("b")?.id).toBe("inna");
+/**
+ * Panel rozliczeń odtwarza rozbicie z kwoty netto zapisanej na fakturze:
+ * netto = prowizje * (1 + stawka), więc prowizje = netto / (1 + stawka).
+ * Zaokrąglenia mogą to rozjechać, a admin zobaczyłby wtedy inne liczby niż
+ * te, na podstawie których fakturę wystawiono.
+ */
+describe("odtworzenie rozbicia z kwoty netto", () => {
+  const odtworz = (netto: number) => {
+    const prowizje = doGroszy(netto / (1 + 0.1));
+    return { prowizje, oplata: doGroszy(netto - prowizje) };
+  };
+
+  it("dla okrągłych kwot wraca dokładnie to samo", () => {
+    const oryginal = rozbicieFaktury(1000);
+    const wrocone = odtworz(oryginal.netto);
+    expect(wrocone.prowizje).toBe(oryginal.prowizje);
+    expect(wrocone.oplata).toBe(oryginal.oplata);
   });
 
-  it("dla porównania: new Map zostawiłby najstarszą", () => {
-    const zla = new Map(faktury.map((f) => [f.brandId, f]));
-    expect(zla.get("a")?.id).toBe("stara");
+  it("suma odtworzonych składników zawsze równa się netto", () => {
+    for (const kwota of [0.01, 19.99, 333.33, 1234.56, 99999.99, 7.77]) {
+      const oryginal = rozbicieFaktury(kwota);
+      const wrocone = odtworz(oryginal.netto);
+      expect(doGroszy(wrocone.prowizje + wrocone.oplata)).toBe(oryginal.netto);
+    }
   });
 
-  it("radzi sobie z pustą listą", () => {
-    expect(pierwszyWgKlucza([], (x) => x).size).toBe(0);
+  it("odchylenie od oryginału nigdy nie przekracza grosza", () => {
+    for (const kwota of [0.01, 0.07, 19.99, 333.33, 1234.56, 99999.99]) {
+      const oryginal = rozbicieFaktury(kwota);
+      const wrocone = odtworz(oryginal.netto);
+      expect(Math.abs(wrocone.prowizje - oryginal.prowizje)).toBeLessThanOrEqual(0.01);
+      expect(Math.abs(wrocone.oplata - oryginal.oplata)).toBeLessThanOrEqual(0.01);
+    }
   });
 });

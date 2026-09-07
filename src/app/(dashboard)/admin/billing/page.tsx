@@ -37,7 +37,8 @@ export default async function AdminBillingPage({
 
       {wynik.success ? (
         <AdminBillingClient
-          pozycje={wynik.data ?? []}
+          faktury={wynik.data?.faktury ?? []}
+          doZafakturowania={wynik.data?.doZafakturowania ?? []}
           month={month}
           year={year}
           // z serwera, nie z komponentu klienckiego: process.env po stronie

@@ -18,7 +18,6 @@ import {
   nazwaMiesiaca,
   rozbicieFaktury,
   doGroszy,
-  pierwszyWgKlucza,
 } from "@/lib/rozliczenia";
 import { OPLATA_PLATFORMY, TERMIN_PLATNOSCI_DNI } from "@/lib/legal";
 import PayoutsUnlockedEmail from "@/emails/PayoutsUnlockedEmail";
@@ -364,7 +363,31 @@ function dniOd(data: Date): number {
   return Math.floor((Date.now() - data.getTime()) / 86_400_000);
 }
 
-export type PozycjaRozliczenia = {
+/** Jedna faktura wystawiona w okresie. */
+export type WierszFaktury = {
+  id: string;
+  invoiceNumber: string;
+  brandId: string;
+  companyName: string;
+  status: InvoiceStatus;
+  netAmount: number;
+  grossAmount: number;
+  /** Rozbicie odtworzone z kwoty netto — prowizje bez opłaty platformy. */
+  prowizje: number;
+  oplata: number;
+  payoutsTriggered: boolean;
+  issuedAt: string;
+  dueDate: string;
+  paidAt: string | null;
+  periodFrom: string;
+  periodTo: string;
+  dniPoTerminie: number;
+  odblokowaneWyplaty: number;
+  kwotaWyplat: number;
+};
+
+/** Marka z prowizjami czekającymi na wystawienie faktury. */
+export type WierszDoZafakturowania = {
   brandId: string;
   companyName: string;
   nip: string | null;
@@ -373,48 +396,46 @@ export type PozycjaRozliczenia = {
   oplata: number;
   netto: number;
   brutto: number;
-  invoice: {
-    id: string;
-    invoiceNumber: string;
-    status: InvoiceStatus;
-    /** Rozbicie z chwili wystawienia — nie przeliczamy go z bieżących prowizji. */
-    netAmount: number;
-    grossAmount: number;
-    payoutsTriggered: boolean;
-    issuedAt: string;
-    dueDate: string;
-    paidAt: string | null;
-    periodFrom: string;
-    periodTo: string;
-    /** Ile dni po terminie; ujemne = jeszcze przed terminem. */
-    dniPoTerminie: number;
-    /** Wypłaty odblokowane tą fakturą — wypełnione tylko dla opłaconych. */
-    odblokowaneWyplaty: number;
-    kwotaWyplat: number;
-  } | null;
+};
+
+export type ZestawienieRozliczen = {
+  faktury: WierszFaktury[];
+  doZafakturowania: WierszDoZafakturowania[];
 };
 
 /**
  * Zestawienie miesięczne dla panelu administratora.
  *
- * Dla każdej marki pokazuje albo kwotę do zafakturowania (prowizje jeszcze
- * nieprzypisane do żadnej faktury), albo fakturę już wystawioną za ten okres.
+ * Wiersz na FAKTURĘ, nie na markę. Wcześniej zestawienie było budowane po
+ * markach — jeden wiersz z najnowszą fakturą okresu — przez co druga faktura
+ * tej samej marki (możliwa, gdy po wystawieniu pierwszej doszły kolejne
+ * zatwierdzone prowizje) nie pojawiała się nigdzie. Zakładki „oczekujące /
+ * opłacone” obiecywały kompletną listę, której model danych nie dostarczał.
+ *
+ * Marki z prowizjami jeszcze niezafakturowanymi trafiają do osobnej sekcji —
+ * to nie są faktury, więc nie mogą udawać wierszy w tej samej tabeli.
  */
 export async function getBillingOverviewAction(
   month: number,
   year: number
-): Promise<ActionResult<PozycjaRozliczenia[]>> {
+): Promise<ActionResult<ZestawienieRozliczen>> {
   const session = await requireAdmin();
   if (!session) return { success: false, error: "Brak uprawnień administratora." };
 
+  if (!Number.isInteger(month) || month < 1 || month > 12) {
+    return { success: false, error: "Nieprawidłowy miesiąc." };
+  }
+  if (!Number.isInteger(year) || year < 2020 || year > 2100) {
+    return { success: false, error: "Nieprawidłowy rok." };
+  }
+
   const { od, do: doDaty } = granceMiesiaca(year, month);
 
-  const marki = await prisma.brandProfile.findMany({
-    select: { id: true, companyName: true, nip: true },
-    orderBy: { companyName: "asc" },
-  });
-
-  const [prowizje, faktury] = await Promise.all([
+  const [marki, prowizje, faktury] = await Promise.all([
+    prisma.brandProfile.findMany({
+      select: { id: true, companyName: true, nip: true },
+      orderBy: { companyName: "asc" },
+    }),
     prisma.commission.findMany({
       where: {
         status: CommissionStatus.APPROVED,
@@ -428,6 +449,7 @@ export async function getBillingOverviewAction(
       select: {
         id: true,
         brandId: true,
+        brandCompanyName: true,
         invoiceNumber: true,
         status: true,
         netAmount: true,
@@ -438,13 +460,38 @@ export async function getBillingOverviewAction(
         paidAt: true,
         periodFrom: true,
         periodTo: true,
-        // wypłaty powiązane z fakturą — liczymy tu, a nie osobnym zapytaniem
-        // na każdy wiersz, żeby lista marek nie robiła N+1
-        payouts: { select: { amount: true, status: true } },
+        // jednym zapytaniem dla wszystkich faktur, bez N+1 na wiersz
+        payouts: { select: { amount: true } },
       },
       orderBy: { issuedAt: "desc" },
     }),
   ]);
+
+  const wierszeFaktur: WierszFaktury[] = faktury.map((f) => {
+    const netto = Number(f.netAmount);
+    // netto = prowizje + prowizje * OPLATA_PLATFORMY, więc prowizje = netto / (1 + stawka)
+    const kwotaProwizji = doGroszy(netto / (1 + OPLATA_PLATFORMY));
+    return {
+      id: f.id,
+      invoiceNumber: f.invoiceNumber,
+      brandId: f.brandId,
+      companyName: f.brandCompanyName,
+      status: f.status,
+      netAmount: netto,
+      grossAmount: Number(f.grossAmount),
+      prowizje: kwotaProwizji,
+      oplata: doGroszy(netto - kwotaProwizji),
+      payoutsTriggered: f.payoutsTriggered,
+      issuedAt: f.issuedAt.toISOString(),
+      dueDate: f.dueDate.toISOString(),
+      paidAt: f.paidAt?.toISOString() ?? null,
+      periodFrom: f.periodFrom.toISOString(),
+      periodTo: f.periodTo.toISOString(),
+      dniPoTerminie: dniOd(f.dueDate),
+      odblokowaneWyplaty: f.payouts.length,
+      kwotaWyplat: doGroszy(f.payouts.reduce((s, p) => s + Number(p.amount), 0)),
+    };
+  });
 
   const sumy = new Map<string, { suma: number; liczba: number }>();
   for (const p of prowizje) {
@@ -454,52 +501,24 @@ export async function getBillingOverviewAction(
     sumy.set(p.brandId, biezace);
   }
 
-  // Marka może mieć w okresie więcej niż jedną fakturę (np. dogenerowaną po
-  // dopisaniu prowizji). Lista jest posortowana malejąco po dacie, więc
-  // pierwsza na markę to najnowsza — patrz pierwszyWgKlucza.
-  const fakturaMarki = pierwszyWgKlucza(faktury, (f) => f.brandId);
+  const doZafakturowania: WierszDoZafakturowania[] = marki
+    .filter((m) => (sumy.get(m.id)?.liczba ?? 0) > 0)
+    .map((m) => {
+      const agregat = sumy.get(m.id)!;
+      const { prowizje: kwota, oplata, netto } = rozbicieFaktury(agregat.suma);
+      return {
+        brandId: m.id,
+        companyName: m.companyName,
+        nip: m.nip,
+        liczbaProwizji: agregat.liczba,
+        prowizje: kwota,
+        oplata,
+        netto,
+        brutto: doGroszy(netto * 1.23),
+      };
+    });
 
-  const pozycje: PozycjaRozliczenia[] = marki.map((m) => {
-    const agregat = sumy.get(m.id) ?? { suma: 0, liczba: 0 };
-    const { prowizje: kwota, oplata, netto } = rozbicieFaktury(agregat.suma);
-    const f = fakturaMarki.get(m.id);
-    return {
-      brandId: m.id,
-      companyName: m.companyName,
-      nip: m.nip,
-      liczbaProwizji: agregat.liczba,
-      prowizje: kwota,
-      oplata,
-      netto,
-      brutto: doGroszy(netto * 1.23),
-      invoice: f
-        ? {
-            id: f.id,
-            invoiceNumber: f.invoiceNumber,
-            status: f.status,
-            netAmount: Number(f.netAmount),
-            grossAmount: Number(f.grossAmount),
-            payoutsTriggered: f.payoutsTriggered,
-            issuedAt: f.issuedAt.toISOString(),
-            dueDate: f.dueDate.toISOString(),
-            paidAt: f.paidAt?.toISOString() ?? null,
-            periodFrom: f.periodFrom.toISOString(),
-            periodTo: f.periodTo.toISOString(),
-            dniPoTerminie: dniOd(f.dueDate),
-            odblokowaneWyplaty: f.payouts.length,
-            kwotaWyplat: doGroszy(
-              f.payouts.reduce((s, p) => s + Number(p.amount), 0),
-            ),
-          }
-        : null,
-    };
-  });
-
-  // marki bez prowizji i bez faktury nie wnoszą nic do zestawienia
-  return {
-    success: true,
-    data: pozycje.filter((p) => p.liczbaProwizji > 0 || p.invoice !== null),
-  };
+  return { success: true, data: { faktury: wierszeFaktur, doZafakturowania } };
 }
 
 export type BiezaceRozliczenie = {

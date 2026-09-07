@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { Link as LinkIcon } from "lucide-react";
+import { Link as LinkIcon, ShieldAlert } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -59,6 +59,45 @@ export default async function InfluencerLinksPage({
     orderBy,
   });
 
+  /**
+   * Odrzucone kliknięcia liczymy z tabeli Click, a nie z FraudLog.
+   *
+   * FraudLog dostaje wpisy także z tras konwersji (COOLING_PERIOD,
+   * SUSPICIOUS_CONVERSION) i one również mają affiliateLinkId — liczenie po nim
+   * zmieszałoby odrzucone kliknięcia z podejrzanymi konwersjami i pokazało
+   * influencerowi zawyżoną liczbę pod niewłaściwą nazwą.
+   *
+   * groupBy jednym zapytaniem dla wszystkich linków naraz, żeby lista nie
+   * robiła zapytania na kartę.
+   */
+  const odrzucone = await prisma.click.groupBy({
+    by: ["affiliateLinkId", "fraudReason"],
+    where: {
+      isFraud: true,
+      affiliateLink: { influencerProfileId: profile.id },
+    },
+    _count: true,
+  });
+
+  const POWODY: Record<string, string> = {
+    self_click: "kliknięcie we własny link",
+    ip_rate_limit: "przekroczony limit z jednego adresu IP",
+  };
+
+  const odrzuconeWgLinku = new Map<string, { razem: number; powody: string[] }>();
+  for (const w of odrzucone) {
+    const biezace = odrzuconeWgLinku.get(w.affiliateLinkId) ?? { razem: 0, powody: [] };
+    biezace.razem += w._count;
+    biezace.powody.push(POWODY[w.fraudReason ?? ""] ?? w.fraudReason ?? "nieznany powód");
+    odrzuconeWgLinku.set(w.affiliateLinkId, biezace);
+  }
+
+  // Ostrzeżenie tylko wtedy, gdy WSZYSTKIE kliknięcia zostały odrzucone —
+  // przy choćby jednym zaliczonym mechanizm działa i baner byłby myleniem.
+  const odrzuconychRazem = odrzucone.reduce((sum, w) => sum + w._count, 0);
+  const zaliczonychRazem = links.reduce((sum, l) => sum + l.totalClicks, 0);
+  const tylkoOdrzucone = odrzuconychRazem > 0 && zaliczonychRazem === 0;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -88,6 +127,33 @@ export default async function InfluencerLinksPage({
           ))}
         </div>
       </div>
+
+      {/*
+        Kolory z tokenów motywu, nie bg-amber-50 — stała wartość dałaby jasny
+        panel na ciemnym tle. Baner mówi wprost, co zrobić dalej, bo bez niego
+        odrzucone kliknięcie wygląda dla influencera jak zepsuty link:
+        przekierowanie do sklepu działa normalnie, tylko licznik nie rośnie.
+      */}
+      {tylkoOdrzucone && (
+        <Card className="border-warning/40">
+          <CardContent className="p-5">
+            <p className="text-sm font-semibold text-warning">
+              Twoje kliknięcia nie zostały zaliczone
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {odrzuconychRazem === 1
+                ? "Jedno kliknięcie zostało odrzucone"
+                : `${odrzuconychRazem} kliknięć zostało odrzuconych`}
+              , żadne nie weszło do statystyk. Najczęstszy powód: klikanie
+              we własny link po zalogowaniu — system celowo tego nie liczy.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Udostępnij link innym osobom. Jeśli chcesz sprawdzić, czy działa,
+              otwórz go w oknie prywatnym albo po wylogowaniu.
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {links.length === 0 ? (
         <EmptyState
@@ -153,6 +219,22 @@ export default async function InfluencerLinksPage({
                     <p className="text-[11px] text-muted-foreground">Zarobki</p>
                   </div>
                 </div>
+
+                {(() => {
+                  const odrzuconeLinku = odrzuconeWgLinku.get(link.id);
+                  if (!odrzuconeLinku) return null;
+                  return (
+                    <p
+                      className="flex items-center gap-1.5 text-xs text-warning"
+                      title={`Powody: ${[...new Set(odrzuconeLinku.powody)].join(", ")}`}
+                    >
+                      <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
+                      {odrzuconeLinku.razem}{" "}
+                      {odrzuconeLinku.razem === 1 ? "odrzucone" : "odrzuconych"} —{" "}
+                      {[...new Set(odrzuconeLinku.powody)].join(", ")}
+                    </p>
+                  );
+                })()}
 
                 <CopyLinkButton code={link.code} />
               </CardContent>
