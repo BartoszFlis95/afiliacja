@@ -168,7 +168,15 @@ export async function generateMonthlyInvoiceAction(
     totalPrice: oplata,
   });
 
-  const vatRate = 23;
+  /**
+   * Stawka VAT zależy od statusu wystawcy.
+   *
+   * Niemiecki mały przedsiębiorca (Kleinunternehmer, § 19 UStG) nie nalicza
+   * podatku, więc kwota brutto równa się netto. Przy stawce zerowej vatAmount
+   * wychodzi 0 samo z siebie — nie ma osobnej gałęzi, którą trzeba by
+   * utrzymywać równolegle do zwykłej.
+   */
+  const vatRate = ISSUER.vatFree ? 0 : 23;
   const vatAmount = doGroszy((netto * vatRate) / 100);
   const grossAmount = doGroszy(netto + vatAmount);
 
@@ -196,7 +204,7 @@ export async function generateMonthlyInvoiceAction(
         brandCity: brand.city,
         brandPostalCode: brand.postalCode,
         issuerName: ISSUER.name,
-        issuerNip: ISSUER.nip,
+        issuerNip: ISSUER.taxId,
         issuerAddress: ISSUER.address,
         issuerCity: ISSUER.city,
         issuerPostalCode: ISSUER.postalCode,

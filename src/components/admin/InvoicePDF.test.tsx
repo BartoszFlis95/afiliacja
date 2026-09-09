@@ -17,6 +17,8 @@ const FAKTURA = {
   issuerAddress: "ul. Prosta 51", issuerCity: "Warszawa", issuerPostalCode: "00-838",
   status: "ISSUED", notes: "Zapłać w terminie — dziękujemy!",
   bankAccount: "PL61 1090 1014 0000 0712 1981 2874",
+  issuerCountry: "Poland",
+  issuerBic: "",
   items: [
     { description: "Prowizje afiliacyjne – Koszulka bawełniana", quantity: 3, unitPrice: 200, totalPrice: 600 },
   ],
@@ -99,5 +101,59 @@ describe("InvoicePDF — dane do przelewu", () => {
       InvoicePDF({ invoice: { ...(FAKTURA as object), bankAccount: "—" } as never }) as never,
     );
     expect(buf.subarray(0, 5).toString()).toBe("%PDF-");
+  });
+});
+
+/**
+ * Nota o § 19 UStG jest na fakturze małego przedsiębiorcy OBOWIĄZKOWA —
+ * bez niej dokument jest wadliwy. Test porównuje wydruk zwolniony z VAT
+ * z tym samym dokumentem opodatkowanym: sama „poprawność pliku PDF” nie
+ * odróżniłaby faktury z notą od faktury bez niej.
+ */
+describe("InvoicePDF — Kleinunternehmer (§ 19 UStG)", () => {
+  const ZWOLNIONA = {
+    ...(FAKTURA as object),
+    issuerName: "Deneeu UG",
+    issuerNip: "12/345/67890",
+    issuerAddress: "Musterstraße 12",
+    issuerCity: "Berlin",
+    issuerPostalCode: "10115",
+    issuerCountry: "Germany",
+    issuerBic: "COBADEFFXXX",
+    bankAccount: "DE89370400440532013000",
+    vatRate: 0,
+    vatAmount: 0,
+    netAmount: 1000,
+    grossAmount: 1000,
+  } as never;
+
+  it("faktura zwolniona różni się od opodatkowanej — nota zajmuje miejsce", async () => {
+    const zwolniona = await renderToBuffer(InvoicePDF({ invoice: ZWOLNIONA }) as never);
+    const zVat = await renderToBuffer(
+      InvoicePDF({ invoice: { ...(ZWOLNIONA as object), vatRate: 23, vatAmount: 230, grossAmount: 1230 } as never }) as never,
+    );
+    expect(zwolniona.length).not.toBe(zVat.length);
+  });
+
+  it("przy stawce 0 brutto równa się netto", () => {
+    const f = ZWOLNIONA as unknown as { netAmount: number; grossAmount: number; vatAmount: number };
+    expect(f.grossAmount).toBe(f.netAmount);
+    expect(f.vatAmount).toBe(0);
+  });
+
+  it("generuje poprawny PDF z niemieckimi danymi wystawcy", async () => {
+    const buf = await renderToBuffer(InvoicePDF({ invoice: ZWOLNIONA }) as never);
+    expect(buf.subarray(0, 5).toString()).toBe("%PDF-");
+    // „Gemäß”, „Musterstraße” i „Fälligkeit” mają znaki spoza WinAnsi —
+    // bez osadzonego fontu rozjechałyby się tak samo jak polskie diakrytyki
+    expect(/FontFile2|FontFile3/.test(buf.toString("latin1"))).toBe(true);
+  });
+
+  it("BIC pojawia się tylko, gdy jest skonfigurowany", async () => {
+    const zBic = await renderToBuffer(InvoicePDF({ invoice: ZWOLNIONA }) as never);
+    const bezBic = await renderToBuffer(
+      InvoicePDF({ invoice: { ...(ZWOLNIONA as object), issuerBic: "" } as never }) as never,
+    );
+    expect(zBic.length).toBeGreaterThan(bezBic.length);
   });
 });

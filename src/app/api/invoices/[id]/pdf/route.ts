@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { InvoicePDF } from "@/components/admin/InvoicePDF";
 import type { InvoiceItem } from "@/types";
 import React from "react";
+import { ISSUER } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -44,8 +45,10 @@ export async function GET(
 
   const invoiceData = {
     ...invoice,
-    // aktualny rachunek, nie migawka — patrz komentarz w InvoicePDF
-    bankAccount: process.env.DENEEU_BANK_ACCOUNT ?? "—",
+    // aktualne dane wypłaty i kraj wystawcy, nie migawka — patrz InvoicePDF
+    bankAccount: ISSUER.bankIban || "—",
+    issuerCountry: ISSUER.country,
+    issuerBic: ISSUER.bankBic,
     netAmount: Number(invoice.netAmount),
     vatRate: Number(invoice.vatRate),
     vatAmount: Number(invoice.vatAmount),

@@ -3,8 +3,12 @@ import { describe, expect, it } from "vitest";
 import type { Zmienne } from "@/lib/env";
 import { GRUPY, grupaSkonfigurowana, sprawdzKonfiguracje } from "@/lib/env";
 
+/** Wszystkie nazwy zmiennych, z rozwinięciem alternatyw zapisanych przez "|". */
+const NAZWY = GRUPY.flatMap((g) => g.zmienne.flatMap((v) => v.split("|")));
+
+/** Komplet ustawia pierwszą nazwę z każdej alternatywy — tyle wystarcza. */
 const KOMPLET: Zmienne = Object.fromEntries(
-  GRUPY.flatMap((g) => g.zmienne.map((v) => [v, "wartosc"])),
+  GRUPY.flatMap((g) => g.zmienne.map((v) => [v.split("|")[0], "wartosc"])),
 );
 
 /**
@@ -24,7 +28,9 @@ describe("konfiguracja środowiska", () => {
     for (const grupa of GRUPY) {
       for (const zmienna of grupa.zmienne) {
         const env = { ...KOMPLET };
-        delete env[zmienna];
+        // przy alternatywie trzeba usunąć WSZYSTKIE warianty, bo każdy
+        // z osobna wystarcza do uznania pozycji za spełnioną
+        for (const wariant of zmienna.split("|")) delete env[wariant];
         const r = sprawdzKonfiguracje(env).find((g) => g.nazwa === grupa.nazwa)!;
         expect(r.kompletna, `${grupa.nazwa}/${zmienna}`).toBe(false);
         expect(r.brakujace).toContain(zmienna);
@@ -51,5 +57,40 @@ describe("konfiguracja środowiska", () => {
 
   it("odmawia dla nieznanej grupy zamiast po cichu zwracać false", () => {
     expect(() => grupaSkonfigurowana("nieistniejąca", KOMPLET)).toThrow();
+  });
+});
+
+describe("alternatywne nazwy zmiennych", () => {
+  it("dowolny wariant z pary wystarcza", () => {
+    const alternatywy = GRUPY.flatMap((g) => g.zmienne).filter((v) => v.includes("|"));
+    expect(alternatywy.length).toBeGreaterThan(0);
+
+    for (const para of alternatywy) {
+      const warianty = para.split("|");
+      for (const wybrany of warianty) {
+        const env = { ...KOMPLET };
+        for (const w of warianty) delete env[w];
+        env[wybrany] = "wartosc";
+        const grupa = GRUPY.find((g) => g.zmienne.includes(para))!;
+        const r = sprawdzKonfiguracje(env).find((g) => g.nazwa === grupa.nazwa)!;
+        expect(r.kompletna, `${para} przez ${wybrany}`).toBe(true);
+      }
+    }
+  });
+
+  it("lista zmiennych faktur odpowiada bramce w site.ts", () => {
+    // rozjazd tych dwóch list znaczy, że admin uzupełni wszystko, o co prosi
+    // check:env, i dalej zobaczy „fakturowanie zablokowane”
+    const faktury = GRUPY.find((g) => g.nazwa === "faktury")!;
+    for (const wymagana of [
+      "DENEEU_ISSUER_NAME",
+      "DENEEU_ISSUER_ADDRESS",
+      "DENEEU_ISSUER_CITY",
+      "DENEEU_ISSUER_POSTAL_CODE",
+      "DENEEU_ISSUER_COUNTRY",
+    ]) {
+      expect(NAZWY).toContain(wymagana);
+      expect(faktury.zmienne.some((v) => v.split("|").includes(wymagana))).toBe(true);
+    }
   });
 });

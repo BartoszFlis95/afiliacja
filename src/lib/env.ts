@@ -54,13 +54,22 @@ export const GRUPY: Grupa[] = [
   {
     nazwa: "faktury",
     konsekwencja: "wystawianie faktur jest zablokowane (celowo — patrz lib/site.ts)",
+    /**
+     * Lista musi odpowiadać warunkom w issuerSkonfigurowany(). Rozjazd znaczy,
+     * że admin uzupełni wszystko, o co prosi ten skrypt, i dalej zobaczy
+     * „fakturowanie zablokowane”, bez wskazówki czego brakuje.
+     *
+     * Pary alternatywne (TAX_ID/NIP, BANK_IBAN/BANK_ACCOUNT) sprawdzamy jako
+     * jedną pozycję — wystarczy dowolna z nich.
+     */
     zmienne: [
       "DENEEU_ISSUER_NAME",
-      "DENEEU_ISSUER_NIP",
+      "DENEEU_ISSUER_TAX_ID|DENEEU_ISSUER_NIP",
       "DENEEU_ISSUER_ADDRESS",
       "DENEEU_ISSUER_CITY",
       "DENEEU_ISSUER_POSTAL_CODE",
-      "DENEEU_BANK_ACCOUNT",
+      "DENEEU_ISSUER_COUNTRY",
+      "DENEEU_ISSUER_BANK_IBAN|DENEEU_BANK_ACCOUNT",
     ],
   },
   {
@@ -96,7 +105,14 @@ export function sprawdzKonfiguracje(
   env: Zmienne = process.env,
 ): RaportGrupy[] {
   return GRUPY.map((g) => {
-    const brakujace = g.zmienne.filter((v) => !env[v]?.trim());
+    /**
+     * Wpis z "|" oznacza alternatywę: wystarczy dowolna z nazw. Bez tego
+     * wystawca podający DENEEU_ISSUER_TAX_ID wciąż widziałby żądanie
+     * uzupełnienia DENEEU_ISSUER_NIP, mimo że jedno zastępuje drugie.
+     */
+    const brakujace = g.zmienne.filter(
+      (v) => !v.split("|").some((nazwa) => env[nazwa]?.trim()),
+    );
     return {
       nazwa: g.nazwa,
       konsekwencja: g.konsekwencja,

@@ -4,6 +4,7 @@ import { registerPdfFonts } from "@/lib/pdf-fonts";
 
 registerPdfFonts();
 import type { InvoiceItem } from "@/types";
+import { NOTA_KLEINUNTERNEHMER } from "@/lib/site";
 
 const styles = StyleSheet.create({
   page: {
@@ -171,6 +172,23 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     flex: 1,
   },
+  legalBox: {
+    marginTop: 14,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#a1a1aa",
+    borderRadius: 3,
+  },
+  legalText: {
+    fontSize: 9,
+    fontFamily: "Roboto",
+    fontWeight: "bold",
+  },
+  legalTranslation: {
+    fontSize: 8,
+    color: "#52525b",
+    marginTop: 2,
+  },
   notesBox: {
     marginTop: 16,
     padding: 10,
@@ -210,6 +228,9 @@ interface InvoiceData {
   issuerCity: string;
   issuerPostalCode: string;
   bankAccount: string;
+  /** Kraj i BIC — z konfiguracji, jak numer konta; patrz komentarz wyżej. */
+  issuerCountry: string;
+  issuerBic: string;
   netAmount: number;
   vatRate: number;
   vatAmount: number;
@@ -227,25 +248,28 @@ interface InvoiceData {
  */
 
 export function InvoicePDF({ invoice }: { invoice: InvoiceData }) {
+  const zwolnionyZVat = Number(invoice.vatRate) === 0;
+  const niemieckiWystawca = /deutschland|germany|niemcy|^de$/i.test(invoice.issuerCountry ?? "");
+
   return (
     <Document title={`Faktura ${invoice.invoiceNumber}`} author="Deneeu">
       <Page size="A4" style={styles.page}>
         {/* Header */}
-        <Text style={styles.title}>FAKTURA VAT</Text>
+        <Text style={styles.title}>INVOICE · RECHNUNG</Text>
         <Text style={styles.invoiceNumber}>Nr: {invoice.invoiceNumber}</Text>
 
         {/* Dates */}
         <View style={{ marginBottom: 16 }}>
           <View style={styles.row}>
-            <Text style={styles.label}>Data wystawienia:</Text>
+            <Text style={styles.label}>Date · Datum</Text>
             <Text style={styles.value}>{formatDate(invoice.issuedAt)}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Termin płatności:</Text>
+            <Text style={styles.label}>Due date · Fälligkeit</Text>
             <Text style={styles.value}>{formatDate(invoice.dueDate)}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Okres rozliczeniowy:</Text>
+            <Text style={styles.label}>Period · Zeitraum</Text>
             <Text style={styles.value}>
               {formatDate(invoice.periodFrom)} – {formatDate(invoice.periodTo)}
             </Text>
@@ -257,16 +281,23 @@ export function InvoicePDF({ invoice }: { invoice: InvoiceData }) {
         {/* Parties */}
         <View style={{ flexDirection: "row", gap: 12, marginBottom: 20 }}>
           <View style={styles.partyBox}>
-            <Text style={styles.partyTitle}>Sprzedawca</Text>
+            <Text style={styles.partyTitle}>Seller · Verkäufer</Text>
             <Text style={styles.partyName}>{invoice.issuerName}</Text>
-            <Text style={styles.partyDetail}>NIP: {invoice.issuerNip}</Text>
-            <Text style={styles.partyDetail}>{invoice.issuerAddress}</Text>
+            {/*
+              Etykieta zależy od kraju wystawcy: Steuernummer w Niemczech,
+              NIP w Polsce. Wartość to jedno i to samo pole — zmienia się
+              nazwa, nie dane.
+            */}
             <Text style={styles.partyDetail}>
-              {invoice.issuerPostalCode} {invoice.issuerCity}
+              {niemieckiWystawca ? "Steuernummer" : "NIP"}: {invoice.issuerNip}
+            </Text>
+            <Text style={styles.partyDetail}>
+              {invoice.issuerAddress}, {invoice.issuerPostalCode} {invoice.issuerCity}
+              {invoice.issuerCountry ? `, ${invoice.issuerCountry}` : ""}
             </Text>
           </View>
           <View style={styles.partyBox}>
-            <Text style={styles.partyTitle}>Nabywca</Text>
+            <Text style={styles.partyTitle}>Buyer · Käufer</Text>
             <Text style={styles.partyName}>{invoice.brandCompanyName}</Text>
             {invoice.brandNip && (
               <Text style={styles.partyDetail}>NIP: {invoice.brandNip}</Text>
@@ -284,13 +315,13 @@ export function InvoicePDF({ invoice }: { invoice: InvoiceData }) {
         </View>
 
         {/* Items table */}
-        <Text style={styles.sectionTitle}>Pozycje faktury</Text>
+        <Text style={styles.sectionTitle}>Items · Positionen</Text>
 
         <View style={styles.tableHeader}>
-          <Text style={[styles.tableHeaderCell, styles.colDesc]}>Opis</Text>
-          <Text style={[styles.tableHeaderCell, styles.colQty]}>Ilość</Text>
-          <Text style={[styles.tableHeaderCell, styles.colUnit]}>Cena jedn.</Text>
-          <Text style={[styles.tableHeaderCell, styles.colTotal]}>Wartość</Text>
+          <Text style={[styles.tableHeaderCell, styles.colDesc]}>Description · Beschreibung</Text>
+          <Text style={[styles.tableHeaderCell, styles.colQty]}>Qty · Menge</Text>
+          <Text style={[styles.tableHeaderCell, styles.colUnit]}>Unit price · Einzelpreis</Text>
+          <Text style={[styles.tableHeaderCell, styles.colTotal]}>Amount · Betrag</Text>
         </View>
 
         {invoice.items.map((item, i) => (
@@ -305,15 +336,22 @@ export function InvoicePDF({ invoice }: { invoice: InvoiceData }) {
         {/* Summary */}
         <View style={{ marginTop: 8 }}>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Razem netto:</Text>
+            <Text style={styles.summaryLabel}>Net total · Nettobetrag</Text>
             <Text style={styles.summaryValue}>{formatPLN(invoice.netAmount)}</Text>
           </View>
+          {/*
+            Zwolnienie rozpoznajemy po stawce ZAPISANEJ NA FAKTURZE, nie po
+            bieżącej konfiguracji. Dokument opisuje sam siebie: przedruk starej
+            faktury z 23% pokaże 23%, choćby wystawca zmienił status później.
+          */}
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>VAT {invoice.vatRate}%:</Text>
+            <Text style={styles.summaryLabel}>
+              {zwolnionyZVat ? "VAT 0% (Kleinunternehmer)" : `VAT ${invoice.vatRate}%`}
+            </Text>
             <Text style={styles.summaryValue}>{formatPLN(invoice.vatAmount)}</Text>
           </View>
           <View style={[styles.summaryRow, { borderTopWidth: 1, borderTopColor: "#18181b", marginTop: 4, paddingTop: 8 }]}>
-            <Text style={styles.summaryGrossLabel}>Do zapłaty (brutto):</Text>
+            <Text style={styles.summaryGrossLabel}>Total due · Gesamtbetrag</Text>
             <Text style={styles.summaryGrossValue}>{formatPLN(invoice.grossAmount)}</Text>
           </View>
         </View>
@@ -322,15 +360,15 @@ export function InvoicePDF({ invoice }: { invoice: InvoiceData }) {
 
         {/* Dane do przelewu */}
         <View style={styles.paymentBox}>
-          <Text style={styles.paymentTitle}>Dane do przelewu</Text>
+          <Text style={styles.paymentTitle}>Payment details · Zahlungsdaten</Text>
 
           <View style={styles.paymentRow}>
-            <Text style={styles.paymentLabel}>Odbiorca:</Text>
+            <Text style={styles.paymentLabel}>Beneficiary · Empfänger</Text>
             <Text style={styles.paymentValue}>{invoice.issuerName}</Text>
           </View>
 
           <View style={styles.paymentRow}>
-            <Text style={styles.paymentLabel}>Numer konta:</Text>
+            <Text style={styles.paymentLabel}>IBAN</Text>
             <Text style={styles.paymentValueStrong}>{invoice.bankAccount}</Text>
           </View>
 
@@ -339,35 +377,57 @@ export function InvoicePDF({ invoice }: { invoice: InvoiceData }) {
             księgowaniu to po nim rozpoznaje się, od kogo przyszła wpłata,
             gdy nazwa nadawcy w banku różni się od nazwy firmy.
           */}
+          {invoice.issuerBic && (
+            <View style={styles.paymentRow}>
+              <Text style={styles.paymentLabel}>BIC / SWIFT</Text>
+              <Text style={styles.paymentValueStrong}>{invoice.issuerBic}</Text>
+            </View>
+          )}
+
           <View style={styles.paymentRow}>
-            <Text style={styles.paymentLabel}>Tytuł przelewu:</Text>
+            <Text style={styles.paymentLabel}>Reference · Verwendungszweck</Text>
             <Text style={styles.paymentValueStrong}>
               Faktura {invoice.invoiceNumber} / {invoice.brandCompanyName}
             </Text>
           </View>
 
           <View style={styles.paymentRow}>
-            <Text style={styles.paymentLabel}>Kwota:</Text>
+            <Text style={styles.paymentLabel}>Amount · Betrag</Text>
             <Text style={styles.paymentValueStrong}>{formatPLN(invoice.grossAmount)}</Text>
           </View>
 
           <View style={styles.paymentRow}>
-            <Text style={styles.paymentLabel}>Termin płatności:</Text>
+            <Text style={styles.paymentLabel}>Due date · Fälligkeit</Text>
             <Text style={styles.paymentValue}>
               {formatDate(invoice.dueDate)} (7 dni od wystawienia)
             </Text>
           </View>
 
           <View style={styles.paymentRow}>
-            <Text style={styles.paymentLabel}>Forma płatności:</Text>
+            <Text style={styles.paymentLabel}>Method · Zahlungsart</Text>
             <Text style={styles.paymentValue}>przelew bankowy</Text>
           </View>
         </View>
 
+        {/*
+          Nota o zwolnieniu jest OBOWIĄZKOWA na fakturze małego przedsiębiorcy
+          (§ 19 UStG). Bez wskazania podstawy zwolnienia dokument jest wadliwy
+          i nabywca może go odrzucić — dlatego stoi osobno, nad uwagami, a nie
+          w polu dowolnego tekstu, które admin mógłby nadpisać.
+        */}
+        {zwolnionyZVat && (
+          <View style={styles.legalBox}>
+            <Text style={styles.legalText}>{NOTA_KLEINUNTERNEHMER}</Text>
+            <Text style={styles.legalTranslation}>
+              Zgodnie z § 19 UStG podatek VAT nie jest naliczany.
+            </Text>
+          </View>
+        )}
+
         {/* Notes */}
         {invoice.notes && (
           <View style={styles.notesBox}>
-            <Text style={[styles.label, { marginBottom: 4 }]}>Uwagi:</Text>
+            <Text style={[styles.label, { marginBottom: 4 }]}>Notes · Anmerkungen</Text>
             <Text>{invoice.notes}</Text>
           </View>
         )}
