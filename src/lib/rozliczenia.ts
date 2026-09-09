@@ -84,6 +84,19 @@ export function nazwaMiesiaca(miesiac: number): string {
   return MIESIACE[miesiac - 1] ?? String(miesiac);
 }
 
+const MIESIACE_DOPELNIACZ = [
+  "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
+  "lipca", "sierpnia", "września", "października", "listopada", "grudnia",
+];
+
+/**
+ * Nazwa miesiąca w dopełniaczu — do dat z dniem („1 października 2026”).
+ * Mianownik po liczebniku brzmi błędnie: „1 październik 2026”.
+ */
+export function dataZDniem(dzien: number, miesiac: number, rok: number): string {
+  return `${dzien} ${MIESIACE_DOPELNIACZ[miesiac - 1] ?? miesiac} ${rok}`;
+}
+
 /** Zaokrąglenie do groszy — bez tego sumy prowizji rozjeżdżają się o ułamki. */
 export function doGroszy(kwota: number): number {
   return Math.round(kwota * 100) / 100;
@@ -100,4 +113,43 @@ export function rozbicieFaktury(sumaProwizji: number) {
   const prowizje = doGroszy(sumaProwizji);
   const oplata = doGroszy(prowizje * OPLATA_PLATFORMY);
   return { prowizje, oplata, netto: doGroszy(prowizje + oplata) };
+}
+
+/**
+ * Bieżący okres rozliczeniowy w STREFIE, nie w strefie procesu.
+ *
+ * Rozróżnienie „miesiąc trwa” / „miesiąc zamknięty” musi używać tego samego
+ * zegara co granceMiesiaca. Inaczej 1 września o 00:30 czasu warszawskiego
+ * serwer w UTC (jest wtedy 31 sierpnia 22:30) uznałby sierpień za wciąż
+ * otwarty i zablokował fakturę, którą wolno już wystawić.
+ */
+export function biezacyOkres(teraz: Date = new Date()): { rok: number; miesiac: number } {
+  const czesci = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: STREFA,
+      year: "numeric",
+      month: "2-digit",
+    })
+      .formatToParts(teraz)
+      .map((p) => [p.type, p.value]),
+  ) as Record<string, string>;
+
+  return { rok: Number(czesci.year), miesiac: Number(czesci.month) };
+}
+
+/**
+ * Czy okres jest już zamknięty, czyli czy wolno za niego fakturować.
+ *
+ * Miesiąc bieżący i każdy przyszły są otwarte — w trwającym mogą jeszcze
+ * dojść prowizje, a faktura obejmowałaby wtedy część okresu i musiałaby być
+ * korygowana.
+ */
+export function okresZamkniety(rok: number, miesiac: number, teraz: Date = new Date()): boolean {
+  const b = biezacyOkres(teraz);
+  return rok * 12 + miesiac < b.rok * 12 + b.miesiac;
+}
+
+/** Pierwszy dzień miesiąca następującego po podanym — data dostępności faktury. */
+export function pierwszyDzienPoOkresie(rok: number, miesiac: number): { rok: number; miesiac: number } {
+  return miesiac === 12 ? { rok: rok + 1, miesiac: 1 } : { rok, miesiac: miesiac + 1 };
 }

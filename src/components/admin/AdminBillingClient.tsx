@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { AlertTriangle, BellRing, FileText, Receipt } from "lucide-react";
+import { AlertTriangle, BellRing, Clock, FileText, Receipt } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -25,7 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
-import { nazwaMiesiaca } from "@/lib/rozliczenia";
+import { biezacyOkres, dataZDniem, nazwaMiesiaca, pierwszyDzienPoOkresie } from "@/lib/rozliczenia";
 import { TERMIN_PLATNOSCI_DNI } from "@/lib/legal";
 
 const MIESIACE = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -88,6 +88,12 @@ export function AdminBillingClient({
   const [, startTransition] = useTransition();
 
   const lata = [year - 1, year, year + 1];
+
+  // komunikat przy pustej liście: kiedy pojawi się faktura za trwający miesiąc
+  const teraz = biezacyOkres();
+  const biezacyOkresNazwa = `${nazwaMiesiaca(teraz.miesiac)} ${teraz.rok}`;
+  const poBiezacym = pierwszyDzienPoOkresie(teraz.rok, teraz.miesiac);
+  const dostepnaOdBiezacego = dataZDniem(1, poBiezacym.miesiac, poBiezacym.rok);
 
   const pasuje = (f: WierszFaktury, id: Zakladka) =>
     id === "wszystkie" ? true : id === "oplacone" ? f.status === "PAID" : f.status !== "PAID";
@@ -174,74 +180,96 @@ export function AdminBillingClient({
       </div>
 
       {/* ---------- Do zafakturowania ---------- */}
-      {doZafakturowania.length > 0 && (
-        <section className="space-y-3">
-          <div>
-            <h2 className="text-sm font-semibold text-foreground">Do zafakturowania</h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Prowizje zatwierdzone w tym okresie, jeszcze nieprzypisane do żadnej faktury.
-            </p>
-          </div>
+      <section className="space-y-3">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground">Do zafakturowania</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Zatwierdzone prowizje bez przypisanej faktury, ze wszystkich okresów —
+            nie tylko z wybranego wyżej.
+          </p>
+        </div>
+
+        {doZafakturowania.length === 0 ? (
           <Card>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Marka</TableHead>
-                      <TableHead className="text-right">Prowizje</TableHead>
-                      <TableHead className="text-right">Opłata</TableHead>
-                      <TableHead className="text-right">Razem brutto</TableHead>
-                      <TableHead className="text-right">Akcja</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {doZafakturowania.map((m) => (
-                      <TableRow key={m.brandId}>
-                        <TableCell>
-                          <span className="font-medium text-foreground">{m.companyName}</span>
-                          {!m.nip && (
-                            <span className="mt-0.5 block text-xs text-destructive">
-                              brak NIP — nie da się wystawić faktury
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right tabular-nums">
-                          {formatCurrency(m.prowizje)}
-                          <span className="ml-1 text-xs text-muted-foreground">({m.liczbaProwizji})</span>
-                        </TableCell>
-                        <TableCell className="text-right tabular-nums text-muted-foreground">
-                          {formatCurrency(m.oplata)}
-                        </TableCell>
-                        <TableCell className="text-right font-medium tabular-nums text-foreground">
-                          {formatCurrency(m.brutto)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            disabled={!m.nip || pracuje === m.brandId}
-                            loading={pracuje === m.brandId}
-                            onClick={() =>
-                              zrob(
-                                m.brandId,
-                                () => generateMonthlyInvoiceAction(m.brandId, month, year),
-                                "Faktura wystawiona i wysłana do marki",
-                              )
-                            }
-                          >
-                            <FileText className="mr-1.5 h-3.5 w-3.5" />
-                            Generuj fakturę
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+            <CardContent className="p-5">
+              <p className="text-sm text-foreground">Brak prowizji do zafakturowania.</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Faktura za {biezacyOkresNazwa} będzie dostępna {dostepnaOdBiezacego} —
+                miesiąc musi się najpierw zakończyć.
+              </p>
             </CardContent>
           </Card>
-        </section>
-      )}
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {doZafakturowania.map((m) => {
+              const klucz = `${m.brandId}-${m.rok}-${m.miesiac}`;
+              const zajety = pracuje === klucz;
+              // trzy różne przyczyny blokady, każda z własnym komunikatem —
+              // „przycisk nieaktywny” bez powodu zmusza admina do zgadywania
+              const powod = !m.zamkniety
+                ? `Okres jeszcze trwa. Faktura będzie dostępna ${m.dostepnaOd}.`
+                : !m.nip
+                  ? `Marka ${m.companyName} nie ma NIP-u — faktura VAT bez NIP-u nabywcy jest nieważna.`
+                  : null;
+
+              return (
+                <Card key={klucz} className={m.zamkniety ? undefined : "border-dashed"}>
+                  <CardContent className="flex h-full flex-col gap-3 p-4">
+                    <div>
+                      <p className="font-medium text-foreground">{m.companyName}</p>
+                      <p className="mt-0.5 text-sm text-muted-foreground">
+                        {m.okres} · {m.liczbaProwizji}{" "}
+                        {m.liczbaProwizji === 1 ? "prowizja" : "prowizji"} ·{" "}
+                        <span className="font-medium tabular-nums text-foreground">
+                          {formatCurrency(m.prowizje)}
+                        </span>
+                      </p>
+                    </div>
+
+                    <dl className="grid grid-cols-2 gap-x-3 gap-y-1 rounded-lg bg-muted/50 p-3 text-xs">
+                      <dt className="text-muted-foreground">Opłata platformy</dt>
+                      <dd className="text-right tabular-nums text-foreground">
+                        {formatCurrency(m.oplata)}
+                      </dd>
+                      <dt className="text-muted-foreground">Razem brutto</dt>
+                      <dd className="text-right font-semibold tabular-nums text-foreground">
+                        {formatCurrency(m.brutto)}
+                      </dd>
+                    </dl>
+
+                    <div className="mt-auto space-y-2">
+                      <Button
+                        size="sm"
+                        className="w-full"
+                        disabled={powod !== null || zajety}
+                        loading={zajety}
+                        title={powod ?? undefined}
+                        onClick={() =>
+                          zrob(
+                            klucz,
+                            () => generateMonthlyInvoiceAction(m.brandId, m.miesiac, m.rok),
+                            `Faktura za ${m.okres} wystawiona i wysłana do marki`,
+                          )
+                        }
+                      >
+                        <FileText className="mr-1.5 h-3.5 w-3.5" />
+                        Generuj fakturę za {nazwaMiesiaca(m.miesiac)}
+                      </Button>
+
+                      {powod && (
+                        <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                          <Clock className="mt-0.5 h-3 w-3 shrink-0" />
+                          {powod}
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </section>
 
       {/* ---------- Faktury ---------- */}
       <section className="space-y-3">

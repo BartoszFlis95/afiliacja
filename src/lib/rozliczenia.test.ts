@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  biezacyOkres,
+  dataZDniem,
+  okresZamkniety,
+  pierwszyDzienPoOkresie,
   doGroszy,
   granceMiesiaca,
   nazwaMiesiaca,
@@ -116,6 +120,72 @@ describe("odtworzenie rozbicia z kwoty netto", () => {
       const wrocone = odtworz(oryginal.netto);
       expect(Math.abs(wrocone.prowizje - oryginal.prowizje)).toBeLessThanOrEqual(0.01);
       expect(Math.abs(wrocone.oplata - oryginal.oplata)).toBeLessThanOrEqual(0.01);
+    }
+  });
+});
+
+describe("okresZamkniety", () => {
+  // 15 sierpnia 2026, 12:00 czasu warszawskiego
+  const wSierpniu = new Date("2026-08-15T10:00:00Z");
+
+  it("bieżący miesiąc jest otwarty", () => {
+    expect(okresZamkniety(2026, 8, wSierpniu)).toBe(false);
+  });
+
+  it("poprzedni i starsze są zamknięte", () => {
+    expect(okresZamkniety(2026, 7, wSierpniu)).toBe(true);
+    expect(okresZamkniety(2025, 12, wSierpniu)).toBe(true);
+  });
+
+  it("przyszłe są otwarte", () => {
+    expect(okresZamkniety(2026, 9, wSierpniu)).toBe(false);
+    expect(okresZamkniety(2027, 1, wSierpniu)).toBe(false);
+  });
+
+  it("grudzień poprzedniego roku liczy się poprawnie na przełomie", () => {
+    const wStyczniu = new Date("2026-01-10T10:00:00Z");
+    expect(okresZamkniety(2025, 12, wStyczniu)).toBe(true);
+    expect(okresZamkniety(2026, 1, wStyczniu)).toBe(false);
+  });
+
+  it("przełom miesiąca liczy się w strefie warszawskiej, nie w UTC", () => {
+    // 31 sierpnia 23:30 UTC = 1 września 01:30 w Warszawie (UTC+2)
+    const przelom = new Date("2026-08-31T23:30:00Z");
+    expect(biezacyOkres(przelom)).toEqual({ rok: 2026, miesiac: 9 });
+    // sierpień jest już zamknięty, mimo że w UTC wciąż trwa
+    expect(okresZamkniety(2026, 8, przelom)).toBe(true);
+  });
+
+  it("odwrotny przełom: 1 września 00:30 UTC to nadal 02:30 w Warszawie", () => {
+    const po = new Date("2026-09-01T00:30:00Z");
+    expect(biezacyOkres(po)).toEqual({ rok: 2026, miesiac: 9 });
+  });
+});
+
+describe("pierwszyDzienPoOkresie", () => {
+  it("zwraca kolejny miesiąc", () => {
+    expect(pierwszyDzienPoOkresie(2026, 8)).toEqual({ rok: 2026, miesiac: 9 });
+  });
+
+  it("grudzień przechodzi na styczeń kolejnego roku", () => {
+    expect(pierwszyDzienPoOkresie(2026, 12)).toEqual({ rok: 2027, miesiac: 1 });
+  });
+});
+
+describe("dataZDniem", () => {
+  it("używa dopełniacza — po liczebniku dnia mianownik jest błędny", () => {
+    expect(dataZDniem(1, 10, 2026)).toBe("1 października 2026");
+    expect(dataZDniem(1, 9, 2026)).toBe("1 września 2026");
+    expect(dataZDniem(1, 1, 2027)).toBe("1 stycznia 2027");
+  });
+
+  it("żaden miesiąc nie zostaje w mianowniku", () => {
+    // porównanie dokładne, nie toContain: dopełniacz „maja” zawiera
+    // mianownik „maj” jako podciąg, więc podciągowa asercja dawałaby
+    // fałszywy alarm akurat dla maja
+    for (let m = 1; m <= 12; m++) {
+      const czlon = dataZDniem(1, m, 2026).split(" ")[1];
+      expect(czlon).not.toBe(nazwaMiesiaca(m));
     }
   });
 });

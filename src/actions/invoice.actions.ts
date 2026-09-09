@@ -14,8 +14,12 @@ import { InvoiceStatus, PayoutStatus } from "@prisma/client";
 import type { InvoiceItem } from "@/types";
 import { CommissionStatus } from "@prisma/client";
 import {
+  biezacyOkres,
+  dataZDniem,
   granceMiesiaca,
   nazwaMiesiaca,
+  okresZamkniety,
+  pierwszyDzienPoOkresie,
   rozbicieFaktury,
   doGroszy,
 } from "@/lib/rozliczenia";
@@ -59,6 +63,24 @@ export async function generateMonthlyInvoiceAction(
   }
   if (!Number.isInteger(year) || year < 2020 || year > 2100) {
     return { success: false, error: "Nieprawidłowy rok." };
+  }
+
+  /**
+   * Fakturujemy wyłącznie zamknięte miesiące.
+   *
+   * W trwającym okresie mogą jeszcze dojść zatwierdzone prowizje. Faktura
+   * wystawiona w jego trakcie obejmowałaby część miesiąca, a reszta wymagałaby
+   * drugiego dokumentu za ten sam okres — albo korekty. Numer faktury jest
+   * zasobem sekwencyjnym, więc lepiej odmówić niż go zużyć.
+   */
+  if (!okresZamkniety(year, month)) {
+    const nastepny = pierwszyDzienPoOkresie(year, month);
+    return {
+      success: false,
+      error:
+        `Nie można wystawić faktury za ${nazwaMiesiaca(month)} ${year} — ten okres jeszcze trwa. ` +
+        `Faktura będzie dostępna ${dataZDniem(1, nastepny.miesiac, nastepny.rok)}.`,
+    };
   }
 
   const brand = await prisma.brandProfile.findUnique({
@@ -388,11 +410,25 @@ export type WierszFaktury = {
   kwotaWyplat: number;
 };
 
-/** Marka z prowizjami czekającymi na wystawienie faktury. */
+/**
+ * Marka × miesiąc z prowizjami czekającymi na fakturę.
+ *
+ * Wiersz na PARĘ marka–miesiąc, a nie na markę: prowizje z różnych miesięcy
+ * trafiają na osobne faktury, więc zlewanie ich w jeden wiersz sugerowałoby
+ * jeden dokument tam, gdzie powstaną dwa.
+ */
 export type WierszDoZafakturowania = {
   brandId: string;
   companyName: string;
   nip: string | null;
+  rok: number;
+  miesiac: number;
+  /** Nazwa okresu do wyświetlenia, np. „sierpień 2026”. */
+  okres: string;
+  /** Czy miesiąc się zakończył — tylko wtedy wolno wystawić fakturę. */
+  zamkniety: boolean;
+  /** Kiedy faktura będzie dostępna; wypełnione tylko dla okresów otwartych. */
+  dostepnaOd: string | null;
   liczbaProwizji: number;
   prowizje: number;
   oplata: number;
@@ -438,13 +474,14 @@ export async function getBillingOverviewAction(
       select: { id: true, companyName: true, nip: true },
       orderBy: { companyName: "asc" },
     }),
+    /**
+     * Prowizje do zafakturowania z WSZYSTKICH okresów, nie tylko z wybranego
+     * w filtrze. Admin ma widzieć wszystko, co czeka na fakturę, bez
+     * przeklikiwania miesięcy — inaczej zaległy okres łatwo przeoczyć.
+     */
     prisma.commission.findMany({
-      where: {
-        status: CommissionStatus.APPROVED,
-        invoiceId: null,
-        createdAt: { gte: od, lte: doDaty },
-      },
-      select: { brandId: true, commissionAmount: true },
+      where: { status: CommissionStatus.APPROVED, invoiceId: null },
+      select: { brandId: true, commissionAmount: true, createdAt: true },
     }),
     prisma.invoice.findMany({
       where: { periodFrom: { gte: od }, periodTo: { lte: doDaty } },
@@ -495,30 +532,52 @@ export async function getBillingOverviewAction(
     };
   });
 
-  const sumy = new Map<string, { suma: number; liczba: number }>();
+  /**
+   * Grupowanie po parze marka–miesiąc. Miesiąc bierzemy ze strefy warszawskiej,
+   * tej samej, w której liczone są granice okresu — inaczej prowizja z przełomu
+   * trafiłaby do innego kubełka niż na fakturę.
+   */
+  const markaPoId = new Map(marki.map((m) => [m.id, m]));
+  const sumy = new Map<string, { suma: number; liczba: number; rok: number; miesiac: number }>();
+
   for (const p of prowizje) {
-    const biezace = sumy.get(p.brandId) ?? { suma: 0, liczba: 0 };
+    const { rok, miesiac } = biezacyOkres(p.createdAt);
+    const klucz = `${p.brandId}|${rok}-${miesiac}`;
+    const biezace = sumy.get(klucz) ?? { suma: 0, liczba: 0, rok, miesiac };
     biezace.suma += Number(p.commissionAmount);
     biezace.liczba += 1;
-    sumy.set(p.brandId, biezace);
+    sumy.set(klucz, biezace);
   }
 
-  const doZafakturowania: WierszDoZafakturowania[] = marki
-    .filter((m) => (sumy.get(m.id)?.liczba ?? 0) > 0)
-    .map((m) => {
-      const agregat = sumy.get(m.id)!;
+  const doZafakturowania: WierszDoZafakturowania[] = [...sumy.entries()]
+    .map(([klucz, agregat]) => {
+      const brandId = klucz.split("|")[0];
+      const marka = markaPoId.get(brandId);
       const { prowizje: kwota, oplata, netto } = rozbicieFaktury(agregat.suma);
+      const zamkniety = okresZamkniety(agregat.rok, agregat.miesiac);
+      const nastepny = pierwszyDzienPoOkresie(agregat.rok, agregat.miesiac);
       return {
-        brandId: m.id,
-        companyName: m.companyName,
-        nip: m.nip,
+        brandId,
+        companyName: marka?.companyName ?? "—",
+        nip: marka?.nip ?? null,
+        rok: agregat.rok,
+        miesiac: agregat.miesiac,
+        okres: `${nazwaMiesiaca(agregat.miesiac)} ${agregat.rok}`,
+        zamkniety,
+        dostepnaOd: zamkniety ? null : dataZDniem(1, nastepny.miesiac, nastepny.rok),
         liczbaProwizji: agregat.liczba,
         prowizje: kwota,
         oplata,
         netto,
         brutto: doGroszy(netto * 1.23),
       };
-    });
+    })
+    // najstarsze okresy pierwsze — te są najpilniejsze
+    .sort(
+      (a, b) =>
+        a.rok * 12 + a.miesiac - (b.rok * 12 + b.miesiac) ||
+        a.companyName.localeCompare(b.companyName, "pl"),
+    );
 
   return { success: true, data: { faktury: wierszeFaktur, doZafakturowania } };
 }
