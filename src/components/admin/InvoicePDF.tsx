@@ -4,7 +4,7 @@ import { registerPdfFonts } from "@/lib/pdf-fonts";
 
 registerPdfFonts();
 import type { InvoiceItem } from "@/types";
-import { NOTA_KLEINUNTERNEHMER } from "@/lib/site";
+import { NOTA_KLEINUNTERNEHMER, wystawcaZNiemiec } from "@/lib/site";
 
 const styles = StyleSheet.create({
   page: {
@@ -249,7 +249,9 @@ interface InvoiceData {
 
 export function InvoicePDF({ invoice }: { invoice: InvoiceData }) {
   const zwolnionyZVat = Number(invoice.vatRate) === 0;
-  const niemieckiWystawca = /deutschland|germany|niemcy|^de$/i.test(invoice.issuerCountry ?? "");
+  // ten sam rozpoznawacz co w akcji generującej — inaczej etykieta na PDF
+  // mogłaby mówić co innego niż reguła, która przepuściła fakturę bez NIP-u
+  const niemieckiWystawca = wystawcaZNiemiec(invoice.issuerCountry ?? "");
 
   return (
     <Document title={`Faktura ${invoice.invoiceNumber}`} author="Deneeu">
@@ -299,8 +301,16 @@ export function InvoicePDF({ invoice }: { invoice: InvoiceData }) {
           <View style={styles.partyBox}>
             <Text style={styles.partyTitle}>Buyer · Käufer</Text>
             <Text style={styles.partyName}>{invoice.brandCompanyName}</Text>
+            {/*
+              Przy wystawcy niemieckim numer nabywcy jest opcjonalny, a gdy jest
+              — bywa numerem VAT UE albo krajowym, więc etykieta wymienia oba.
+              Brak numeru nie wyświetla pustej sekcji: pusty wiersz „NIP:” na
+              fakturze wygląda jak brak danych, a nie jak ich zbędność.
+            */}
             {invoice.brandNip && (
-              <Text style={styles.partyDetail}>NIP: {invoice.brandNip}</Text>
+              <Text style={styles.partyDetail}>
+                {niemieckiWystawca ? "VAT ID / NIP" : "NIP"}: {invoice.brandNip}
+              </Text>
             )}
             {invoice.brandAddress && (
               <Text style={styles.partyDetail}>{invoice.brandAddress}</Text>

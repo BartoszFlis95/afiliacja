@@ -5,7 +5,7 @@ import { after } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getAppUrl, sendEmail } from "@/lib/resend";
-import { ISSUER, issuerSkonfigurowany } from "@/lib/site";
+import { ISSUER, issuerSkonfigurowany, wystawcaZNiemiec } from "@/lib/site";
 import { formatEmailAmount, formatEmailDate } from "@/emails/utils";
 import InvoiceEmail from "@/emails/InvoiceEmail";
 import { generateInvoiceNumber } from "@/lib/invoice-number";
@@ -89,7 +89,17 @@ export async function generateMonthlyInvoiceAction(
   });
   if (!brand) return { success: false, error: "Nie znaleziono marki." };
 
-  if (!brand.nip) {
+  /**
+   * NIP nabywcy jest wymagany tylko przy wystawcy polskim.
+   *
+   * Art. 106e ust. 1 pkt 5 ustawy o VAT nakazuje podać NIP nabywcy na fakturze
+   * wystawianej przez polskiego podatnika — bez niego dokument jest wadliwy
+   * i nabywca nie odliczy podatku. Niemiecki Kleinunternehmer nie nalicza
+   * podatku, więc nie ma czego odliczać, a numer nabywcy jest wtedy informacją
+   * pomocniczą: jeśli marka go poda, trafia na fakturę, jeśli nie — sekcja
+   * po prostu się nie pojawia.
+   */
+  if (!brand.nip && !wystawcaZNiemiec()) {
     return {
       success: false,
       error:
@@ -101,8 +111,8 @@ export async function generateMonthlyInvoiceAction(
     return {
       success: false,
       error:
-        "Brak danych wystawcy. Ustaw zmienne DENEEU_ISSUER_NAME, _NIP, " +
-        "_ADDRESS, _CITY i _POSTAL_CODE przed wystawianiem faktur.",
+        "Brak danych wystawcy. Ustaw DENEEU_ISSUER_NAME, _TAX_ID, _ADDRESS, " +
+        "_CITY, _POSTAL_CODE, _COUNTRY oraz numer rachunku przed wystawianiem faktur.",
     };
   }
 

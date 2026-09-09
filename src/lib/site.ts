@@ -63,6 +63,19 @@ export const ISSUER = {
   vatFree: process.env.DENEEU_ISSUER_VAT_FREE === "true",
 } as const;
 
+/**
+ * Czy wystawca działa w Niemczech.
+ *
+ * Przyjmuje kilka zapisów, bo ta sama wartość bywa wpisywana różnie —
+ * kanoniczny jest kod "DE", ale pełna nazwa trafia na fakturę i ktoś naturalnie
+ * wpisze ją w konfiguracji. Jedno miejsce rozstrzygania: bez tego porównanie
+ * === "DE" w akcji i wyrażenie w szablonie PDF rozeszłyby się przy pierwszej
+ * zmianie wartości.
+ */
+export function wystawcaZNiemiec(kraj: string = ISSUER.country): boolean {
+  return /^(de|deu|germany|deutschland|niemcy)$/i.test(kraj.trim());
+}
+
 /** Adres wystawcy w jednej linii: „ul. Prosta 51, 00-838 Warszawa, Germany”. */
 export function adresWystawcy(): string {
   return `${ISSUER.address}, ${ISSUER.postalCode} ${ISSUER.city}, ${ISSUER.country}`;

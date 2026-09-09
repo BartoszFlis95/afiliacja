@@ -157,3 +157,39 @@ describe("InvoicePDF — Kleinunternehmer (§ 19 UStG)", () => {
     expect(zBic.length).toBeGreaterThan(bezBic.length);
   });
 });
+
+describe("InvoicePDF — NIP nabywcy zależny od kraju wystawcy", () => {
+  const BAZA = {
+    ...(FAKTURA as object),
+    issuerCountry: "DE",
+    issuerBic: "COBADEFFXXX",
+    vatRate: 0,
+    vatAmount: 0,
+    netAmount: 1000,
+    grossAmount: 1000,
+  };
+
+  it("brak NIP-u nabywcy nie wywala generowania", async () => {
+    const buf = await renderToBuffer(
+      InvoicePDF({ invoice: { ...BAZA, brandNip: null } as never }) as never,
+    );
+    expect(buf.subarray(0, 5).toString()).toBe("%PDF-");
+  });
+
+  it("faktura bez NIP-u nabywcy jest krótsza — sekcja się nie renderuje", async () => {
+    const zNipem = await renderToBuffer(InvoicePDF({ invoice: BAZA as never }) as never);
+    const bezNipu = await renderToBuffer(
+      InvoicePDF({ invoice: { ...BAZA, brandNip: null } as never }) as never,
+    );
+    expect(bezNipu.length).toBeLessThan(zNipem.length);
+  });
+
+  it("etykieta różni się między wystawcą DE a PL", async () => {
+    // "VAT ID / NIP" kontra "NIP" — inna długość tekstu, inny rozmiar wydruku
+    const de = await renderToBuffer(InvoicePDF({ invoice: BAZA as never }) as never);
+    const pl = await renderToBuffer(
+      InvoicePDF({ invoice: { ...BAZA, issuerCountry: "PL" } as never }) as never,
+    );
+    expect(de.length).not.toBe(pl.length);
+  });
+});

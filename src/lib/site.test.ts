@@ -124,3 +124,21 @@ describe("Kleinunternehmer (§ 19 UStG)", () => {
     vi.resetModules();
   });
 });
+
+describe("rozpoznanie kraju wystawcy", () => {
+  it("przyjmuje kod i pełne nazwy", async () => {
+    const { wystawcaZNiemiec } = await import("./site");
+    for (const zapis of ["DE", "de", " De ", "Germany", "GERMANY", "Deutschland", "Niemcy"]) {
+      expect(wystawcaZNiemiec(zapis), zapis).toBe(true);
+    }
+  });
+
+  it("nie myli się z innymi krajami", async () => {
+    const { wystawcaZNiemiec } = await import("./site");
+    // "Denmark" i "Delaware" zaczynają się od „De” — dopasowanie po prefiksie
+    // uznałoby je za Niemcy
+    for (const zapis of ["PL", "Poland", "Polska", "Denmark", "Delaware", "Austria", ""]) {
+      expect(wystawcaZNiemiec(zapis), zapis).toBe(false);
+    }
+  });
+});
