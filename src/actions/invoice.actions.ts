@@ -293,7 +293,9 @@ async function odblokujWyplatyFaktury(invoiceId: string): Promise<void> {
 
   // PENDING -> PROCESSING tylko dla wypłat, o które influencer już wnioskował.
   // Brak wypłaty znaczy, że jeszcze nie wnioskował — wtedy nie ma czego
-  // odblokowywać, a requestPayoutAction przepuści go od razu.
+  // odblokowywać. Wypłata zlecona już PO zaksięgowaniu wpłaty powstaje od razu
+  // w PROCESSING (patrz requestPayoutAction), więc obie kolejności zdarzeń
+  // kończą się tym samym stanem.
   const doOdblokowania = prowizje
     .filter((p) => p.payout && p.payout.status === PayoutStatus.PENDING)
     .map((p) => p.payout!.id);

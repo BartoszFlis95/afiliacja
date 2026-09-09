@@ -208,16 +208,31 @@ export default function DocsPage() {
             <div className="mt-4">
               <CodeBlock
                 language="bash"
-                code={`curl -X POST https://www.deneeu.pl/api/conversion \\
+                code={`# Podpis liczymy z DOKLADNIE tego ciagu, ktory wysylamy jako body —
+# kazda roznica (spacja, kolejnosc pol) uniewaznia podpis.
+BODY='{"orderId":"zamowienie-123","amount":299.99,"ref":"id_influencera","email":"klient@example.com"}'
+SIGNATURE=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "TWOJ_WEBHOOK_SECRET" -hex | sed 's/^.* //')
+
+curl -X POST https://www.deneeu.pl/api/conversion \\
   -H "Content-Type: application/json" \\
   -H "x-api-key: TWOJ_API_KEY" \\
-  -d '{
-    "orderId": "zamowienie-123",
-    "amount": 299.99,
-    "ref": "id_influencera",
-    "email": "klient@example.com"
-  }'`}
+  -H "x-signature: $SIGNATURE" \\
+  -d "$BODY"`}
               />
+            </div>
+
+            <div className="mt-4 rounded-lg border border-warning/30 bg-warning/10 p-4">
+              <p className="text-sm font-semibold text-warning">
+                Nagłówek x-signature jest wymagany
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Żądanie bez podpisu zwraca <code className="font-mono">401</code>,
+                nawet przy prawidłowym kluczu API. Podpis to{" "}
+                <code className="font-mono">HMAC-SHA256</code> surowego ciała
+                żądania w zapisie szesnastkowym, liczony sekretem webhooka marki
+                (Ustawienia → Integracja). Gotowe przykłady w Node, PHP
+                i Pythonie znajdziesz w sekcji „Przykłady integracji”.
+              </p>
             </div>
             <p className="mt-4 text-base text-muted-foreground">
               W odpowiedzi otrzymasz potwierdzenie zarejestrowania konwersji

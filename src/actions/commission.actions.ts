@@ -382,6 +382,22 @@ export async function requestPayoutAction(
       error: "Wypłaty zostaną odblokowane po opłaceniu faktury przez markę.",
     };
   }
+
+  /**
+   * Stan początkowy wypłaty zależy od tego, czy środki już wpłynęły.
+   *
+   * Do tego miejsca dochodzimy wyłącznie z opłaconą fakturą (warunek wyżej),
+   * więc pieniądze na tę wypłatę są. PENDING znaczy „czeka na decyzję admina”,
+   * a tu nie ma czego rozstrzygać — zostaje wykonanie przelewu, czyli
+   * PROCESSING.
+   *
+   * Bez tego stan zależał od kolejności zdarzeń: wypłata zlecona PRZED
+   * zaksięgowaniem wpłaty przechodziła w PROCESSING automatycznie
+   * (odblokujWyplatyFaktury w invoice.actions), a zlecona PO — zostawała
+   * w PENDING i czekała na ręczne zatwierdzenie. Ta sama sytuacja, dwa różne
+   * stany, zależnie od tego, kto był pierwszy.
+   */
+  const stanPoczatkowy = PayoutStatus.PROCESSING;
   /**
    * Ponowienie po cofniętym transferze.
    *
@@ -424,13 +440,13 @@ export async function requestPayoutAction(
       // wypłata dziedziczy fakturę po prowizji, żeby odblokowanie po wpłacie
       // marki szło po jawnym powiązaniu, a nie po zakresie dat
       invoiceId: commission.invoiceId,
-      status: PayoutStatus.PENDING,
+      status: stanPoczatkowy,
     },
     update: {
       amount: commission.commissionAmount,
       bankAccount: account,
       invoiceId: commission.invoiceId,
-      status: PayoutStatus.PENDING,
+      status: stanPoczatkowy,
       // requestedAt przesuwa klucz idempotencji Stripe'a — bez tego ponowna
       // próba zwróciłaby poprzedni, cofnięty transfer.
       requestedAt: new Date(),
